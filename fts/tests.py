@@ -4,6 +4,14 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
 class ClonotypeTest(LiveServerTestCase):
+
+  # Setting up the functional tests
+  def setUp(self):
+    self.browser = webdriver.Firefox()
+    self.browser.implicitly_wait(3)
+  def tearDown(self):
+    self.browser.quit()
+
   def test_can_see_a_summary_of_the_repertoire_associated_with_a_sample(self):
     # Bob navigates to the sample homepage
     self.browser.get(self.live_server_url + '/samples/')
@@ -70,7 +78,7 @@ class SamplesTest(LiveServerTestCase):
 
     # He sees that he is on the browse all samples page
     body = self.browser.find_element_by_tag_name('body')
-    self.assertIn('Browse all Samples', body.text)
+    self.assertIn('T-cell Receptor Sequencing Samples', body.text)
 
     # He also sees three samples
     self.assertIn('Jim Harbaugh 2012-09-17 cd8-', body.text)

@@ -6,16 +6,20 @@
         <th>Name</th>
         <th>Gender</th>
         <th>Age</th>
+        <th>Disease</th>
         <th>Draw Date</th>
         <th>Cell Type</th>
+        <th>Summary</th>
       </tr>
       {% for sample in samples %}
         <tr>
           <td>{{ sample.patient.name }}</td>
           <td>{{ sample.patient.gender }}</td>
           <td>{{ sample.patient.birthday }}</td>
+          <td>{{ sample.patient.disease }}</td>
           <td>{{ sample.draw_date }}</td>
           <td>{{ sample.cell_type }}</td>
+          <td>summary link</td>
         </tr>
       {% endfor %}
     </table>

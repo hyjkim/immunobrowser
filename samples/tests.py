@@ -30,9 +30,15 @@ class SampleViewTest(TestCase):
     self.assertEqual(list(samples_in_context), list(all_samples))
 
     for sample in all_samples:
-      self.assertIn(unicode(sample), response.content)
+      self.assertIn(sample.patient.name, response.content)
+      self.assertIn(sample.patient.gender, response.content)
+      self.assertIn(sample.patient.disease, response.content)
+      #self.assertIn(sample.patient.age(), response.content)
+      #self.assertIn(sample.draw_date, response.content)
+      self.assertIn(sample.cell_type, response.content)
 
-    self.fail('TODO')
+    def test_samples_have_summary_links_that_redirect_to_clonotype_summary_page(self):
+      self.fail('TODO')
 
 class SampleModelTest(TestCase):
   def test_create_samples_for_a_patient(self):
