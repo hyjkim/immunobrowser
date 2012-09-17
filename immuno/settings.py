@@ -133,6 +133,7 @@ INSTALLED_APPS = (
 
     # Actual apps
     'patients',
+    'samples',
 )
 
 # A sample logging configuration. The only tangible logging
