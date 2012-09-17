@@ -2,6 +2,37 @@ from django.test import TestCase
 from samples.models import Sample
 from patients.models import Patient
 import datetime
+from datetime import date
+from flexmock import flexmock
+
+class SampleViewTest(TestCase):
+  def test_samples_url_shows_all_samples(self):
+    # make a patient
+    p = Patient(name="Test Patient")
+    p.save()
+    # set up some samples
+    sample1 = Sample(patient = p, draw_date='2011-11-11', cell_type='cd8+')
+    sample1.save()
+    sample2 = Sample(patient = p, draw_date='2011-11-11', cell_type='cd8-')
+    sample2.save()
+
+    # Retrieve all saved samples from the database
+    all_samples = Sample.objects.all()
+
+    # Get the samples page
+    response = self.client.get('/samples/')
+
+    # Make sure we're using the home view
+    self.assertTemplateUsed(response, 'home.html')
+
+    # Check we passed the samples to the template
+    samples_in_context = response.context['samples']
+    self.assertEqual(list(samples_in_context), list(all_samples))
+
+    for sample in all_samples:
+      self.assertIn(unicode(sample), response.content)
+
+    self.fail('TODO')
 
 class SampleModelTest(TestCase):
   def test_create_samples_for_a_patient(self):
@@ -46,4 +77,21 @@ class SampleModelTest(TestCase):
 
     # make sure the draw dates are equal
     self.assertTrue(all_samples[0].draw_date)
+
+#  @mock.patch('datetime.date', FakeDate)
+  def test_can_calculate_and_return_age(self):
+#    from datetime import date
+#    FakeDate.today = classmethod(lambda cls: date(2012, 1, 2))
+    self.fail('TODO')
+    mock = flexmock()
+    mock.should_receive("datetime.date.today()").and_return("date(2012,1,2)").once
+
+    self.assertEqual(date(2012,1,2), date.today())
+    # Set birthday to last year
+    p = Patient(birthday='2011-1-1')
+    p.save()
+
+    self.assertEquals(p.age, 1)
+
+
 

@@ -3,9 +3,56 @@ from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
+class ClonotypeTest(LiveServerTestCase):
+  def test_can_see_a_summary_of_the_repertoire_associated_with_a_sample(self):
+    # Bob navigates to the sample homepage
+    self.browser.get(self.live_server_url + '/samples/')
+    # He sees a sample from Christopher Walken that he would like to compare
+    # He clicks the "Summary" link
+    # He is redirected to the "Summary" page associated with that sample
+    # The page is rendered using the summary template
+
+    # He sees a pi chart showing the functionality of the repertoire
+
+    # He also sees a cdr3 distribution line plot
+
+    # He also sees a bubble chart of the repertoire
+
+    # At the bottom of the page, he finds a link that says "show all clonotypes"
+
+    # He clicks the link and sees that there are only 2 total clonotypes for this dataset
+
+    self.fail('TODO')
+
+
+
+
+  def test_can_compare_multiple_repertoires(self):
+    # Bob navigates to the sample homepage
+
+    # He sees two samples from Christopher Walken that he would like to compare
+
+    # He checks the checkboxes with the draw dates "2001-1-1" and "2001-1-31"
+
+    # Then he clicks the "compare" button
+
+    # He is redirected to the comparison page
+
+    # He sees a graph comparing the functionality of both repertoires
+
+    # He also sees a venn diagram showing the overlap between samples
+
+    # He can also see a list of shared CDR3 sequences
+
+    # He checks the first two shared CDR3 sequences and clicks the "Track usage" button
+
+    # He is redirected to a CDR3 usage page
+
+    # On this CDR3 usage page, he sees a line graph showing the relative usage between samples
+    self.fail('TODO')
 
 class SamplesTest(LiveServerTestCase):
-  fixtures = ['admin_user.json', 'patients.json']
+  fixtures = ['admin_user.json', 'patients.json','samples.json']
 
   # Setting up the functional tests
   def setUp(self):
@@ -15,9 +62,21 @@ class SamplesTest(LiveServerTestCase):
     self.browser.quit()
 
   def test_view_all_samples_from_sample_site(self):
+    # Bob wants to view all the samples on the site
+
+    # so he navigates his browser to the sample url
+    
     self.browser.get(self.live_server_url + '/samples/')
 
-    self.fail('TODO')
+    # He sees that he is on the browse all samples page
+    body = self.browser.find_element_by_tag_name('body')
+    self.assertIn('Browse all Samples', body.text)
+
+    # He also sees three samples
+    self.assertIn('Jim Harbaugh 2012-09-17 cd8-', body.text)
+    self.assertIn('Jim Harbaugh 2012-09-17 cd8+', body.text)
+    self.assertIn('Christopher Walken 2012-09-17 PBMC', body.text)
+
   
   def test_can_create_new_sample_via_admin_site(self):
     # Bob wants to add a sample to an existing patient
@@ -174,7 +233,3 @@ class PatientsTest(LiveServerTestCase):
 
     # Satisfied he has a beer
 
-
-class RepertoiresTest(LiveServerTestCase):
-  def DONTtest_can_create_new_repertoire_via_admin_site(self):
-    self.fail('TODO')
