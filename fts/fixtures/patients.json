@@ -1,12 +1,22 @@
 [
   {
-    "pk": 1, 
+    "pk": 2, 
     "model": "patients.patient", 
     "fields": {
       "gender": "M", 
       "birthday": "1963-12-23", 
       "name": "Jim Harbaugh", 
       "disease": "Freddy P. Soft Syndrome"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "patients.patient", 
+    "fields": {
+      "gender": "M", 
+      "birthday": "1943-03-31", 
+      "name": "Christopher Walken", 
+      "disease": "Fever"
     }
   }
 ]

@@ -3,6 +3,7 @@ from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
+
 class SamplesTest(LiveServerTestCase):
   fixtures = ['admin_user.json', 'patients.json']
 
@@ -13,6 +14,11 @@ class SamplesTest(LiveServerTestCase):
   def tearDown(self):
     self.browser.quit()
 
+  def test_view_all_samples_from_sample_site(self):
+    self.browser.get(self.live_server_url + '/samples/')
+
+    self.fail('TODO')
+  
   def test_can_create_new_sample_via_admin_site(self):
     # Bob wants to add a sample to an existing patient
 
@@ -49,9 +55,31 @@ class SamplesTest(LiveServerTestCase):
     samples_links = self.browser.find_elements_by_link_text('Samples')
     self.assertTrue(len(samples_links) > 0)
 
-    # He then adds a new sample
+    # He then clicks the second 'Samples' link
+    samples_links[1].click()
 
-    self.fail('TODO')
+    # He looks for the 'Add sample' button and clicks it
+    new_patient_link = self.browser.find_element_by_link_text('Add sample')
+    new_patient_link.click()
+
+    # He selects 'Jim Harbaugh' from the drop down menu
+    patients = self.browser.find_element_by_id('id_patient')
+    for option in patients.find_elements_by_tag_name('option'):
+      if option.text == "Jim Harbaugh":
+        option.click()
+
+    # He types the date of "2011-11-11" for the blood draw date
+    draw_date_field = self.browser.find_element_by_name('draw_date')
+    draw_date_field.send_keys('11/11/2011')
+
+    # Then he types in cd8+ for the cell type field
+    cell_type_field = self.browser.find_element_by_name('cell_type')
+    cell_type_field.send_keys('cd8+')
+    cell_type_field.send_keys(Keys.RETURN)
+
+    # He is returned to the samples page and sees "Jim Harbaugh 11/11/2011" as a clickable link
+    body = self.browser.find_element_by_tag_name('body')
+    self.assertIn("Jim Harbaugh 2011-11-11 cd8+", body.text)
 
 
 class PatientsTest(LiveServerTestCase):
@@ -134,11 +162,15 @@ class PatientsTest(LiveServerTestCase):
     # matches the information he entered
     new_patient_links[0].click()
 
-#    body = self.browser.find_element_by_tag_name('body')
-#    self.assertIn('Jim Harbaugh', body.text)
-#    self.assertIn('M', body.text)
-#    self.assertIn('Freddy P. Soft Syndrome', body.text)
-#    self.assertIn('12/23/1963', body.text)
+    name_field = self.browser.find_element_by_name('name')
+    gender_field = self.browser.find_element_by_name('gender')
+    disease_field = self.browser.find_element_by_name('disease')
+    birthday_field = self.browser.find_element_by_name('birthday')
+
+    self.assertEquals('Jim Harbaugh', name_field.get_attribute('value'))
+    self.assertEquals('M', gender_field.get_attribute('value'))
+    self.assertEquals('Freddy P. Soft Syndrome', disease_field.get_attribute('value'))
+    self.assertEquals('1963-12-23', birthday_field.get_attribute('value'))
 
     # Satisfied he has a beer
 
