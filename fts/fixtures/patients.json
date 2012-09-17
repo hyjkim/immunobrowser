@@ -1,0 +1,12 @@
+[
+  {
+    "pk": 1, 
+    "model": "patients.patient", 
+    "fields": {
+      "gender": "M", 
+      "birthday": "1963-12-23", 
+      "name": "Jim Harbaugh", 
+      "disease": "Freddy P. Soft Syndrome"
+    }
+  }
+]

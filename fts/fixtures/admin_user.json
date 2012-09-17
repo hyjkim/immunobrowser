@@ -1,0 +1,20 @@
+[
+  {
+    "pk": 1, 
+    "model": "auth.user", 
+    "fields": {
+      "username": "hyjkim", 
+      "first_name": "", 
+      "last_name": "", 
+      "is_active": true, 
+      "is_superuser": true, 
+      "is_staff": true, 
+      "last_login": "2012-09-14T19:56:43.361Z", 
+      "groups": [], 
+      "user_permissions": [], 
+      "password": "pbkdf2_sha256$10000$2HWipQ1XEPNr$dKSVkWuDSBf+lEyNz6f9lKGDwA8/WUCzBzDL13EZeYY=", 
+      "email": "hyjkim@soe.ucsc.edu", 
+      "date_joined": "2012-09-14T19:56:43.361Z"
+    }
+  }
+]
