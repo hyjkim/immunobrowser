@@ -1,0 +1,8 @@
+<html>
+  <body>
+    <h1>T-cell Receptor Summary</h1>
+    <h2>{{ sample.patient.name }}, {{ sample.patient.disease }}</h2>
+    <h3>{{ sample.draw_date }}, {{ sample.cell_type }}</h3>
+    <a href="{% url clonotypes.views.all sample.id %}">View all Clonotypes</a>
+  </body>
+</html>
