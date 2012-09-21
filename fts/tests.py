@@ -3,8 +3,9 @@ from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-class ClonotypeTest(LiveServerTestCase):
+class ClonotypeSummaryTest(LiveServerTestCase):
 
+  fixtures = ['admin_user.json', 'patients.json','samples.json']
   # Setting up the functional tests
   def setUp(self):
     self.browser = webdriver.Firefox()
@@ -12,24 +13,40 @@ class ClonotypeTest(LiveServerTestCase):
   def tearDown(self):
     self.browser.quit()
 
-  def test_can_see_a_summary_of_the_repertoire_associated_with_a_sample(self):
+  def test_navigate_to_the_repertoire_associated_with_a_sample(self):
     # Bob navigates to the sample homepage
-    self.browser.get(self.live_server_url + '/samples/')
+    self.browser.get(self.live_server_url + '/samples')
     # He sees a sample from Christopher Walken that he would like to compare
-    # He clicks the "Summary" link
+    # He clicks the "Summary" link of the first christopher walken entry
+    summary_link = self.browser.find_element_by_xpath("//table/tbody/tr/td[text()='Christopher Walken']/parent::tr/td/a")
+    summary_link.click()
+    
     # He is redirected to the "Summary" page associated with that sample
-    # The page is rendered using the summary template
+    body = self.browser.find_element_by_tag_name('body')
+    self.assertIn('T-cell Receptor Summary', body.text)
 
+  def test_can_view_all_clonotypes_from_summary_page(self):
+    # Bob is on the summary page for a sample
+    self.browser.get(self.live_server_url + '/samples/1')
+
+    # At the bottom of the page, he finds a link that says "show all clonotypes"
+    all_clonotype_link = self.browser.find_element_by_link_text('Show all clonotypes')
+    # He clicks the link and sees that there are only 2 total clonotypes for this dataset
+    all_clonotype_link.click()
+
+    clonotype_rows = self.browser.find_elements_by_xpath('//table/tbody/tr')
+    self.assertEquals(len(clonotype_rows),2)
+    
+
+
+    self.fail('TODO')
+  
+  def test_summary_figures_are_shown_on_summary_page(self):
     # He sees a pi chart showing the functionality of the repertoire
 
     # He also sees a cdr3 distribution line plot
 
     # He also sees a bubble chart of the repertoire
-
-    # At the bottom of the page, he finds a link that says "show all clonotypes"
-
-    # He clicks the link and sees that there are only 2 total clonotypes for this dataset
-
     self.fail('TODO')
 
 
@@ -81,9 +98,12 @@ class SamplesTest(LiveServerTestCase):
     self.assertIn('T-cell Receptor Sequencing Samples', body.text)
 
     # He also sees three samples
-    self.assertIn('Jim Harbaugh 2012-09-17 cd8-', body.text)
-    self.assertIn('Jim Harbaugh 2012-09-17 cd8+', body.text)
-    self.assertIn('Christopher Walken 2012-09-17 PBMC', body.text)
+    self.assertIn('Jim Harbaugh', body.text)
+    self.assertIn('Christopher Walken', body.text)
+    self.assertIn('Sept. 17, 2012', body.text)
+    self.assertIn('cd8-', body.text)
+    self.assertIn('cd8+', body.text)
+    self.assertIn('PBMC', body.text)
 
   
   def test_can_create_new_sample_via_admin_site(self):

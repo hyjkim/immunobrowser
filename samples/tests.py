@@ -4,8 +4,68 @@ from patients.models import Patient
 import datetime
 from datetime import date
 from flexmock import flexmock
+from django.core.urlresolvers import reverse
+
 
 class SampleViewTest(TestCase):
+  def test_clonotype_summary_contains_link_to_all_clonotypes(self):
+    # Make a fake patient and sample
+    p = Patient()
+    p.save()
+    s = Sample(patient = p)
+    s.save()
+
+    response = self.client.get('/samples/1')
+    all_clonotypes_url = reverse ('clonotypes.views.all', args=[s.id])
+    self.assertIn(all_clonotypes_url, response.content)
+
+  def test_clonotype_summary_receives_sample_id(self):
+    # Make a fake patient and sample
+    p = Patient()
+    p.save()
+    s = Sample(patient = p)
+    s.save()
+
+    response = self.client.get('/samples/1')
+    sample_in_context = response.context['sample']
+    self.assertEqual(sample_in_context.id, 1)
+
+  def test_clonotype_summary_renders_summary_template(self):
+    # Make a fake patient and sample
+    p = Patient()
+    p.save()
+    s = Sample(patient = p)
+    s.save()
+
+    response = self.client.get('/samples/1')
+    self.assertTemplateUsed(response, 'summary.html')
+
+  def test_clonotype_summary_passes_sample_to_template(self):
+    # Make a fake patient and sample
+    p = Patient()
+    p.save()
+    s = Sample(patient = p)
+    s.save()
+
+    response = self.client.get('/samples/1')
+    sample_in_context = response.context['sample']
+    self.assertEqual(sample_in_context, s)
+
+  def test_clonotype_summary_displays_patient_and_sample_information(self):
+    # Make a fake patient and sample
+    p = Patient(name='test patient', birthday='2011-11-11', disease='fake disease', gender='M')
+    p.save()
+    s = Sample(patient = p, draw_date='2012-12-12', cell_type='cd4+')
+    s.save()
+
+    response = self.client.get('/samples/1')
+    self.assertIn(p.name, response.content)
+    self.assertIn(p.disease, response.content)
+#    self.assertIn(s.draw_date, response.content)
+    self.assertIn("Dec. 12, 2012", response.content)
+    self.assertIn(s.cell_type, response.content)
+
+
   def test_samples_url_shows_all_samples(self):
     # make a patient
     p = Patient(name="Test Patient")
@@ -37,8 +97,27 @@ class SampleViewTest(TestCase):
       #self.assertIn(sample.draw_date, response.content)
       self.assertIn(sample.cell_type, response.content)
 
-    def test_samples_have_summary_links_that_redirect_to_clonotype_summary_page(self):
-      self.fail('TODO')
+  def test_samples_have_summary_links_that_redirect_to_clonotype_summary_page(self):
+    # make a patient
+    p = Patient(name="Test Patient")
+    p.save()
+    # set up some samples
+    sample1 = Sample(patient = p, draw_date='2011-11-11', cell_type='cd8+')
+    sample1.save()
+    sample2 = Sample(patient = p, draw_date='2011-11-11', cell_type='cd8-')
+    sample2.save()
+
+    # Retrieve all saved samples from the database
+    all_samples = Sample.objects.all()
+
+    # Get the samples page
+    response = self.client.get('/samples/')
+
+    # Try to find summary links
+    for sample in all_samples:
+      sample_url = reverse('samples.views.summary', args=[sample.id])
+      self.assertIn(sample_url, response.content)
+
 
 class SampleModelTest(TestCase):
   def test_create_samples_for_a_patient(self):
