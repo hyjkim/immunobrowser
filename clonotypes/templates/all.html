@@ -1,0 +1,38 @@
+<html>
+  <body>
+    <h1>All clonotypes for {{ sample.patient.name }}</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Sequence ID</th>
+          <th>Container</th>
+          <th>Nucleotide</th>
+          <th>Amino Acid</th>
+          <th>Normalized Frequency</th>
+          <th>V family</th>
+          <th>V gene</th>
+          <th>D gene</th>
+          <th>J gene</th>
+          <th>Sequence Status</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {% for clonotype in clonotypes %}
+        <tr>
+          <td>{{ clonotype.sequence_id }}</td>
+          <td>{{ clonotype.container }}</td>
+          <td>{{ clonotype.nucleotide }}</td>
+          <td>{{ clonotype.amino_acid }}</td>
+          <td>{{ clonotype.normalized_frequency }}</td>
+          <td>{{ clonotype.v_family_name }}</td>
+          <td>{{ clonotype.v_gene_name }}</td>
+          <td>{{ clonotype.d_gene_name }}</td>
+          <td>{{ clonotype.j_gene_name }}</td>
+          <td>{{ clonotype.sequence_status }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>

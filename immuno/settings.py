@@ -135,6 +135,7 @@ INSTALLED_APPS = (
     'patients',
     'samples',
     'clonotypes',
+    'utils',
 )
 
 # A sample logging configuration. The only tangible logging

@@ -3,8 +3,9 @@ from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-class ClonotypeSummaryTest(LiveServerTestCase):
 
+
+class ClonotypesTest(LiveServerTestCase):
   fixtures = ['admin_user.json', 'patients.json','samples.json']
   # Setting up the functional tests
   def setUp(self):
@@ -12,6 +13,30 @@ class ClonotypeSummaryTest(LiveServerTestCase):
     self.browser.implicitly_wait(3)
   def tearDown(self):
     self.browser.quit()
+
+  def test_can_add_clonotypes_from_tsv_file_from_admin_site(self):
+    # Bob wants to import a Tab-delimited file from adaptive
+    # He nagivates to the admin site
+    self.browser.get(self.live_server_url + '/admin/')
+    # He logs in with his username and credentials
+    body = self.browser.find_element_by_tag_name('body')
+    self.assertIn('Django administration', body.text)
+
+    username_field = self.browser.find_element_by_name('username')
+    username_field.send_keys('hyjkim')
+
+    password_field = self.browser.find_element_by_name('password')
+    password_field.send_keys('adm1n')
+    password_field.send_keys(Keys.RETURN)
+
+    # He now sees a couple of hyperlink that says "Clonotypes"
+    clonotypes_links = self.browser.find_elements_by_link_text('Clonotypes')
+    clonotypes_links[1].click()
+
+    # He looks for the 'Import' button and clicks it
+    new_patient_link = self.browser.find_element_by_link_text('Import')
+
+    self.fail('TODO')
 
   def test_navigate_to_the_repertoire_associated_with_a_sample(self):
     # Bob navigates to the sample homepage
@@ -30,14 +55,22 @@ class ClonotypeSummaryTest(LiveServerTestCase):
     self.browser.get(self.live_server_url + '/samples/1')
 
     # At the bottom of the page, he finds a link that says "show all clonotypes"
-    all_clonotype_link = self.browser.find_element_by_link_text('Show all clonotypes')
+    all_clonotype_link = self.browser.find_element_by_link_text('View all Clonotypes')
     # He clicks the link and sees that there are only 2 total clonotypes for this dataset
     all_clonotype_link.click()
 
     clonotype_rows = self.browser.find_elements_by_xpath('//table/tbody/tr')
     self.assertEquals(len(clonotype_rows),2)
-    
 
+    self.fail('TODO')
+
+  def test_clonotypes_all_view_shows_pages_of_clonotypes(self):
+
+    # Bob is on the all clonotypes view for sample 1
+
+    # He sees he is on page one of the clonotypes view
+
+    # He clicks on page 2 and sees more clonotypes
 
     self.fail('TODO')
   
