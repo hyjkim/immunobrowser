@@ -47,7 +47,9 @@ class Clonotype(models.Model):
       else:
         clonotype = {}
         clonotype = dict(zip(headers, row))
-        print clonotype
+#        print clonotype
+        if(clonotype['normalized_frequency'] == ''):
+          raise Exception('Normalized_frequency cannot be null')
         clonotype_list.append(Clonotype(sample=sample, **clonotype))
 
         #content[row[0]] = dict(zip(headers, row[1:]))

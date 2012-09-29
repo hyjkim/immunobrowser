@@ -2,9 +2,10 @@ from django.test import TestCase
 from patients.models import Patient
 from samples.models import Sample
 from clonotypes.models import Clonotype
+from django.core.urlresolvers import reverse
 
 def make_fake_patient():
-  p = Patient()
+  p = Patient(name = 'test patient',)
   p.save()
   s = Sample(patient = p)
   s.save()
@@ -45,22 +46,30 @@ def make_fake_patient():
 class ClonotypesViewTest(TestCase):
   def test_clonotypes_views_all_renders_all_template(self):
     make_fake_patient()
-    response = self.client.get('/samples/1/clonotypes/')
-    self.assertTemplateUsed(response, 'all.html')
+    fake_sample = Sample.objects.get()
+    response = self.client.get(reverse ('samples.views.summary', args=[fake_sample.id]))
+    self.assertTemplateUsed(response, 'summary.html')
 
-  def test_clonotypes_all_view_shows_all_template(self):
+  def test_clonotypes_all_view_shows_summary_template(self):
     make_fake_patient()
-    response = self.client.get('/samples/1/clonotypes/')
-    self.assertIn('C0FW0ACXX_1_Patient-15-D_1', response.content)
+    fake_sample = Sample.objects.get()
+    response = self.client.get(reverse ('samples.views.summary', args=[fake_sample.id]))
+
+    self.assertIn('test patient', response.content)
 
   def test_clonotypes_all_view_passes_clonotypes_to_template(self):
     make_fake_patient()
-    response = self.client.get('/samples/1/clonotypes')
-    sample_in_context = response.context['clonotypes']
+    fake_sample = Sample.objects.get()
+    fake_clonotypes = Clonotype.objects.filter(id=fake_sample.id)
+    response = self.client.get(reverse ('samples.views.summary', args=[fake_sample.id]))
+    clonotypes_in_context = response.context['clonotypes']
+    self.assertEqual(clonotypes_in_context, fake_clonotypes)
 
   def test_clonotypes_all_view_passes_sample_to_template(self):
     make_fake_patient()
-    response = self.client.get('/samples/1/clonotypes')
+    fake_sample = Sample.objects.get()
+    response = self.client.get(reverse ('samples.views.summary', args=[fake_sample.id]))
     sample_in_context = response.context['sample']
+    self.assertEqual(sample_in_context, fake_sample)
 
 

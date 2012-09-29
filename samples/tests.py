@@ -8,6 +8,18 @@ from django.core.urlresolvers import reverse
 
 
 class SampleViewTest(TestCase):
+  def test_creating_a_sample_generates_a_new_sample_in_database(self):
+    # Make a fake patient and sample
+    p = Patient()
+    p.save()
+    s = Sample(patient = p)
+    s.save()
+
+    all_samples = Sample.objects.all()
+    self.assertEquals(len(all_samples), 1)
+    self.assertEquals(all_samples[0].id, s.id)
+
+
   def test_clonotype_summary_contains_link_to_all_clonotypes(self):
     # Make a fake patient and sample
     p = Patient()
@@ -15,7 +27,7 @@ class SampleViewTest(TestCase):
     s = Sample(patient = p)
     s.save()
 
-    response = self.client.get('/samples/1')
+    response = self.client.get(reverse ('samples.views.summary', args=[s.id]))
     all_clonotypes_url = reverse ('clonotypes.views.all', args=[s.id])
     self.assertIn(all_clonotypes_url, response.content)
 
@@ -26,9 +38,10 @@ class SampleViewTest(TestCase):
     s = Sample(patient = p)
     s.save()
 
-    response = self.client.get('/samples/1')
+    #response = self.client.get('/samples/1')
+    response = self.client.get(reverse ('samples.views.summary', args=[s.id]))
     sample_in_context = response.context['sample']
-    self.assertEqual(sample_in_context.id, 1)
+    self.assertEqual(sample_in_context.id, s.id)
 
   def test_clonotype_summary_renders_summary_template(self):
     # Make a fake patient and sample
@@ -37,7 +50,8 @@ class SampleViewTest(TestCase):
     s = Sample(patient = p)
     s.save()
 
-    response = self.client.get('/samples/1')
+    #response = self.client.get('/samples/1')
+    response = self.client.get(reverse ('samples.views.summary', args=[s.id]))
     self.assertTemplateUsed(response, 'summary.html')
 
   def test_clonotype_summary_passes_sample_to_template(self):
@@ -47,7 +61,8 @@ class SampleViewTest(TestCase):
     s = Sample(patient = p)
     s.save()
 
-    response = self.client.get('/samples/1')
+    #response = self.client.get('/samples/1')
+    response = self.client.get(reverse ('samples.views.summary', args=[s.id]))
     sample_in_context = response.context['sample']
     self.assertEqual(sample_in_context, s)
 
@@ -58,7 +73,9 @@ class SampleViewTest(TestCase):
     s = Sample(patient = p, draw_date='2012-12-12', cell_type='cd4+')
     s.save()
 
-    response = self.client.get('/samples/1')
+    #response = self.client.get('/samples/1')
+
+    response = self.client.get(reverse ('samples.views.summary', args=[s.id]))
     self.assertIn(p.name, response.content)
     self.assertIn(p.disease, response.content)
 #    self.assertIn(s.draw_date, response.content)

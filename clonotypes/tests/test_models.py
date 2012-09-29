@@ -14,8 +14,7 @@ class ClonotypeModelTest(TestCase):
    # Model can read in a file
     Clonotype.import_tsv(s, 'clonotypes/tests/data/test_adaptive.tsv')
     all_clonotypes = Clonotype.objects.all()
-    self.assertEquals(len(all_clonotypes), 99)
-    self.fail('TODO')
+    self.assertEquals(len(all_clonotypes), 100)
 
   def test_bulk_insert_should_throw_error_if_file_does_not_exist(self):
     p = Patient()
