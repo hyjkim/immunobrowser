@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <script src="https://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript">
+      google.load('visualization', '1', {packages: ['corechart']});
+    </script>
+
+    <script type="text/javascript">
+      function drawProductivityStats() {
+        // Create and populate the data table.
+        var data = google.visualization.arrayToDataTable({{ productivity_stats }});
+      
+        // Create and draw the visualization.
+        new google.visualization.PieChart(document.getElementById('productivity_stats_pie_chart_div')).
+            draw(data, {title:"So, how was your day?"});
+      }
+      
+      function drawCdr3Graph() {
+        var data = new google.visualization.arrayToDataTable({{ cdr3_length_hist }});
+        var options = {
+          title: "CDR3 Length Distribution",
+          hAxis: {title: 'CDR3 Length (Nucleotides)'},
+          vAxis: {title: 'Counts'},
+          legend: {position: 'none'},
+          curveType: "none",
+          width: 400, height: 300
+        }
+        new google.visualization.LineChart(document.getElementById('cdr3_graph_div')).draw(data, options);
+      }
+
+      google.setOnLoadCallback(drawProductivityStats);
+      google.setOnLoadCallback(drawCdr3Graph);
+    </script>
+  </head>
+  <body>
+    <h1>T-cell Receptor Summary</h1>
+    <h2>{{ sample.patient.name }}, {{ sample.patient.disease }}</h2>
+    <h3>{{ sample.draw_date }}, {{ sample.cell_type }}</h3>
+    <form method="GET" action="">
+      {{form.as_p}}
+      <input type="submit" />
+    </form>
+    
+    <div id="productivity_stats_pie_chart_div"></div>
+    <div id="cdr3_graph_div"></div>
+
+    {# <a href="{% url clonotypes.views.all sample.id %}">View all Clonotypes</a> #}
+  </body>
+</html>
