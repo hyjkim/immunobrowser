@@ -43,7 +43,7 @@ def FakeRequestFactory(*args, **kwargs):
         request.POST = kwargs.get('POST')
     else:
         request.method = 'GET'
-        request.POST = kwargs.get('GET', {})
+        request.GET = kwargs.get('GET', {})
 
     return request
 

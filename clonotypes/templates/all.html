@@ -14,6 +14,7 @@
           <th>D gene</th>
           <th>J gene</th>
           <th>Sequence Status</th>
+          <th>Details</td>
 
         </tr>
       </thead>
@@ -30,9 +31,26 @@
           <td>{{ clonotype.d_gene_name }}</td>
           <td>{{ clonotype.j_gene_name }}</td>
           <td>{{ clonotype.sequence_status }}</td>
+          <td><a href="{% url clonotypes.views.detail clonotype.id %}">More
+              Info</a></td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
+<div class="pagination">
+    <span class="step-links">
+        {% if clonotypes.has_previous %}
+            <a href="?page={{ clonotypes.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ clonotypes.number }} of {{ clonotypes.paginator.num_pages }}.
+        </span>
+
+        {% if clonotypes.has_next %}
+            <a href="?page={{ clonotypes.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
   </body>
 </html>
