@@ -16,5 +16,6 @@ urlpatterns = patterns('',
      url(r'^admin/', include(admin.site.urls)),
      url(r'^samples/(\d+)/?$', 'samples.views.summary'),
      url(r'^samples/(\d+)/clonotypes/?$', 'clonotypes.views.all'),
+     url(r'^samples/(\d+)/pagination/?$', 'clonotypes.views.pagination'),
      url(r'^samples/', 'samples.views.home'),
 )

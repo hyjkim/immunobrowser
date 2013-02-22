@@ -1,0 +1,20 @@
+{% for clonotype in clonotypes %}
+    {{ clonotypes.sequence_id }}<br />
+    ...
+{% endfor %}
+
+<div class="pagination">
+    <span class="step-links">
+        {% if clonotypes.has_previous %}
+            <a href="?page={{ clonotypes.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ clonotypes.number }} of {{ clonotypes.paginator.num_pages }}.
+        </span>
+
+        {% if clonotypes.has_next %}
+            <a href="?page={{ clonotypes.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>

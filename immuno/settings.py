@@ -1,10 +1,12 @@
 import os
+import sys
 # Django settings for immuno project.
 
 # These lines added to make the sniffer autotesting tool work
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
 SQLITE_3 = os.path.join(PROJECT_PATH, 'database.sqlite')
-ROOTDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
+ROOTDIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), os.path.pardir))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -17,7 +19,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'immunodb',                      # Or path to database file if using sqlite3.
         'USER': 'immunobrowser',                      # Not used with sqlite3.
         'PASSWORD': 'ucsc',                  # Not used with sqlite3.
@@ -80,7 +82,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -90,7 +92,7 @@ SECRET_KEY = 'h2q09^#hxkh)@y3&amp;olk%2sfffy5-#kov2=npp&amp;jly+%ww^n83y'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    #     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -128,8 +130,11 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 
+    ## Testing utilities
     # Functional tests
     'fts',
+    # General shared utils for all tests
+    'test_utils',
 
     # Actual apps
     'patients',
@@ -166,3 +171,13 @@ LOGGING = {
         },
     }
 }
+
+
+# Modifying variables for running tests
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory',
+        },
+    }
