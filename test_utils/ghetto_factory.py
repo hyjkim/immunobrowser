@@ -2,8 +2,8 @@ from patients.models import Patient
 from samples.models import Sample
 from clonotypes.models import Clonotype
 
-# These functions should eventually be replaced by factories
 
+# These functions should eventually be replaced by factories
 def make_fake_patient():
     p = Patient(name='test patient', birthday='2011-11-11',
                 disease='fake disease', gender='M')
@@ -58,11 +58,11 @@ def make_fake_patient_with_2_clonotypes():
         raw_frequency=1.6548345E-5,
         copy=1,
         cdr3_length=39,
-        v_family_name=7,
+        v_family_name=8,
         v_gene_name='(undefined)',
-        v_ties='TRBV7-9',
+        v_ties='',
         d_gene_name='TRBD1-2',
-        j_gene_name='TRBJ2-5',
+        j_gene_name='TRBJ2-4',
         j_ties='',
         v_deletion=1,
         d5_deletion=4,
@@ -94,7 +94,7 @@ def make_fake_patient_with_3_clonotypes():
         raw_frequency=1.6548345E-5,
         copy=1,
         cdr3_length=36,
-        v_family_name=7,
+        v_family_name=9,
         v_gene_name='(undefined)',
         v_ties='TRBV7-9',
         d_gene_name='TRBD1-2',

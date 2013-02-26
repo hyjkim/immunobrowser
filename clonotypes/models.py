@@ -56,3 +56,41 @@ class Clonotype(models.Model):
 
                 #content[row[0]] = dict(zip(headers, row[1:]))
         Clonotype.objects.bulk_create(clonotype_list)
+
+    @staticmethod
+    def v_family_names():
+        return list(Clonotype.objects.values_list('v_family_name', flat=True).distinct())
+
+    @staticmethod
+    def j_gene_names():
+        return list(Clonotype.objects.values_list('j_gene_name', flat=True).distinct())
+
+
+class ClonoFilter(models.Model):
+    sample = models.ForeignKey(Sample)
+    min_copy = models.IntegerField(null=True)
+
+    def get_clonotypes(self):
+        ''' Takes in a clonofilter object and returns a queryset '''
+        return Clonotype.objects.filter(sample=self.sample,
+                                        copy__gte=self.min_copy,
+                                        )
+
+    def vj_counts(self):
+        from django.db.models import Sum
+        ''' Takes in a clonofilter and returns a nested list of v_family_name
+        index in v_family_names, j_gene_name index in j_gene_names
+        and sum of copy '''
+        filtered_query_set = self.get_clonotypes()
+        vj_pairs = filtered_query_set.values('v_family_name', 'j_gene_name').annotate(Sum('copy'))
+        v_family_names = Clonotype.v_family_names()
+        j_gene_names = Clonotype.j_gene_names()
+
+        returnable = [([0] * len(j_gene_names)) for i in range(len(v_family_names))]
+
+        for sum_dict in vj_pairs:
+            v_index = v_family_names.index(sum_dict['v_family_name'])
+            j_index = j_gene_names.index(sum_dict['j_gene_name'])
+            returnable[v_index][j_index] = sum_dict['copy__sum']
+
+        return returnable

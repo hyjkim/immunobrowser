@@ -14,9 +14,11 @@ urlpatterns = patterns('',
 
                        # Uncomment the next line to enable the admin:
                        url(r'^admin/', include(admin.site.urls)),
+                       url(r'^samples/(\d+)/bubble.png', 'clonotypes.views.bubble_default'),
                        url(r'^samples/(\d+)/?$', 'samples.views.summary'),
                        url(r'^samples/(\d+)/clonotypes/?$',
                            'clonotypes.views.all'),
                        url(r'^clonotype/(\d+)$$', 'clonotypes.views.detail'),
                        url(r'^samples/', 'samples.views.home'),
+                       url(r'^clonotypes/simple.png', 'clonotypes.views.simple'),
                        )

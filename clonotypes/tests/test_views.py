@@ -1,11 +1,11 @@
 from django.test import TestCase
 #from patients.models import Patient
 from samples.models import Sample
-from clonotypes.models import Clonotype
+from clonotypes.models import Clonotype, ClonoFilter
 from django.core.urlresolvers import reverse
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
-from mock import MagicMock, patch
-from clonotypes.views import all, detail
+from mock import MagicMock, patch, call
+from clonotypes.views import all, detail, bubble, bubble_default
 from test_utils.factories import render_echo, FakeRequestFactory
 
 
@@ -142,4 +142,75 @@ class ClonotypesDetailViewTest(TestCase):
         c = Context({'clonotype': self.clonotype})
         t.render(c)
         self.assertEqual(c['clonotype'], self.clonotype)
+
+
+def bubble_patch(request, clonofilter):
+    return (request, clonofilter)
+
+
+class ClonotypesImagesTest(TestCase):
+    ''' For testing creation of images '''
+
+    def setUp(self):
+        self.renderPatch = patch('clonotypes.views.render', render_echo)
+        self.renderPatch.start()
+        self.request = FakeRequestFactory()
+        make_fake_patient_with_3_clonotypes()
+
+    def test_bubble_receives_rdata_from_clonotypes_model_(self):
         pass
+
+    @patch('matplotlib.backends.backend_agg.FigureCanvasAgg.print_png')
+    @patch('matplotlib.backends.backend_agg.FigureCanvasAgg')
+    def test_bubble_prints_png_to_reponse(self, mock_canvas, mock_png):
+        bubble(self.request, MagicMock())
+#        self.assertTrue(mock_canvas.print_png.called)
+# This is not the right way to test this
+        self.assertTrue(mock_canvas.mock_calls[1].called)
+
+    @patch('matplotlib.backends.backend_agg.FigureCanvasAgg.print_png')
+    @patch('matplotlib.backends.backend_agg.FigureCanvasAgg')
+    def test_bubble_creates_a_new_canvas(self, mock_canvas, mock_png):
+        bubble(self.request, MagicMock())
+        self.assertTrue(mock_canvas.called)
+
+    @patch('matplotlib.backends.backend_agg.FigureCanvasAgg.print_png')
+    @patch('matplotlib.figure.Figure')
+    def test_bubble_makes_a_subplot(self, mock_canvas, mock_png):
+        bubble(self.request, MagicMock())
+        self.assertIn("add_subplot()",
+                      str(mock_canvas.mock_calls))
+
+    @patch('matplotlib.backends.backend_agg.FigureCanvasAgg.print_png')
+    @patch('matplotlib.figure.Figure')
+    def test_bubble_makes_a_figure(self, mock_figure, mock_canvas):
+        bubble(self.request, MagicMock())
+        self.assertTrue(mock_figure.called)
+
+    def test_bubble_default_png_is_open_to_world(self):
+        s = Sample.objects.get()
+        response = self.client.get(
+            reverse('clonotypes.views.bubble_default', args=[s.id]))
+        self.assertEqual('image/png', response['content-type'])
+
+    def test_bubble_default_png_uses_an_empty_filter(self):
+        s = Sample.objects.get()
+        with patch('clonotypes.views.bubble', bubble_patch):
+            (request, clonofilter) = bubble_default(self.request, s.id)
+            self.assertEqual(ClonoFilter(), clonofilter)
+
+    def test_bubble_default_creates_a_filter_with_sample(self):
+        s = Sample.objects.get()
+        with patch('clonotypes.views.bubble', bubble_patch):
+            (request, clonofilter) = bubble_default(self.request, s.id)
+            self.assertEqual(s, clonofilter.sample)
+
+    def test_bubble_returns_a_png(self):
+        s = Sample.objects.get()
+        clonofilter = ClonoFilter(sample=s)
+        response = bubble(self.request, clonofilter)
+        self.assertEqual('image/png', response['content-type'])
+
+    def test_bubble_takes_in_clonotype_queryset_as_arguement(self):
+        mock_response = bubble(self.request, MagicMock())
+        self.assertEqual('image/png', mock_response['content-type'])
