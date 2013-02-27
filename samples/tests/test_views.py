@@ -5,6 +5,7 @@ from samples.models import Sample
 from patients.models import Patient
 
 class SampleViewTest(TestCase):
+    ''' Integration tests '''
     def setUp(self):
         make_fake_patient()
         self.s = Sample.objects.get()
@@ -45,6 +46,16 @@ class SampleViewTest(TestCase):
         self.assertIn(self.p.disease, response.content)
         self.assertIn("Dec. 12, 2012", response.content)
         self.assertIn(self.s.cell_type, response.content)
+
+    def test_clonotype_summary_displays_bubble_default_plot(self):
+        response = self.client.get(
+            reverse('samples.views.summary', args=[self.s.id]))
+        self.assertIn(reverse('clonotypes.views.bubble_default', args=[self.s.id]), response.content)
+
+    def test_clonotype_summary_displays_spectratype_default_plot(self):
+        response = self.client.get(
+            reverse('samples.views.summary', args=[self.s.id]))
+        self.assertIn(reverse('clonotypes.views.spectratype_default', args=[self.s.id]), response.content)
 
     def test_samples_url_shows_all_samples(self):
         # Retrieve all saved samples from the database

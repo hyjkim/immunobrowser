@@ -88,49 +88,87 @@ from clonotypes.models import ClonoFilter
 
 
 class ClonoFilterModelTest(TestCase):
+    def setUp(self):
+        make_fake_patient_with_3_clonotypes()
+        self.s = Sample.objects.get()
+        self.f = ClonoFilter(sample=self.s)
 
     def test_clonofilter_get_clonotypes_should_not_filter_on_a_parameter_if_it_is_not_included(self):
-        self.fail('Todo this')
+        try:
+            self.f.get_clonotypes()
+        except ValueError:
+            self.fail('clonofilter.get_clonotypes should not fail if sample exists but no other filtering attributes are given')
 
     def test_clonofilter_filters_on_min_copy(self):
-        make_fake_patient_with_3_clonotypes()
-        s = Sample.objects.get()
-        f = ClonoFilter(sample=s, min_copy=2)
         min_clonotypes = Clonotype.objects.filter(copy__gte=2)
+        self.f.min_copy = 2
         self.assertQuerysetEqual(min_clonotypes,
-                                 map(repr, f.get_clonotypes()))
+                                 map(repr, self.f.get_clonotypes()))
 
     def test_clonofilter_has_min_copy(self):
-        f = ClonoFilter()
-        f.min_copy = 0
-        self.assertEqual(0, f.min_copy)
+        self.f.min_copy = 0
+        self.assertEqual(0, self.f.min_copy)
 
     def test_clonofilter_has_sample(self):
-        make_fake_patient()
-        s = Sample.objects.get()
         tmp = ClonoFilter()
-        tmp.sample = s
+        tmp.sample = self.s
         tmp.save()
 
         f = ClonoFilter.objects.get()
-        self.assertEqual(s, f.sample)
+        self.assertEqual(self.s, self.f.sample)
 
     def test_vj_counts_returns_an_empty_2d_list_with_dimensions_len_vfam_by_jgene(self):
-#        from collections import defaultdict
-        make_fake_patient_with_3_clonotypes()
-        s = Sample.objects.get()
-        f = ClonoFilter(sample=s, min_copy=4)
         v_family_names = Clonotype.v_family_names()
         j_gene_names = Clonotype.j_gene_names()
-        vj_counts = f.vj_counts()
+        vj_counts = self.f.vj_counts()
         self.assertEqual(len(v_family_names), len(vj_counts))
         self.assertEqual(len(j_gene_names), len(vj_counts[0]))
 
     def test_vj_counts_returns_a_2d_list_of_v_j_and_sum_of_copies(self):
 #        from collections import defaultdict
-        make_fake_patient_with_3_clonotypes()
-        s = Sample.objects.get()
-        f = ClonoFilter(sample=s, min_copy=0)
-        vj_counts = f.vj_counts()
+        vj_counts = self.f.vj_counts()
         self.assertIsInstance(vj_counts[0], list)
         self.assertEqual(['[2, 0]', '[0, 1]', '[1, 0]'], map(repr, vj_counts))
+
+    def test_cdr3_length_sum_returns_a_list(self):
+        sums = self.f.cdr3_length_sum()
+        self.assertIsInstance(sums, list)
+
+    def test_cdr3_length_sum_returns_a_nested_list_of_cdr3_lengths_and_their_counts(self):
+        hist = self.f.cdr3_length_sum()
+        self.assertEqual([[36, 1], [39, 1], [42, 2]], hist)
+
+    # This method should really use a clonotype factory...
+    def test_cdr3_length_sum_should_sort_output_by_cdr3_length(self):
+        Clonotype(
+            sample=self.s,
+            sequence_id='C0FW0ACXX_1_Patient-15-D_1',
+            container='UCSC-Kim-P01-01',
+            nucleotide='GGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA',
+            amino_acid='',
+            normalized_frequency=9.336458E-6,
+            normalized_copy=1,
+            raw_frequency=1.6548345E-5,
+            copy=10,
+            cdr3_length=10,
+            v_family_name=9,
+            v_gene_name='(undefined)',
+            v_ties='TRBV7-9',
+            d_gene_name='TRBD1-2',
+            j_gene_name='TRBJ2-5',
+            j_ties='',
+            v_deletion=1,
+            d5_deletion=4,
+            d3_deletion=7,
+            j_deletion=3,
+            n2_insertion=5,
+            n1_insertion=5,
+            sequence_status='Out of frame',
+            v_index=19,
+            n1_index=45,
+            n2_index=35,
+            d_index=40,
+            j_index=50,
+        ).save()
+        self.assertEqual(
+            [[10, 10], [36, 1], [39, 1], [42, 2]], self.f.cdr3_length_sum())

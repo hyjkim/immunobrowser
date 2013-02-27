@@ -5,7 +5,7 @@ from clonotypes.models import Clonotype, ClonoFilter
 from django.core.urlresolvers import reverse
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
 from mock import MagicMock, patch, call
-from clonotypes.views import all, detail, bubble, bubble_default
+from clonotypes.views import all, detail, bubble, bubble_default, spectratype
 from test_utils.factories import render_echo, FakeRequestFactory
 
 
@@ -157,9 +157,6 @@ class ClonotypesImagesTest(TestCase):
         self.request = FakeRequestFactory()
         make_fake_patient_with_3_clonotypes()
 
-    def test_bubble_receives_rdata_from_clonotypes_model_(self):
-        pass
-
     @patch('matplotlib.backends.backend_agg.FigureCanvasAgg.print_png')
     @patch('matplotlib.backends.backend_agg.FigureCanvasAgg')
     def test_bubble_prints_png_to_reponse(self, mock_canvas, mock_png):
@@ -214,3 +211,14 @@ class ClonotypesImagesTest(TestCase):
     def test_bubble_takes_in_clonotype_queryset_as_arguement(self):
         mock_response = bubble(self.request, MagicMock())
         self.assertEqual('image/png', mock_response['content-type'])
+
+    def test_spectratype_returns_a_png(self):
+        s = Sample.objects.get()
+        clonofilter = ClonoFilter(sample=s)
+        response = spectratype(self.request, clonofilter)
+        self.assertEqual('image/png', response['content-type'])
+
+    def test_spectratype_default_url_resolves_and_returns_a_png(self):
+        s = Sample.objects.get()
+        response = self.client.get(reverse('clonotypes.views.spectratype_default', args=[s.id]))
+        self.assertEqual('image/png', response['content-type'])

@@ -39,6 +39,7 @@ class Clonotype(models.Model):
     @staticmethod
     def import_tsv(sample, filename):
         headers = None
+        num_to_insert = 100
         clonotype_list = []
         reader = csv.reader(open(filename, 'r'), delimiter="\t")
 
@@ -53,6 +54,10 @@ class Clonotype(models.Model):
                 if(clonotype['normalized_frequency'] == ''):
                     raise Exception('Normalized_frequency cannot be null')
                 clonotype_list.append(Clonotype(sample=sample, **clonotype))
+                if len(clonotype_list) > num_to_insert:
+                    Clonotype.objects.bulk_create(clonotype_list)
+                    clonotype_list = []
+
 
                 #content[row[0]] = dict(zip(headers, row[1:]))
         Clonotype.objects.bulk_create(clonotype_list)
@@ -72,9 +77,20 @@ class ClonoFilter(models.Model):
 
     def get_clonotypes(self):
         ''' Takes in a clonofilter object and returns a queryset '''
-        return Clonotype.objects.filter(sample=self.sample,
-                                        copy__gte=self.min_copy,
-                                        )
+        from django.db.models import Q
+
+        # first add the sample id to the query
+        query = Q(sample=self.sample)
+
+        queries = []
+        if self.min_copy > 0:
+            queries.append(Q(copy__gte=self.min_copy))
+
+        for item in queries:
+            query.add(item, Q.AND)
+
+        clonotype_queryset = Clonotype.objects.filter(query)
+        return clonotype_queryset
 
     def vj_counts(self):
         from django.db.models import Sum
@@ -92,5 +108,18 @@ class ClonoFilter(models.Model):
             v_index = v_family_names.index(sum_dict['v_family_name'])
             j_index = j_gene_names.index(sum_dict['j_gene_name'])
             returnable[v_index][j_index] = sum_dict['copy__sum']
+
+        return returnable
+
+    def cdr3_length_sum(self):
+        ''' Takes in a clonofilter and returns a nested list of cdr3_length
+        and the number of coutns '''
+        from django.db.models import Sum
+        returnable = []
+        counts = self.get_clonotypes().values('cdr3_length').annotate(Sum('copy')).order_by('cdr3_length')
+
+        for index, sum_counts in enumerate(counts):
+            returnable.append([sum_counts['cdr3_length'],
+                              sum_counts['copy__sum']])
 
         return returnable
