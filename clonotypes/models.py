@@ -50,7 +50,6 @@ class Clonotype(models.Model):
             else:
                 clonotype = {}
                 clonotype = dict(zip(headers, row))
-#        print clonotype
                 if(clonotype['normalized_frequency'] == ''):
                     raise Exception('Normalized_frequency cannot be null')
                 clonotype_list.append(Clonotype(sample=sample, **clonotype))
@@ -58,8 +57,6 @@ class Clonotype(models.Model):
                     Clonotype.objects.bulk_create(clonotype_list)
                     clonotype_list = []
 
-
-                #content[row[0]] = dict(zip(headers, row[1:]))
         Clonotype.objects.bulk_create(clonotype_list)
 
     @staticmethod
@@ -74,6 +71,7 @@ class Clonotype(models.Model):
 class ClonoFilter(models.Model):
     sample = models.ForeignKey(Sample)
     min_copy = models.IntegerField(null=True)
+#    norm_factor = models.IntegerField(null=True)
 
     def get_clonotypes(self):
         ''' Takes in a clonofilter object and returns a queryset '''

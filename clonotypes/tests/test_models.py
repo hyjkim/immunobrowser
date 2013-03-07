@@ -93,6 +93,13 @@ class ClonoFilterModelTest(TestCase):
         self.s = Sample.objects.get()
         self.f = ClonoFilter(sample=self.s)
 
+    def test_clonofilter_has_normalization_factor(self):
+        self.f.norm_factor = 1
+        self.f.save()
+        f = ClonoFilter.objects.get()
+        self.assertEqual(f.norm_factor, self.f.norm_factor)
+
+
     def test_clonofilter_get_clonotypes_should_not_filter_on_a_parameter_if_it_is_not_included(self):
         try:
             self.f.get_clonotypes()

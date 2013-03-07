@@ -12,9 +12,13 @@ def home(request):
 
 
 def summary(request, sample_id):
+    ''' summary takes in a request and a sample id and
+    displays an array of summary images and statistics.
+    It can also take a clonofilter via POST or GET
+    '''
     s = Sample.objects.get(id=sample_id)
 
-    if request.method == 'POST':  # Handling forms via POST
+    if request.method == 'POST':  # Handling changes to filter form via POST
         cf_form = ClonoFilterForm(request.POST)
         if cf_form.is_valid():
             cf, created = ClonoFilter.objects.get_or_create(
@@ -26,10 +30,11 @@ def summary(request, sample_id):
 
         return HttpResponseRedirect(url)
 
-    else:  # Nonforms via GET
+    else:  # Handling requests via GET
         f = ClonoFilterForm(initial={'sample': s.id})
         cf = ClonoFilter(**{'sample': s})
 
+        # Sets up the form to reflect the clonofilter supplied by GET
         if 'clonofilter' in request.GET:
             cf_id = request.GET['clonofilter']
             try:

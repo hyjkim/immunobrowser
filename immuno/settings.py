@@ -136,7 +136,10 @@ INSTALLED_APPS = (
     # General shared utils for all tests
     'test_utils',
 
-    # Actual apps
+    # Imported apps
+    'south',
+
+    ## Actual apps
     'patients',
     'samples',
     'clonotypes',
