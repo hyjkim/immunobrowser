@@ -2,7 +2,54 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from test_utils.ghetto_factory import make_fake_patient
 from samples.models import Sample
+from samples.views import summary
 from patients.models import Patient
+from test_utils.factories import render_echo, FakeRequestFactory
+from mock import MagicMock, patch, call
+from clonotypes.models import ClonoFilter
+from clonotypes.forms import ClonoFilterForm
+
+
+class SampleMockedViewTest(TestCase):
+    ''' Here, we mock out the rendering stack for fast unit tests of the view'''
+
+    def setUp(self):
+        self.renderPatch = patch('samples.views.render', render_echo)
+        self.renderPatch.start()
+        self.request = FakeRequestFactory()
+        make_fake_patient()
+        self.s = Sample.objects.get()
+
+    def tearDown(self):
+        self.renderPatch.stop()
+
+    def test_samples_summary_passes_clonofilter_form_to_context(self):
+        mock_response = summary(self.request, self.s.id)
+        self.assertIsInstance(
+            mock_response.get('filter_form'), ClonoFilterForm)
+
+    def test_summary_should_try_to_read_in_clonofilter_from_get(self):
+        cf = ClonoFilter(sample=self.s)
+        cf.save()
+
+        self.request = FakeRequestFactory(GET={'clonofilter': 1})
+        mock_response = summary(self.request, self.s.id)
+        self.assertEqual(mock_response.get('clonofilter'), cf)
+
+        cf2 = ClonoFilter(sample=self.s)
+        cf2.save()
+
+        self.request = FakeRequestFactory(GET={'clonofilter': cf2.id})
+        mock_response = summary(self.request, self.s.id)
+        self.assertEqual(mock_response.get('clonofilter'), cf2)
+
+    def test_summary_should_fill_out_form_if_clonofilter_is_passed_through_get(self):
+        cf = ClonoFilter(sample=self.s, min_copy=10)
+        cf.save()
+        self.request = FakeRequestFactory(GET={'clonofilter': cf.id})
+        mock_response = summary(self.request, self.s.id)
+        self.assertEqual({'min_copy': 10, 'sample': 1},
+                         mock_response.get('filter_form').initial)
 
 class SampleViewTest(TestCase):
     ''' Integration tests '''
@@ -10,6 +57,26 @@ class SampleViewTest(TestCase):
         make_fake_patient()
         self.s = Sample.objects.get()
         self.p = Patient.objects.get()
+
+    def test_summary_should_redirect_to_default_summary_if_clonofilter_id_does_not_exist(self):
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), 100000)
+        response = self.client.get(url)
+        self.assertRedirects(response, reverse('samples.views.summary', args=[self.s.id]))
+
+    def test_sample_summary_redirects_post_request_to_url_with_clonofilter(self):
+        response = self.client.post(
+            reverse('samples.views.summary', args=[self.s.id]), {'sample': 1, 'min_copy': 10})
+        cf = ClonoFilter.objects.get()
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), cf.id)
+        self.assertRedirects(response, url)
+
+    def test_sample_summary_redirects_on_post_request(self):
+        response = self.client.post(
+            reverse('samples.views.summary', args=[self.s.id]), {'sample': 1})
+        self.assertRedirects(
+            response, 'http://testserver/samples/1?clonofilter=1')
 
     def test_creating_a_sample_generates_a_new_sample_in_database(self):
         all_samples = Sample.objects.all()
@@ -50,12 +117,14 @@ class SampleViewTest(TestCase):
     def test_clonotype_summary_displays_bubble_default_plot(self):
         response = self.client.get(
             reverse('samples.views.summary', args=[self.s.id]))
-        self.assertIn(reverse('clonotypes.views.bubble_default', args=[self.s.id]), response.content)
+        self.assertIn(reverse('clonotypes.views.bubble_default',
+                      args=[self.s.id]), response.content)
 
     def test_clonotype_summary_displays_spectratype_default_plot(self):
         response = self.client.get(
             reverse('samples.views.summary', args=[self.s.id]))
-        self.assertIn(reverse('clonotypes.views.spectratype_default', args=[self.s.id]), response.content)
+        self.assertIn(reverse('clonotypes.views.spectratype_default',
+                      args=[self.s.id]), response.content)
 
     def test_samples_url_shows_all_samples(self):
         # Retrieve all saved samples from the database
@@ -89,3 +158,13 @@ class SampleViewTest(TestCase):
         for sample in all_samples:
             sample_url = reverse('samples.views.summary', args=[sample.id])
             self.assertIn(sample_url, response.content)
+
+    def test_samples_summary_shows_filter_form_sample_id(self):
+        response = self.client.get(
+            reverse('samples.views.summary', args=[self.s.id]))
+        self.assertIn('id_sample', response.content)
+
+    def test_samples_summary_shows_submit_button_for_sample_id(self):
+        response = self.client.get(
+            reverse('samples.views.summary', args=[self.s.id]))
+        self.assertIn('submit', response.content)
