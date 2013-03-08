@@ -23,6 +23,11 @@ class SampleMockedViewTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_samples_summary_with_no_clonofiliter_in_post_or_get_serves_an_initialized_default_clonofilter(self):
+        mock_response = summary(self.request, self.s.id)
+        self.assertEqual(
+            mock_response.get('clonofilter').id, 1)
+
     def test_samples_summary_passes_clonofilter_form_to_context(self):
         mock_response = summary(self.request, self.s.id)
         self.assertIsInstance(
@@ -50,8 +55,10 @@ class SampleMockedViewTest(TestCase):
         mock_response = summary(self.request, self.s.id)
 #        self.assertEqual({'min_copy': 10, 'sample': 1},
 #                         mock_response.get('filter_form').initial)
-        self.assertEqual(10, mock_response.get('filter_form').initial['min_copy'])
+        self.assertEqual(
+            10, mock_response.get('filter_form').initial['min_copy'])
         self.assertEqual(1, mock_response.get('filter_form').initial['sample'])
+
 
 class SampleViewTest(TestCase):
     ''' Integration tests '''
@@ -66,16 +73,16 @@ class SampleViewTest(TestCase):
         url = "%s?clonofilter=%s" % (
             reverse('samples.views.summary', args=[self.s.id]), cf.id)
         bubble_url = "%s?clonofilter=%s" % (
-                reverse('clonotypes.views.bubble_default', args=[self.s.id]), cf.id)
+            reverse('clonotypes.views.bubble_default', args=[self.s.id]), cf.id)
         response = self.client.get(url)
         self.assertIn(bubble_url, response.content)
-
 
     def test_summary_should_redirect_to_default_summary_if_clonofilter_id_does_not_exist(self):
         url = "%s?clonofilter=%s" % (
             reverse('samples.views.summary', args=[self.s.id]), 100000)
         response = self.client.get(url)
-        self.assertRedirects(response, reverse('samples.views.summary', args=[self.s.id]))
+        self.assertRedirects(
+            response, reverse('samples.views.summary', args=[self.s.id]))
 
     def test_sample_summary_redirects_post_request_to_url_with_clonofilter(self):
         response = self.client.post(

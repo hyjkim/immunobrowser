@@ -105,7 +105,10 @@ class ClonoFilter(models.Model):
         for sum_dict in vj_pairs:
             v_index = v_family_names.index(sum_dict['v_family_name'])
             j_index = j_gene_names.index(sum_dict['j_gene_name'])
-            returnable[v_index][j_index] = sum_dict['copy__sum']
+            if self.norm_factor:
+                returnable[v_index][j_index] = sum_dict['copy__sum'] / float(self.norm_factor)
+            else:
+                returnable[v_index][j_index] = sum_dict['copy__sum']
 
         return returnable
 

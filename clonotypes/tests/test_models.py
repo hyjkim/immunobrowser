@@ -99,6 +99,11 @@ class ClonoFilterModelTest(TestCase):
         f = ClonoFilter.objects.get()
         self.assertEqual(f.norm_factor, self.f.norm_factor)
 
+    def test_vj_counts_utilizes_norm_factor_if_it_exists(self):
+        self.f.norm_factor=10
+        norm_vj_counts = self.f.vj_counts()
+        self.assertEqual(.2, norm_vj_counts[0][0])
+#        self.assertEqual([[2, 0], [0, 1], [1, 0]], norm_vj_counts)
 
     def test_clonofilter_get_clonotypes_should_not_filter_on_a_parameter_if_it_is_not_included(self):
         try:

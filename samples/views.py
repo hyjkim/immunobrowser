@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from samples.models import Sample
 from clonotypes.models import ClonoFilter
 from clonotypes.forms import ClonoFilterForm
+from django.forms.models import model_to_dict
 
 
 def home(request):
@@ -33,6 +34,10 @@ def summary(request, sample_id):
     else:  # Handling requests via GET
         f = ClonoFilterForm(initial={'sample': s.id})
         cf = ClonoFilter(**{'sample': s})
+        cf_dict = model_to_dict(cf)
+        cf_dict['sample'] = s
+
+        cf, created = ClonoFilter.objects.get_or_create(**cf_dict)
 
         # Sets up the form to reflect the clonofilter supplied by GET
         if 'clonofilter' in request.GET:
@@ -41,6 +46,8 @@ def summary(request, sample_id):
                 cf = ClonoFilter.objects.get(id=cf_id)
                 f = ClonoFilterForm(
                     initial=ClonoFilter.objects.filter(id=cf_id).values()[0])
+#            except Exception as e:
+#                print e
             except:
                 return HttpResponseRedirect(reverse('samples.views.summary', args=[s.id]))
         else:
