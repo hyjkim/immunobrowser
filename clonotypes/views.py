@@ -52,7 +52,7 @@ def bubble(request, clonofilter):
             x.append(v_index)
             y.append(j_index)
             color.append(counts)
-            area.append(counts )
+            area.append(counts)
 #        text(data[1], data[5],
 #             data[0], size=11, horizontalalignment='center')
 
@@ -60,17 +60,25 @@ def bubble(request, clonofilter):
     sct.set_alpha(0.75)
 
 #    ax.axis([0, 11, 200, 1280])
-#    xlabel('Murders per 100,000 population')
-#    ylabel('Burglaries per 100,000 population')
+#    xlabel('Gene segments')
+#    ylabel('Gene segments')
 
     canvas.print_png(response)
     return response
 
 
 def bubble_default(request, sample_id):
-    ''' If no filter is defined, you can still plot a bubble given just a sample id with this function '''
+    ''' If no filter is defined, you can still plot a bubble given just a
+    sample id with this function. Otherwise, a clonofilter defined through
+    GET will be passed to bubble()'''
+
     s = Sample.objects.filter(id=sample_id).get()
-    clonofilter = ClonoFilter(sample=s, min_copy=0)
+
+    try:
+        clonofilter = ClonoFilter.objects.get(id=request.GET['clonofilter'])
+    except:
+        clonofilter = ClonoFilter(sample=s)
+
     return bubble(request, clonofilter)
 
 def spectratype(request, clonofilter):
@@ -84,11 +92,12 @@ def spectratype(request, clonofilter):
     ax = fig.add_subplot(111)
 
     cdr3_sums = array(clonofilter.cdr3_length_sum())
-    ax.plot(cdr3_sums[:,0].tolist(), cdr3_sums[:,1].tolist(), '-')
+    ax.plot(cdr3_sums[:, 0].tolist(), cdr3_sums[:, 1].tolist(), '-')
     ax = fig.add_subplot(111)
 
     canvas.print_png(response)
     return response
+
 
 def spectratype_default(request, sample_id):
     s = Sample.objects.filter(id=sample_id).get()

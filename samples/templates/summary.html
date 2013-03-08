@@ -8,9 +8,9 @@
       {{ filter_form.as_p }}
       <input type="submit" />
   </form>
-    <div><img src="{% url clonotypes.views.bubble_default sample.id  %}">
+    <div><img src="{% url clonotypes.views.bubble_default sample.id %}?clonofilter={{ clonofilter.id }}">
     </div>
-    <div><img src="{% url clonotypes.views.spectratype_default sample.id  %}">
+    <div><img src="{% url clonotypes.views.spectratype_default sample.id  %}?clonofilter={{ clonofilter.id }}">
     </div>
     <a href="{% url clonotypes.views.all sample.id %}">View all Clonotypes</a>
   </body>

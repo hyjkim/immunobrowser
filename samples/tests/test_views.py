@@ -48,8 +48,10 @@ class SampleMockedViewTest(TestCase):
         cf.save()
         self.request = FakeRequestFactory(GET={'clonofilter': cf.id})
         mock_response = summary(self.request, self.s.id)
-        self.assertEqual({'min_copy': 10, 'sample': 1},
-                         mock_response.get('filter_form').initial)
+#        self.assertEqual({'min_copy': 10, 'sample': 1},
+#                         mock_response.get('filter_form').initial)
+        self.assertEqual(10, mock_response.get('filter_form').initial['min_copy'])
+        self.assertEqual(1, mock_response.get('filter_form').initial['sample'])
 
 class SampleViewTest(TestCase):
     ''' Integration tests '''
@@ -57,6 +59,17 @@ class SampleViewTest(TestCase):
         make_fake_patient()
         self.s = Sample.objects.get()
         self.p = Patient.objects.get()
+
+    def test_summary_clonofilter_id_bubble(self):
+        cf = ClonoFilter(sample=self.s)
+        cf.save()
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), cf.id)
+        bubble_url = "%s?clonofilter=%s" % (
+                reverse('clonotypes.views.bubble_default', args=[self.s.id]), cf.id)
+        response = self.client.get(url)
+        self.assertIn(bubble_url, response.content)
+
 
     def test_summary_should_redirect_to_default_summary_if_clonofilter_id_does_not_exist(self):
         url = "%s?clonofilter=%s" % (

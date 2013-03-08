@@ -71,7 +71,7 @@ class Clonotype(models.Model):
 class ClonoFilter(models.Model):
     sample = models.ForeignKey(Sample)
     min_copy = models.IntegerField(null=True)
-#    norm_factor = models.IntegerField(null=True)
+    norm_factor = models.IntegerField(null=True)
 
     def get_clonotypes(self):
         ''' Takes in a clonofilter object and returns a queryset '''
