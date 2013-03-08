@@ -93,11 +93,12 @@ class ClonoFilterModelTest(TestCase):
         self.s = Sample.objects.get()
         self.f = ClonoFilter(sample=self.s)
 
-    def test_clonofilter_has_normalization_factor(self):
+    def test_clonofilter_has_normalization_factor_as_a_float(self):
         self.f.norm_factor = 1
         self.f.save()
         f = ClonoFilter.objects.get()
         self.assertEqual(f.norm_factor, self.f.norm_factor)
+        self.assertIsInstance(f.norm_factor, float)
 
     def test_vj_counts_utilizes_norm_factor_if_it_exists(self):
         self.f.norm_factor=10
