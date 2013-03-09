@@ -98,6 +98,15 @@ class ClonoFilterModelTest(TestCase):
         norm_cdr3_length_sum = self.f.cdr3_length_sum()
         self.assertEqual([[36, .1], [39, .1], [42, .2]], norm_cdr3_length_sum)
 
+    def test_clonofilter_has_min_and_max_length_as_int(self):
+        self.f.min_length = 1
+        self.f.max_length = 10
+        self.f.save()
+        f = ClonoFilter.objects.get()
+        self.assertEqual(f.min_length, self.f.min_length)
+        self.assertEqual(f.max_length, self.f.max_length)
+        self.assertIsInstance(f.min_length, int)
+        self.assertIsInstance(f.max_length, int)
 
     def test_clonofilter_has_normalization_factor_as_a_float(self):
         self.f.norm_factor = 1

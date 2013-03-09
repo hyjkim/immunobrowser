@@ -9,8 +9,8 @@ from clonotypes.views import all, detail, bubble, bubble_default, spectratype, s
 from test_utils.factories import render_echo, FakeRequestFactory
 
 
-class ClonotypesMockedViewTest(TestCase):
-    ''' ClonotypesMockedViewTest mocks out the Django call stack for faster
+class ClonotypesViewTest(TestCase):
+    ''' ClonotypesViewTest mocks out the Django call stack for faster
     unit tests. This is useful for testing the view and making sure objects
     exist in the context and that the correct templates are being used.
     This also increases the speed of the unittesting
@@ -99,7 +99,7 @@ class ClonotypesMockedViewTest(TestCase):
         self.assertEqual(sample, mock_response.get('sample'))
 
 
-class ClonotypesAllViewTest(TestCase):
+class ClonotypesAllViewIntegrationTest(TestCase):
     ''' Integration tests for all clonotypes view
     '''
     def setUp(self):
@@ -121,7 +121,7 @@ class ClonotypesAllViewTest(TestCase):
                       self.response.content)
 
 
-class ClonotypesDetailViewTest(TestCase):
+class ClonotypesDetailViewIntegrationTest(TestCase):
     ''' Integration tests for clonotype detail view '''
     def setUp(self):
         make_fake_patient()
@@ -145,6 +145,7 @@ class ClonotypesDetailViewTest(TestCase):
 
 
 def bubble_patch(request, clonofilter):
+    ''' Mock method used to patch out image rendering method'''
     return (request, clonofilter)
 
 
@@ -159,9 +160,6 @@ class ClonotypesImagesTest(TestCase):
 
     def tearDown(self):
         self.renderPatch.stop()
-
-    def test_default_image_wrapper_takes_in_a_sample_id_and_function_and_returns_a_function(self):
-        pass
 
     def test_spectratype_default_applies_clonofilter_passed_in_through_get(self):
         s = Sample.objects.get()
@@ -248,3 +246,7 @@ class ClonotypesImagesTest(TestCase):
         s = Sample.objects.get()
         response = self.client.get(reverse('clonotypes.views.spectratype_default', args=[s.id]))
         self.assertEqual('image/png', response['content-type'])
+
+
+class ClonotypesImagesIntegrationTests(TestCase):
+    pass
