@@ -85,6 +85,10 @@ class ClonoFilter(models.Model):
         queries = []
         if self.min_copy > 0:
             queries.append(Q(copy__gte=self.min_copy))
+        if self.min_length > 0:
+            queries.append(Q(cdr3_length__gte=self.min_length))
+        if self.max_length > 0:
+            queries.append(Q(cdr3_length__gte=self.max_length))
 
         for item in queries:
             query.add(item, Q.AND)

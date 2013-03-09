@@ -108,6 +108,14 @@ class ClonoFilterModelTest(TestCase):
         self.assertIsInstance(f.min_length, int)
         self.assertIsInstance(f.max_length, int)
 
+    def test_clonofilter_filters_on_min_and_max_length(self):
+        filtered_clonotypes = Clonotype.objects.filter(cdr3_length__gte=37,
+                                                       cdr3_length__lte=40)
+        self.f.min_length = 37
+        self.f.max_length = 40
+        self.assertQuerysetEqual(filtered_clonotypes,
+                                 map(repr, self.f.get_clonotypes()))
+
     def test_clonofilter_has_normalization_factor_as_a_float(self):
         self.f.norm_factor = 1
         self.f.save()
