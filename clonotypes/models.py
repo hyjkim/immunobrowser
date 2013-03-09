@@ -120,7 +120,11 @@ class ClonoFilter(models.Model):
         counts = self.get_clonotypes().values('cdr3_length').annotate(Sum('copy')).order_by('cdr3_length')
 
         for index, sum_counts in enumerate(counts):
-            returnable.append([sum_counts['cdr3_length'],
-                              sum_counts['copy__sum']])
+            if self.norm_factor:
+                returnable.append([sum_counts['cdr3_length'],
+                                sum_counts['copy__sum']/float(self.norm_factor)])
+            else:
+                returnable.append([sum_counts['cdr3_length'],
+                                sum_counts['copy__sum']])
 
         return returnable

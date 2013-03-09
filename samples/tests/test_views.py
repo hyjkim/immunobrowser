@@ -8,6 +8,7 @@ from test_utils.factories import render_echo, FakeRequestFactory
 from mock import MagicMock, patch, call
 from clonotypes.models import ClonoFilter
 from clonotypes.forms import ClonoFilterForm
+from django.forms.models import model_to_dict
 
 
 class SampleMockedViewTest(TestCase):
@@ -37,7 +38,7 @@ class SampleMockedViewTest(TestCase):
         cf = ClonoFilter(sample=self.s)
         cf.save()
 
-        self.request = FakeRequestFactory(GET={'clonofilter': 1})
+        self.request = FakeRequestFactory(GET={'clonofilter': cf.id})
         mock_response = summary(self.request, self.s.id)
         self.assertEqual(mock_response.get('clonofilter'), cf)
 

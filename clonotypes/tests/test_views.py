@@ -5,7 +5,7 @@ from clonotypes.models import Clonotype, ClonoFilter
 from django.core.urlresolvers import reverse
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
 from mock import MagicMock, patch, call
-from clonotypes.views import all, detail, bubble, bubble_default, spectratype
+from clonotypes.views import all, detail, bubble, bubble_default, spectratype, spectratype_default
 from test_utils.factories import render_echo, FakeRequestFactory
 
 
@@ -156,6 +156,22 @@ class ClonotypesImagesTest(TestCase):
         self.renderPatch.start()
         self.request = FakeRequestFactory()
         make_fake_patient_with_3_clonotypes()
+
+    def tearDown(self):
+        self.renderPatch.stop()
+
+    def test_default_image_wrapper_takes_in_a_sample_id_and_function_and_returns_a_function(self):
+        pass
+
+    def test_spectratype_default_applies_clonofilter_passed_in_through_get(self):
+        s = Sample.objects.get()
+        cf = ClonoFilter(sample=s)
+        cf.save()
+        self.request = FakeRequestFactory(GET={'clonofilter': cf.id})
+        with patch('clonotypes.views.spectratype', bubble_patch):
+            (request_echo, clonofilter_echo) = spectratype_default(self.request, s.id)
+            self.assertEqual(cf.id, clonofilter_echo.id)
+            self.assertEqual(cf, clonofilter_echo)
 
     def test_bubble_default_applies_clonofilter_passed_in_through_get(self):
         s = Sample.objects.get()

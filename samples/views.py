@@ -22,6 +22,8 @@ def summary(request, sample_id):
     if request.method == 'POST':  # Handling changes to filter form via POST
         cf_form = ClonoFilterForm(request.POST)
         if cf_form.is_valid():
+            # This code does not create a new clonofilter object if one
+            # with the same form parameters has already been generated
             cf, created = ClonoFilter.objects.get_or_create(
                 **cf_form.cleaned_data)
             url = "%s?clonofilter=%s" % (
@@ -32,12 +34,6 @@ def summary(request, sample_id):
         return HttpResponseRedirect(url)
 
     else:  # Handling requests via GET
-        f = ClonoFilterForm(initial={'sample': s.id})
-        cf = ClonoFilter(**{'sample': s})
-        cf_dict = model_to_dict(cf)
-        cf_dict['sample'] = s
-
-        cf, created = ClonoFilter.objects.get_or_create(**cf_dict)
 
         # Sets up the form to reflect the clonofilter supplied by GET
         if 'clonofilter' in request.GET:
@@ -46,12 +42,23 @@ def summary(request, sample_id):
                 cf = ClonoFilter.objects.get(id=cf_id)
                 f = ClonoFilterForm(
                     initial=ClonoFilter.objects.filter(id=cf_id).values()[0])
-#            except Exception as e:
-#                print e
             except:
                 return HttpResponseRedirect(reverse('samples.views.summary', args=[s.id]))
+
+        # If there is no clonofilter specified, just return the default
+        # clonofilter with no values
         else:
-            pass
+            f = ClonoFilterForm(initial={'sample': s.id})
+            cf = ClonoFilter(**{'sample': s})
+            # The following is my hacky way to grab a default clonofilter
+            # with no filter values applied without creating a new object
+            # for each request
+            cf_dict = model_to_dict(cf)
+            cf_dict['sample'] = s
+            del cf_dict['id']
+
+            cf, created = ClonoFilter.objects.get_or_create(**cf_dict)
+
         context = {'sample': s,
                    'filter_form': f,
                    'clonofilter': cf,

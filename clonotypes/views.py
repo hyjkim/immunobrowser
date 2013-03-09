@@ -101,5 +101,9 @@ def spectratype(request, clonofilter):
 
 def spectratype_default(request, sample_id):
     s = Sample.objects.filter(id=sample_id).get()
-    clonofilter = ClonoFilter(sample=s)
+    try:
+        clonofilter = ClonoFilter.objects.get(id=request.GET['clonofilter'])
+    except:
+        clonofilter = ClonoFilter(sample=s)
+
     return spectratype(request, clonofilter)

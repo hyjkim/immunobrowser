@@ -93,6 +93,12 @@ class ClonoFilterModelTest(TestCase):
         self.s = Sample.objects.get()
         self.f = ClonoFilter(sample=self.s)
 
+    def test_cdr3_length_sum_utilizes_norm_factor_if_it_exists(self):
+        self.f.norm_factor=10
+        norm_cdr3_length_sum = self.f.cdr3_length_sum()
+        self.assertEqual([[36, .1], [39, .1], [42, .2]], norm_cdr3_length_sum)
+
+
     def test_clonofilter_has_normalization_factor_as_a_float(self):
         self.f.norm_factor = 1
         self.f.save()
