@@ -130,6 +130,11 @@ class ClonotypesDetailViewIntegrationTest(TestCase):
         self.response = self.client.get(
             reverse('clonotypes.views.detail', args=[self.clonotype.id]))
 
+    def test_clonotype_detail_view_formats_nucleotide_sequence_with_spans(self):
+        clonotype = Clonotype.objects.get()
+        self.assertIn('<span class="v_gene"', self.response.content)
+        self.assertIn('<span class="j_gene"', self.response.content)
+
     def test_detail_view_lists_all_info(self):
         self.assertIn('nucleotide', self.response.content)
 

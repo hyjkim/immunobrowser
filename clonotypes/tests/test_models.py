@@ -3,9 +3,80 @@ from patients.models import Patient
 from samples.models import Sample
 from clonotypes.models import Clonotype
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
+import re
 
 
 class ClonotypeModelTest(TestCase):
+    def test_parse_nucleotide_should_not_create_a_span_if_index_is_lt_0(self):
+        ''' Adaptive uses -1 in the index field to represent the lack of
+        that element. This test makes sure rendered text does no create a span
+        for an empty region '''
+        make_fake_patient()
+        c = Clonotype.objects.get()
+        c.n1_index = -1
+        pc = c.parsed_nucleotide()
+
+        self.assertNotIn('<span class="n1_additions"', pc)
+
+        c = Clonotype.objects.get()
+        c.d_index = -1
+        pc = c.parsed_nucleotide()
+
+        self.assertNotIn('<span class="d_gene"', pc)
+
+        c = Clonotype.objects.get()
+        c.n2_index = -1
+        pc = c.parsed_nucleotide()
+
+        self.assertNotIn('<span class="n2_additions"', pc)
+
+    def test_parsed_nucleotide_should_wrap_spans_around_nucleotide_groups(self):
+        make_fake_patient()
+        c = Clonotype.objects.get()
+        pc = c.parsed_nucleotide()
+
+        # Test v
+        regex = re.compile('<span class="v_gene">(.*?)</span>')
+        match = regex.match(pc)
+        self.assertEqual(len(match.groups()[0]), c.n2_index)
+
+        # N2
+        regex = re.compile('.*<span class="n2_additions">(.*?)</span>')
+        match = regex.match(pc)
+        num_n2_additions = c.d_index - c.n2_index
+        self.assertEqual(len(match.groups()[0]), num_n2_additions)
+
+        # D
+        regex = re.compile('.*<span class="d_gene">(.*?)</span>')
+        match = regex.match(pc)
+        d_length = c.n1_index - c.d_index
+        self.assertEqual(len(match.groups()[0]), d_length)
+
+        # N1
+        regex = re.compile('.*<span class="n1_additions">(.*?)</span>')
+        match = regex.match(pc)
+        num_n1_additions = c.j_index - c.n1_index
+        self.assertEqual(len(match.groups()[0]), num_n1_additions)
+
+        # J
+        regex = re.compile('.*<span class="j_gene">(.*?)</span>')
+        match = regex.match(pc)
+        j_length = len(c.nucleotide) - c.j_index
+        self.assertEqual(len(match.groups()[0]), j_length)
+
+    def test_parsed_nucleotide_should_return_nucleotide_sequence(self):
+        make_fake_patient()
+        c = Clonotype.objects.get()
+        pc = c.parsed_nucleotide()
+        no_html = re.sub('<[^<]+?>', '', pc)
+        self.assertEqual(c.nucleotide, no_html)
+
+    def test_parsed_nucleotide_returns_a_string(self):
+        make_fake_patient()
+        c = Clonotype.objects.get()
+        pc = c.parsed_nucleotide()
+        self.assertIsInstance(pc, str)
+
     def DONT_test_bulk_insert_of_tsv_to_database(self):
         # Make a test sample
         p = Patient()
@@ -94,7 +165,7 @@ class ClonoFilterModelTest(TestCase):
         self.f = ClonoFilter(sample=self.s)
 
     def test_cdr3_length_sum_utilizes_norm_factor_if_it_exists(self):
-        self.f.norm_factor=10
+        self.f.norm_factor = 10
         norm_cdr3_length_sum = self.f.cdr3_length_sum()
         self.assertEqual([[36, .1], [39, .1], [42, .2]], norm_cdr3_length_sum)
 
@@ -124,7 +195,7 @@ class ClonoFilterModelTest(TestCase):
         self.assertIsInstance(f.norm_factor, float)
 
     def test_vj_counts_utilizes_norm_factor_if_it_exists(self):
-        self.f.norm_factor=10
+        self.f.norm_factor = 10
         norm_vj_counts = self.f.vj_counts()
         self.assertEqual(.2, norm_vj_counts[0][0])
 #        self.assertEqual([[2, 0], [0, 1], [1, 0]], norm_vj_counts)

@@ -67,6 +67,53 @@ class Clonotype(models.Model):
     def j_gene_names():
         return list(Clonotype.objects.values_list('j_gene_name', flat=True).distinct())
 
+    def parsed_nucleotide(self):
+        ''' Returns a string of the nucleotide sequence with distinct gene
+        regions within spans. Each span has a classname so that it can be
+        colored via css
+
+        It is worth noting that n2 additions actually appear before n1 in the
+        nucleotide string. This reflects the biology where the dj junction is
+        joined before the vj junction'''
+        from django.utils.safestring import mark_safe
+
+        nucleotide = str(self.nucleotide)
+#        nucleotide_html = '<span class="v_gene">' + nucleotide[:self.n2_index] + '</span>'
+#        nucleotide_html += '<span class="n2_additions">' + nucleotide[self.n2_index:self.d_index] + '</span>'
+#        nucleotide_html += '<span class="d_gene">' + nucleotide[self.d_index:self.n1_index] + '</span>'
+#        nucleotide_html += '<span class="n1_additions">' + nucleotide[self.n1_index:self.j_index] + '</span>'
+#        nucleotide_html += '<span class="j_gene">' + nucleotide[self.j_index:] + '</span>'
+
+        nucleotide_html = '<span class="j_gene">%s</span>' % nucleotide[
+            self.j_index:]
+        if self.n1_index > 0:
+            nucleotide_html = ('<span class="n1_additions">%s</span>'
+                               % nucleotide[self.n1_index:self.j_index]) + \
+                nucleotide_html
+        else:
+            self.n1_index = self.j_index
+
+        if self.d_index > 0:
+            nucleotide_html = ('<span class="d_gene">%s</span>' %
+                               nucleotide[self.d_index:self.n1_index]) + \
+                nucleotide_html
+        else:
+            self.d_index = self.n1_index
+
+        if self.n2_index > 0:
+            nucleotide_html = ('<span class="n2_additions">%s</span>' %
+                               nucleotide[self.n2_index:self.d_index]) + \
+                nucleotide_html
+        else:
+            self.n2_index = self.d_index
+
+        nucleotide_html = ('<span class="v_gene">%s</span>' %
+                           nucleotide[:self.n2_index]) + \
+            nucleotide_html
+
+        nucleotide_html = mark_safe(nucleotide_html)
+        return nucleotide_html
+
 
 class ClonoFilter(models.Model):
     sample = models.ForeignKey(Sample)
@@ -102,17 +149,20 @@ class ClonoFilter(models.Model):
         index in v_family_names, j_gene_name index in j_gene_names
         and sum of copy '''
         filtered_query_set = self.get_clonotypes()
-        vj_pairs = filtered_query_set.values('v_family_name', 'j_gene_name').annotate(Sum('copy'))
+        vj_pairs = filtered_query_set.values(
+            'v_family_name', 'j_gene_name').annotate(Sum('copy'))
         v_family_names = Clonotype.v_family_names()
         j_gene_names = Clonotype.j_gene_names()
 
-        returnable = [([0] * len(j_gene_names)) for i in range(len(v_family_names))]
+        returnable = [([0] * len(j_gene_names)) for i in range(len(
+            v_family_names))]
 
         for sum_dict in vj_pairs:
             v_index = v_family_names.index(sum_dict['v_family_name'])
             j_index = j_gene_names.index(sum_dict['j_gene_name'])
             if self.norm_factor:
-                returnable[v_index][j_index] = sum_dict['copy__sum'] / float(self.norm_factor)
+                returnable[v_index][j_index] = sum_dict[
+                    'copy__sum'] / float(self.norm_factor)
             else:
                 returnable[v_index][j_index] = sum_dict['copy__sum']
 
@@ -123,14 +173,15 @@ class ClonoFilter(models.Model):
         and the number of coutns '''
         from django.db.models import Sum
         returnable = []
-        counts = self.get_clonotypes().values('cdr3_length').annotate(Sum('copy')).order_by('cdr3_length')
+        counts = self.get_clonotypes().values(
+            'cdr3_length').annotate(Sum('copy')).order_by('cdr3_length')
 
         for index, sum_counts in enumerate(counts):
             if self.norm_factor:
                 returnable.append([sum_counts['cdr3_length'],
-                                sum_counts['copy__sum']/float(self.norm_factor)])
+                                   sum_counts['copy__sum'] / float(self.norm_factor)])
             else:
                 returnable.append([sum_counts['cdr3_length'],
-                                sum_counts['copy__sum']])
+                                   sum_counts['copy__sum']])
 
         return returnable
