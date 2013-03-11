@@ -122,6 +122,23 @@ class ClonoFilter(models.Model):
     max_length = models.IntegerField(null=True)
     norm_factor = models.FloatField(null=True)
 
+    @staticmethod
+    def default_from_sample(sample):
+        ''' Given a sample, create a clonofilter that uses the default options '''
+        from django.forms.models import model_to_dict
+        cf = ClonoFilter(**{'sample': sample})
+        # The following is my hacky way to grab a default clonofilter
+        # with no filter values applied without creating a new object
+        # for each request
+        cf_dict = model_to_dict(cf)
+        cf_dict['sample'] = sample
+        del cf_dict['id']
+
+        cf, created = ClonoFilter.objects.get_or_create(**cf_dict)
+
+        return cf
+
+
     def get_clonotypes(self):
         ''' Takes in a clonofilter object and returns a queryset '''
         from django.db.models import Q

@@ -164,6 +164,15 @@ class ClonoFilterModelTest(TestCase):
         self.s = Sample.objects.get()
         self.f = ClonoFilter(sample=self.s)
 
+    def test_default_from_sample_does_not_create_a_default_if_one_exists(self):
+        ClonoFilter.default_from_sample(self.s)
+        ClonoFilter.default_from_sample(self.s)
+        self.assertEqual(1, ClonoFilter.objects.all().count())
+
+    def test_default_from_sample_creates_a_default_clonofilter_if_one_does_not_exist(self):
+        cf = ClonoFilter.default_from_sample(self.s)
+        self.assertEqual(cf, ClonoFilter.objects.get())
+
     def test_cdr3_length_sum_utilizes_norm_factor_if_it_exists(self):
         self.f.norm_factor = 10
         norm_cdr3_length_sum = self.f.cdr3_length_sum()

@@ -49,15 +49,7 @@ def summary(request, sample_id):
         # clonofilter with no values
         else:
             f = ClonoFilterForm(initial={'sample': s.id})
-            cf = ClonoFilter(**{'sample': s})
-            # The following is my hacky way to grab a default clonofilter
-            # with no filter values applied without creating a new object
-            # for each request
-            cf_dict = model_to_dict(cf)
-            cf_dict['sample'] = s
-            del cf_dict['id']
-
-            cf, created = ClonoFilter.objects.get_or_create(**cf_dict)
+            cf = ClonoFilter.default_from_sample(s)
 
         context = {'sample': s,
                    'filter_form': f,

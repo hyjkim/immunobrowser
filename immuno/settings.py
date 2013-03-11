@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'samples',
     'clonotypes',
     'utils',
+    'cf_comparisons',
 )
 
 # A sample logging configuration. The only tangible logging
