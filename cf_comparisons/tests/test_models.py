@@ -11,6 +11,18 @@ class ComparisonModelTest(TestCase):
         make_fake_patient_with_3_clonotypes()
         self.s = Sample.objects.get()
 
+    def test_get_or_create_from_clonofilters_does_not_create_a_new_comparison_if_one_already_exists_for_the_set_of_clonofilters(self):
+        cf_1 = ClonoFilter(sample=self.s)
+        cf_1.save()
+
+        cf_2 = ClonoFilter(sample=self.s)
+        cf_2.save()
+
+        Comparison.get_or_create_from_clonofilters([cf_1, cf_2])
+        Comparison.get_or_create_from_clonofilters([cf_1, cf_2])
+
+        self.assertEqual(1, Comparison.objects.all().count())
+
     def test_default_with_samples_does_not_create_a_new_Comparison_if_one_already_exists_for_those_samples(self):
         '''
         Should check for a Comparison with the samples prior to creating a new one
