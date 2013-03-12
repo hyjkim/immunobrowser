@@ -61,7 +61,7 @@ class SampleMockedViewTest(TestCase):
         self.assertEqual(1, mock_response.get('filter_form').initial['sample'])
 
 
-class SampleViewTest(TestCase):
+class SampleViewIntegrationTest(TestCase):
     ''' Integration tests '''
     def setUp(self):
         make_fake_patient()

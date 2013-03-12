@@ -34,7 +34,6 @@ def summary(request, sample_id):
         return HttpResponseRedirect(url)
 
     else:  # Handling requests via GET
-
         # Sets up the form to reflect the clonofilter supplied by GET
         if 'clonofilter' in request.GET:
             cf_id = request.GET['clonofilter']
