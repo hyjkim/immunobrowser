@@ -68,7 +68,9 @@ def bubble(request, clonofilter):
 
 
 def bubble_default(request, sample_id):
-    ''' If no filter is defined, you can still plot a bubble given just a
+    '''
+    DEPRECATED
+    If no filter is defined, you can still plot a bubble given just a
     sample id with this function. Otherwise, a clonofilter defined through
     GET will be passed to bubble()'''
 
@@ -100,6 +102,11 @@ def spectratype(request, clonofilter):
 
 
 def spectratype_default(request, sample_id):
+    '''
+    DEPRECRATED
+
+    wrapper to create a spectratype given only a sample_id
+    '''
     s = Sample.objects.filter(id=sample_id).get()
     try:
         clonofilter = ClonoFilter.objects.get(id=request.GET['clonofilter'])

@@ -1,7 +1,9 @@
-{% for filter_form in filter_forms %}
-    <form action="#" method="post">
-      {% csrf_token %}
-      {{ filter_form.as_p }}
-      <input type="submit" />
-  </form>
-{% endfor %}
+<form action="#" method="post">
+  {% for filter_form in filter_forms %}
+  {% csrf_token %}
+  {{ filter_form.as_p }}
+  {% endfor %}
+  <input type="submit" />
+</form>
+
+<img src="{% url cf_comparisons.views.bubble comparison.id %}">

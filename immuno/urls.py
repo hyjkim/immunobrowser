@@ -21,5 +21,6 @@ urlpatterns = patterns('',
                            'clonotypes.views.all'),
                        url(r'^clonotype/(\d+)$$', 'clonotypes.views.detail'),
                        url(r'^samples/', 'samples.views.home'),
+                       url(r'^compare/(\d+)/bubble.png', 'cf_comparisons.views.bubble'),
                        url(r'^compare/(\d+)', 'cf_comparisons.views.compare'),
                        )
