@@ -1,17 +1,16 @@
-<html>
-  <body>
-    <h1>T-cell Receptor Summary</h1>
-    <h2>{{ sample.patient.name }}, {{ sample.patient.disease }}</h2>
-    <h3>{{ sample.draw_date }}, {{ sample.cell_type }}</h3>
-    <form action="#" method="post">
-      {% csrf_token %}
-      {{ filter_form.as_p }}
-      <input type="submit" />
-  </form>
-    <div><img src="{% url clonotypes.views.bubble_default sample.id %}?clonofilter={{ clonofilter.id }}">
-    </div>
-    <div><img src="{% url clonotypes.views.spectratype_default sample.id  %}?clonofilter={{ clonofilter.id }}">
-    </div>
-    <a href="{% url clonotypes.views.all sample.id %}">View all Clonotypes</a>
-  </body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<h1>T-cell Receptor Summary</h1>
+<h2>{{ sample.patient.name }}, {{ sample.patient.disease }}</h2>
+<h3>{{ sample.draw_date }}, {{ sample.cell_type }}</h3>
+<form action="#" method="post">
+  {% csrf_token %}
+  {{ filter_form.as_p }}
+  <input type="submit" />
+</form>
+<div><img src="{% url clonotypes.views.bubble_default sample.id %}?clonofilter={{ clonofilter.id }}">
+</div>
+<div><img src="{% url clonotypes.views.spectratype_default sample.id  %}?clonofilter={{ clonofilter.id }}">
+</div>
+<a href="{% url clonotypes.views.all sample.id %}">View all Clonotypes</a>
+{% endblock %}

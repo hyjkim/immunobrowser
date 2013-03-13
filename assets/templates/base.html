@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <title>{% block title %}TCR-B browser{% endblock %}</title>
+    <link rel="icon" type="image/x-icon"
+    href="{{ MEDIA_URL }}images/favicon.ico" />
+
+    {% block site_css %}
+    <link href="{{ MEDIA_URL }}css/reset.css" rel="stylesheet"
+    type="text/css" media="all"/>
+    <link href="{{ MEDIA_URL }}css/base.css" rel="stylesheet"
+    type="text/css" media="screen"/>
+    {% endblock %}
+    {% block css %}{% endblock %}
+    {% block extra_head %}{% endblock %}
+
+  </head>
+
+  <body>
+    <div id="header">
+      {% block header %}{% endblock %}
+    </div>
+
+    <div id="content">
+      {% block content %}{% endblock %}
+    </div>
+
+    <div id="footer">
+      {% block footer %}{% endblock %}
+    </div>
+    {% block site_js %}
+    {% endblock %}
+
+    {% block js %}{% endblock %}
+  </body>
+</html>

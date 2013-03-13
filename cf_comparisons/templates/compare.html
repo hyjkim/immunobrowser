@@ -1,9 +1,11 @@
 <form action="#" method="post">
+  <div class="filter_form" style="float:left">
   {% for filter_form in filter_forms %}
   {% csrf_token %}
   {{ filter_form.as_p }}
   {% endfor %}
   <input type="submit" />
+  </div>
 </form>
 
 <img src="{% url cf_comparisons.views.bubble comparison.id %}">
