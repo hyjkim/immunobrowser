@@ -1,9 +1,23 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from cf_comparisons.models import Comparison
 from clonotypes.forms import ClonoFilterForm
 from clonotypes.models import ClonoFilter
 
+
+def sample_compare(request):
+    from cf_comparisons.forms import SampleCompareForm
+
+    if request.method == 'POST':
+        sample_compare_form = SampleCompareForm(request.POST)
+        if sample_compare_form.is_valid():
+            comparison = Comparison.default_from_samples(sample_compare_form.cleaned_data['samples'])
+            return HttpResponseRedirect(reverse('cf_comparisons.views.compare', args=[comparison.id]))
+
+    sample_compare_form = SampleCompareForm()
+    context = {'sample_compare_form': sample_compare_form}
+    return render(request, 'sample_compare.html', context)
 
 def compare(request, comparison_id):
     '''

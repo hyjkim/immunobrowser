@@ -188,4 +188,4 @@ class SampleViewIntegrationTest(TestCase):
     def test_samples_summary_shows_submit_button_for_sample_id(self):
         response = self.client.get(
             reverse('samples.views.summary', args=[self.s.id]))
-        self.assertIn('submit', response.content)
+        self.assertIn('<input type="submit" />', response.content)

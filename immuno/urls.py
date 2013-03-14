@@ -26,6 +26,8 @@ urlpatterns = patterns('',
                        url(r'^samples/', 'samples.views.home'),
                        url(r'^compare/(\d+)/bubble.png', 'cf_comparisons.views.bubble'),
                        url(r'^compare/(\d+)', 'cf_comparisons.views.compare'),
+                       url(r'^compare/samples', 'cf_comparisons.views.sample_compare'),
+
 
 
                        # Media and static
