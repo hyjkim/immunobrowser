@@ -12,29 +12,52 @@ def sample_compare(request):
     if request.method == 'POST':
         sample_compare_form = SampleCompareForm(request.POST)
         if sample_compare_form.is_valid():
-            comparison = Comparison.default_from_samples(sample_compare_form.cleaned_data['samples'])
+            comparison = Comparison.default_from_samples(
+                sample_compare_form.cleaned_data['samples'])
             return HttpResponseRedirect(reverse('cf_comparisons.views.compare', args=[comparison.id]))
 
     sample_compare_form = SampleCompareForm()
     context = {'sample_compare_form': sample_compare_form}
     return render(request, 'sample_compare.html', context)
 
+
 def compare(request, comparison_id):
     '''
     Compare view takes in a comparison object and generates a summary view
     that compares an arbitrary number of clonofilters
     '''
+
+    if request.method == 'POST':
+        num_forms = int(request.POST['num_forms'])
+
+        cf_forms = [ClonoFilterForm(request.POST, prefix=str(x))
+                    for x in range(0, num_forms)]
+        if all([cf_form.is_valid() for cf_form in cf_forms]):
+            clonofilters = []
+            for cf_form in cf_forms:
+                cf, created = ClonoFilter.objects.get_or_create(
+                    **cf_form.cleaned_data)
+                clonofilters.append(cf)
+            comparison = Comparison.get_or_create_from_clonofilters(clonofilters)
+        else:
+            comparison = Comparison.objects.get(id=comparison_id)
+
+            for cf_form in cf_forms:
+                print cf_form.errors
+
+        return HttpResponseRedirect(reverse('cf_comparisons.views.compare', args=[comparison.id]))
+
     comparison = Comparison.objects.get(id=comparison_id)
     clonofilters = comparison.clonofilters.all()
     filter_forms = []
-    for clonofilter in clonofilters:
+    for index, clonofilter in enumerate(clonofilters):
         filter_forms.append(ClonoFilterForm(initial=ClonoFilter.objects.filter(
-            id=clonofilter.id).values()[0]))
+            id=clonofilter.id).values()[0], prefix=str(index)))
 
     context = {'filter_forms': filter_forms,
                'comparison': comparison,
+               'num_forms': len(filter_forms),
                }
-#    context = {'clonofilters': comparison.clonofilters.all()}
     return render(request, 'compare.html', context)
 
 

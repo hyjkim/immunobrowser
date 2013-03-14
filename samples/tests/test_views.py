@@ -68,6 +68,14 @@ class SampleViewIntegrationTest(TestCase):
         self.s = Sample.objects.get()
         self.p = Patient.objects.get()
 
+    def test_summary_should_redirect_if_a_new_sample_is_provided_in_form(self):
+        s2 = Sample(patient=self.p,cell_type="t", draw_date='1999-11-11')
+        s2.save()
+        url = "%s?clonofilter=1" % reverse('samples.views.summary', args=[s2.id])
+        self.assertRedirects(self.client.post(reverse('samples.views.summary', args=[self.s.id]),
+                                              {'sample': s2.id}), url)
+
+
     def test_summary_clonofilter_id_bubble(self):
         cf = ClonoFilter(sample=self.s)
         cf.save()

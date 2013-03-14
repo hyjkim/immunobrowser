@@ -27,7 +27,7 @@ def summary(request, sample_id):
             cf, created = ClonoFilter.objects.get_or_create(
                 **cf_form.cleaned_data)
             url = "%s?clonofilter=%s" % (
-                reverse('samples.views.summary', args=[s.id]), cf.id)
+                reverse('samples.views.summary', args=[cf.sample.id]), cf.id)
         else:
             url = reverse('samples.views.summary', args=[s.id])
 

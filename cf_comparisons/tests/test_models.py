@@ -2,7 +2,7 @@ from django.test import TestCase
 from cf_comparisons.models import Comparison
 from clonotypes.models import ClonoFilter
 #from mock import patch
-from test_utils.ghetto_factory import make_fake_patient_with_3_clonotypes
+from test_utils.ghetto_factory import make_fake_patient_with_3_clonotypes, make_fake_comparison_with_2_samples
 from samples.models import Sample
 
 
