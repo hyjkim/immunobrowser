@@ -25,6 +25,10 @@ class ComparisonsViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_compare_should_pass_shared_clonotypes_to_template_via_context(self):
+        mock_response = compare(self.request, self.comparison.id)
+        self.assertEqual(self.comaprison.get_shared_clonotypes(), mock_response.get('shared_clonotypes'))
+
     def test_compare_should_pass_num_forms_to_template_via_context(self):
         mock_response = compare(self.request, self.comparison.id)
         self.assertEqual(2, mock_response.get('num_forms'))
@@ -76,6 +80,11 @@ class ComparisonsViewIntegrationTest(TestCase):
     def setUp(self):
         make_fake_comparison_with_2_samples()
         self.comparison = Comparison.objects.get()
+
+    def test_compare_shows_shared_clonotypes_as_table(self):
+        response = self.client.get(
+            reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
+        self.assertIn('table code for shared nucleotides', response.content)
 
     def test_compare_should_have_number_of_forms_as_hidden_field(self):
         response = self.client.get(

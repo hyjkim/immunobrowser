@@ -54,9 +54,12 @@ def compare(request, comparison_id):
         filter_forms.append(ClonoFilterForm(initial=ClonoFilter.objects.filter(
             id=clonofilter.id).values()[0], prefix=str(index)))
 
+    #shared_clonotypes = comparison.get_shared_clonotypes()
+    shared_clonotypes = comparison.get_shared_clonotypes_amino()
     context = {'filter_forms': filter_forms,
                'comparison': comparison,
                'num_forms': len(filter_forms),
+               'shared_clonotypes': shared_clonotypes,
                }
     return render(request, 'compare.html', context)
 
@@ -68,13 +71,18 @@ def bubble(request, comparison_id):
     '''
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-    from pylab import text, xlabel, ylabel
+    from pylab import text, xlabel, ylabel, get_cmap, cm
 
     comparison = Comparison.objects.get(id=comparison_id)
+    clonofilters = comparison.clonofilters.all()
     response = HttpResponse(content_type='image/png')
     fig = Figure()
     canvas = FigureCanvas(fig)
     ax = fig.add_subplot(111)
+
+    #clonofilter_colors = (cm(1.*i/len(clonofilters)) for i in range(len(clonofilters)))
+    cm = get_cmap('gist_rainbow')
+    clonofilter_colors = [cm(1.*i/len(clonofilters)) for i in range(len(clonofilters))]
 
     x = []
     y = []
@@ -83,17 +91,18 @@ def bubble(request, comparison_id):
 
     # get a list of vj_counts
     vj_counts_list = [clonofilter.vj_counts()
-                      for clonofilter in comparison.clonofilters.all()]
+                      for clonofilter in clonofilters]
 
-    for vj_counts in vj_counts_list:
+    for clonofilter_index, vj_counts in enumerate(vj_counts_list):
         for v_index, list in enumerate(vj_counts):
             for j_index, counts in enumerate(list):
                 x.append(v_index)
                 y.append(j_index)
-                color.append(counts)
+#                color.append(counts)
+                color.append(clonofilter_colors[clonofilter_index])
                 area.append(counts)
 
     sct = ax.scatter(x, y, c=color, s=area, linewidths=2, edgecolor='w')
-    sct.set_alpha(0.75)
+    sct.set_alpha(0.4)
     canvas.print_png(response)
     return response

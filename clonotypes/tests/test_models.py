@@ -164,6 +164,19 @@ class ClonoFilterModelTest(TestCase):
         self.s = Sample.objects.get()
         self.f = ClonoFilter(sample=self.s)
 
+    def test_normalization_factor_initializes_to_1(self):
+        self.assertEqual(1, self.f.norm_factor)
+
+    def test_norm_size_method_returns_normalized_sum_of_copy(self):
+        from django.db.models import Sum
+        self.f.norm_factor = 10.0
+        self.f.save()
+        self.assertEqual(.4, self.f.norm_size())
+
+    def test_size_method_returns_sum_of_copy(self):
+        from django.db.models import Sum
+        self.assertEqual(4, self.f.size())
+
     def test_default_from_sample_does_not_create_a_default_if_one_exists(self):
         ClonoFilter.default_from_sample(self.s)
         ClonoFilter.default_from_sample(self.s)
@@ -244,7 +257,7 @@ class ClonoFilterModelTest(TestCase):
 #        from collections import defaultdict
         vj_counts = self.f.vj_counts()
         self.assertIsInstance(vj_counts[0], list)
-        self.assertEqual(['[2, 0]', '[0, 1]', '[1, 0]'], map(repr, vj_counts))
+        self.assertEqual(['[2.0, 0]', '[0, 1.0]', '[1.0, 0]'], map(repr, vj_counts))
 
     def test_cdr3_length_sum_returns_a_list(self):
         sums = self.f.cdr3_length_sum()

@@ -1,13 +1,38 @@
-
-<div class="filter_form" style="float:left">
+{% extends "base.html" %}
+{% block content %}
+<div class="filter_wrapper" style="float:left">
   <form action="#" method="post">
     {% csrf_token %}
     <input type="hidden" name="num_forms" value="{{ num_forms }}">
     {% for filter_form in filter_forms %}
+    <div class="filter_form" style="float:left">
       {{ filter_form.as_p }}
+    </div>
     {% endfor %}
     <input type="submit" />
   </form>
 </div>
 
-<img src="{% url cf_comparisons.views.bubble comparison.id %}">
+</div>
+<div class="bubble_wrapper">
+  <img src="{% url cf_comparisons.views.bubble comparison.id %}">
+</div>
+<div class="shared_clonotype_wrapper">
+  <table>
+    <th>
+    </th>
+    {% for seq, list in shared_clonotypes.items %}
+    <tr>
+      <td>
+        {{ seq }}
+      </td>
+    {% for clonotype in list %}
+      <td>
+    clonotype: {{ clonotype.sample }}
+      </td>
+    {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

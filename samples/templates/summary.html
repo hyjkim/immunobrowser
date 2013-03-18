@@ -5,9 +5,15 @@
 <h3>{{ sample.draw_date }}, {{ sample.cell_type }}</h3>
 <form action="#" method="post">
   {% csrf_token %}
-  {{ filter_form.as_p }}
-  <input type="submit" />
+  <div class="filter_form">
+    {{ filter_form.as_p }}
+    <input type="submit" />
+  </div>
 </form>
+<div>
+  Number of reads: {{ clonofilter.size }} <br />
+  Normalized sum of reads: {{ clonofilter.norm_size }}
+</div>
 <div><img src="{% url clonotypes.views.bubble_default sample.id %}?clonofilter={{ clonofilter.id }}">
 </div>
 <div><img src="{% url clonotypes.views.spectratype_default sample.id  %}?clonofilter={{ clonofilter.id }}">

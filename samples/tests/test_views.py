@@ -75,7 +75,6 @@ class SampleViewIntegrationTest(TestCase):
         self.assertRedirects(self.client.post(reverse('samples.views.summary', args=[self.s.id]),
                                               {'sample': s2.id}), url)
 
-
     def test_summary_clonofilter_id_bubble(self):
         cf = ClonoFilter(sample=self.s)
         cf.save()

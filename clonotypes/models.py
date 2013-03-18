@@ -78,11 +78,6 @@ class Clonotype(models.Model):
         from django.utils.safestring import mark_safe
 
         nucleotide = str(self.nucleotide)
-#        nucleotide_html = '<span class="v_gene">' + nucleotide[:self.n2_index] + '</span>'
-#        nucleotide_html += '<span class="n2_additions">' + nucleotide[self.n2_index:self.d_index] + '</span>'
-#        nucleotide_html += '<span class="d_gene">' + nucleotide[self.d_index:self.n1_index] + '</span>'
-#        nucleotide_html += '<span class="n1_additions">' + nucleotide[self.n1_index:self.j_index] + '</span>'
-#        nucleotide_html += '<span class="j_gene">' + nucleotide[self.j_index:] + '</span>'
 
         nucleotide_html = '<span class="j_gene">%s</span>' % nucleotide[
             self.j_index:]
@@ -120,7 +115,7 @@ class ClonoFilter(models.Model):
     min_copy = models.IntegerField(null=True)
     min_length = models.IntegerField(null=True)
     max_length = models.IntegerField(null=True)
-    norm_factor = models.FloatField(null=True)
+    norm_factor = models.FloatField(null=True, default=1)
 
     @staticmethod
     def default_from_sample(sample):
@@ -137,7 +132,6 @@ class ClonoFilter(models.Model):
         cf, created = ClonoFilter.objects.get_or_create(**cf_dict)
 
         return cf
-
 
     def get_clonotypes(self):
         ''' Takes in a clonofilter object and returns a queryset '''
@@ -159,6 +153,21 @@ class ClonoFilter(models.Model):
 
         clonotype_queryset = Clonotype.objects.filter(query)
         return clonotype_queryset
+
+    def norm_size(self):
+        '''
+        Returns the normalized sum of 'copy' given a clonofilter
+        '''
+        norm_sum = self.size() / self.norm_factor
+        return norm_sum
+
+    def size(self):
+        '''
+        Returns the sum of 'copy' given a clonofilter
+        '''
+        from django.db.models import Sum
+        copy_sum = self.get_clonotypes().aggregate(Sum('copy'))
+        return copy_sum['copy__sum']
 
     def vj_counts(self):
         from django.db.models import Sum

@@ -34,6 +34,8 @@ def bubble(request, clonofilter):
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from pylab import text, xlabel, ylabel
+    from numpy import median
+    from clonotypes.models import Clonotype
 
     response = HttpResponse(content_type='image/png')
     fig = Figure()
@@ -43,18 +45,32 @@ def bubble(request, clonofilter):
     x = []
     y = []
     color = []
+    data = []
     area = []
 
     vj_counts = clonofilter.vj_counts()
 
+    # Calculate the plotting area by finding the number of v's and j's
+    width = len(Clonotype.v_family_names())
+    height = len(Clonotype.j_gene_names())
+
+
+
+    # Data wrangling to generate plot stuff
     for v_index, list in enumerate(vj_counts):
         for j_index, counts in enumerate(list):
             x.append(v_index)
             y.append(j_index)
             color.append(counts)
-            area.append(counts)
+            data.append(counts)
 #        text(data[1], data[5],
 #             data[0], size=11, horizontalalignment='center')
+
+    # Normalize area by the median and plot area
+    #area_norm_factor = (1.0/median(data)) * width * height
+    if data:
+        area_norm_factor = (2.0/max(data)) * width * height
+        area = [datapoint * area_norm_factor for datapoint in data]
 
     sct = ax.scatter(x, y, c=color, s=area, linewidths=2, edgecolor='w')
     sct.set_alpha(0.75)

@@ -5,6 +5,34 @@ from clonotypes.models import ClonoFilter
 from test_utils.ghetto_factory import make_fake_patient_with_3_clonotypes, make_fake_comparison_with_2_samples
 from samples.models import Sample
 
+class ComparsionModelMethodsTest(TestCase):
+    '''
+    Used to test comparison methods.
+    '''
+    def setUp(self):
+        make_fake_comparison_with_2_samples()
+        self.comparison = Comparison.objects.get()
+
+    def test_get_shared_clonotypes_returns_empty_dict_if_only_one_clonofilter_is_provided(self):
+        cf = ClonoFilter.objects.all()[0]
+        comparison = Comparison.get_or_create_from_clonofilters([cf])
+        self.assertEqual({}, comparison.get_shared_clonotypes())
+
+    def test_nonempty_shared_clonotype_set_returns_clonotypes(self):
+        from clonotypes.models import Clonotype
+        shared_clonotypes = self.comparison.get_shared_clonotypes()
+        self.assertIsInstance(shared_clonotypes['GGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA'][0], Clonotype)
+
+    def test_get_shared_clonotypes_returns_a_dict(self):
+        '''
+        Tests that the method get_shared_clonotypes() returns a list of lists of clonotypes.
+        Each item in the outer list is a shared clonotype and each item in the inner
+        list is a sample-specific clonotype
+        '''
+        shared_clonotypes = self.comparison.get_shared_clonotypes()
+        #self.assertEqual('', shared_clonotypes)
+        self.assertIsInstance(shared_clonotypes, dict)
+
 
 class ComparisonModelTest(TestCase):
     def setUp(self):
