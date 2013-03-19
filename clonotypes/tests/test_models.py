@@ -7,6 +7,11 @@ import re
 
 
 class ClonotypeModelTest(TestCase):
+
+
+    def test_add_rearrangement_and_receptor_models_and_refactor_clonotype_model(self):
+        self.fail('TODO')
+
     def test_parse_nucleotide_should_not_create_a_span_if_index_is_lt_0(self):
         ''' Adaptive uses -1 in the index field to represent the lack of
         that element. This test makes sure rendered text does no create a span
