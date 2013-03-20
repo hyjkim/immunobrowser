@@ -123,25 +123,13 @@ class ClonotypeRefactor(models.Model):
                 clonotype_dict['sample'] = sample
                 ClonotypeRefactor.objects.create(**clonotype_dict)
 
-''' Bulk create is not compatible with objects with dependencies
-                if AminoAcid.filter(**amino_acid_dict).count() == 0:
-                    amino_acid_list.append(AminoAcid(**amino_acid_dict))
-                if Rearrangement.filter(**rearrangement_dict).count() == 0:
-                    rearrangement_list.append(AminoAcid(**rearrangement_dict)
-                clonotype_list.append(Clonotype(sample=sample, **clonotype_dict))
-                if len(clonotype_list) > num_to_insert:
-                    Clonotype.objects.bulk_create(clonotype_list)
-                    clonotype_list = []
-        Clonotype.objects.bulk_create(clonotype_list)
-
-'''
 
 class Clonotype(models.Model):
     sample = models.ForeignKey(Sample)
+    amino_acid = models.ForeignKey(AminoAcid, blank=True, null=True)
     sequence_id = models.CharField(max_length=100)
     container = models.CharField(max_length=100)
     nucleotide = models.CharField(max_length=300)
-    amino_acid = models.CharField(max_length=100)
     normalized_frequency = models.FloatField()
     normalized_copy = models.IntegerField()
     raw_frequency = models.FloatField()
@@ -166,8 +154,39 @@ class Clonotype(models.Model):
     d_index = models.IntegerField()
     j_index = models.IntegerField()
 
+    def __init__(self, *args, **kwargs):
+        if 'amino_acid' in kwargs:
+            if not kwargs['amino_acid'] == '':
+                aa, created = AminoAcid.objects.get_or_create(**{'sequence': kwargs['amino_acid']})
+                kwargs['amino_acid'] = aa
+
+                aa.samples.add(kwargs['sample'])
+                aa.save()
+            else:
+                del kwargs['amino_acid']
+        super(Clonotype, self).__init__(*args, **kwargs)
+
     @staticmethod
     def import_tsv(sample, filename):
+        headers = None
+        clonotype_list = []
+        reader = csv.reader(open(filename, 'r'), delimiter="\t")
+
+        for row in reader:
+            if reader.line_num == 1:
+                headers = row
+                headers = map(convert, headers)
+            else:
+                clonotype = {}
+                clonotype = dict(zip(headers, row))
+                if(clonotype['normalized_frequency'] == ''):
+                    raise Exception('Normalized_frequency cannot be null')
+                c = Clonotype(sample=sample, **clonotype)
+                c.save()
+
+
+    @staticmethod
+    def import_tsv_old(sample, filename):
         headers = None
         num_to_insert = 100
         clonotype_list = []

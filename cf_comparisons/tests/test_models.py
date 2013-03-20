@@ -5,6 +5,7 @@ from clonotypes.models import ClonoFilter
 from test_utils.ghetto_factory import make_fake_patient_with_3_clonotypes, make_fake_comparison_with_2_samples
 from samples.models import Sample
 
+
 class ComparsionModelMethodsTest(TestCase):
     '''
     Used to test comparison methods.
@@ -12,6 +13,13 @@ class ComparsionModelMethodsTest(TestCase):
     def setUp(self):
         make_fake_comparison_with_2_samples()
         self.comparison = Comparison.objects.get()
+
+    def test_nonempty_shared_clonotype_amino_set_returns_clonotypes(self):
+        shared_clonotypes = self.comparison.get_shared_clonotypes_amino()
+        s1 = Sample.objects.all()[0]
+        s2 = Sample.objects.all()[1]
+        self.assertEqual({u'CASSLGPLAEKETQYF': [s1, s2]}
+                         , shared_clonotypes)
 
     def test_get_shared_clonotypes_returns_empty_dict_if_only_one_clonofilter_is_provided(self):
         cf = ClonoFilter.objects.all()[0]

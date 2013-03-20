@@ -36,9 +36,9 @@ class Comparison(models.Model):
         '''
         Returns clonotypes that are shared by all members in the clonofilter
         '''
-        from django.db.models import Count
-        from clonotypes.models import Clonotype
+        from clonotypes.models import AminoAcid
         from collections import defaultdict
+        from django.db.models import Q
 
         shared_clonotypes = [[]]
         # Get a list of sample ids
@@ -47,15 +47,13 @@ class Comparison(models.Model):
         # that have at least len(samples) shared clonotypes
         returnable = defaultdict(list)
         if len(samples) > 1:
-            shared_nucleotides = Clonotype.objects.exclude(amino_acid=u'').filter(sample__in=samples).values('amino_acid').annotate(seq_count=Count('nucleotide')).filter(seq_count__gte=len(samples)).values_list('amino_acid', flat=True)
-
-            # Now get all clonotypes with these shared sequences
-            shared_clonotypes = Clonotype.objects.filter(sample__in=samples).filter(amino_acid__in=shared_nucleotides)
+            shared_amino_acid = reduce(lambda q, s: q.filter(samples=s), samples, AminoAcid.objects.all())
 
             # Format the shared clonotypes as a dict of lists:
             # {'sequence': [<clonotype 1>, <clonotype2>]}
-            for clonotype in shared_clonotypes:
-                returnable[clonotype.amino_acid].append(clonotype)
+            for amino_acid in shared_amino_acid:
+                for sample in amino_acid.samples.all():
+                    returnable[amino_acid.sequence].append(sample)
         return dict(returnable)
 
     @staticmethod

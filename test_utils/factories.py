@@ -110,7 +110,20 @@ class AminoAcidFactory(factory.Factory):
     Creates an Amino Acid
     '''
     FACTORY_FOR = AminoAcid
-    sequence = 'CASS'
+    sequence = 'CASSLGPLAEKETQYF'
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        from clonotypes.models import AminoAcid
+        try:
+            if 'sequence' in kwargs:
+                sequence = kwargs['sequence']
+            else:
+                sequence = 'CASSLGPLAEKETQYF'
+            amino_acid = AminoAcid.objects.filter(sequence=sequence).get()
+        except AminoAcid.DoesNotExist:
+            amino_acid = super(AminoAcidFactory, cls)._prepare(create, **kwargs)
+        return amino_acid
 
 class PatientFactory(factory.Factory):
     FACTORY_FOR = Patient
@@ -131,7 +144,6 @@ class ClonotypeFactory(factory.Factory):
     sequence_id = 'C0FW0ACXX_1_Patient-15-D_1'
     container = 'UCSC-Kim-P01-01'
     nucleotide = 'GGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA'
-    amino_acid = 'CASSLGPLAEKETQYF'
     normalized_frequency = 9.336458E-6
     normalized_copy = 2
     raw_frequency = 1.6548345E-5
@@ -155,3 +167,13 @@ class ClonotypeFactory(factory.Factory):
     n2_index = 35
     d_index = 40
     j_index = 50
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        clonotype = super(ClonotypeFactory, cls)._prepare(create, **kwargs)
+        amino_acid = AminoAcidFactory()
+        amino_acid.samples.add(clonotype.sample)
+        amino_acid.save()
+
+        return clonotype
+

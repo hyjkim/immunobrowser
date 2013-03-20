@@ -4,8 +4,7 @@ from samples.models import Sample
 from clonotypes.models import Clonotype, AminoAcid, Rearrangement, ClonotypeRefactor
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
 import re
-from test_utils.factories import AminoAcidFactory, SampleFactory, RearrangementFactory
-
+from test_utils.factories import AminoAcidFactory, SampleFactory, ClonotypeFactory
 
 class ClonotypeRefactorTest(TestCase):
     def test_refactored_clonotypes_have_these_required_fields(self):
@@ -84,16 +83,28 @@ class AminoAcidModelTest(TestCase):
         for key, value in data.items():
             self.assertEqual(value, getattr(aa_in_db, key))
 
-    def test_amino_acid_can_be_made_from_multiple_rearrangements(self):
+class AminoAcidModelTest(TestCase):
+    def test_amino_acid_should_have_amino_acid_sequence(self):
+        data = {'sequence': 'CASS'}
+        aa = AminoAcid()
+
+        for key, value in data.items():
+            setattr(aa, key, value)
+        aa.save()
+        aa_in_db = AminoAcid.objects.get()
+        for key, value in data.items():
+            self.assertEqual(value, getattr(aa_in_db, key))
+
+    def test_amino_acid_can_be_made_from_multiple_clonotypes(self):
         aa = AminoAcidFactory()
-        r = RearrangementFactory()
-        r.amino_acid = aa
-        r.save()
-        r2 = RearrangementFactory()
-        r2.amino_acid = aa
-        r2.save()
-        self.assertEqual(r, aa.rearrangement_set.all()[0])
-        self.assertEqual(r2, aa.rearrangement_set.all()[1])
+        c = ClonotypeFactory()
+        c.amino_acid = aa
+        c.save()
+        c2 = ClonotypeFactory()
+        c2.amino_acid = aa
+        c2.save()
+        self.assertEqual(c, aa.clonotype_set.all()[0])
+        self.assertEqual(c2, aa.clonotype_set.all()[1])
 
     def DONTtest_amino_acid_can_exist_in_multiple_samples(self):
         '''
@@ -111,6 +122,13 @@ class AminoAcidModelTest(TestCase):
 
 
 class ClonotypeModelTest(TestCase):
+    def test_clonotypes_have_an_optional_amino_acid(self):
+        aa = AminoAcidFactory()
+        c = ClonotypeFactory()
+        c.amino_acid = aa
+        c.save()
+        self.assertEqual(aa, c.amino_acid)
+
     def test_parse_nucleotide_should_not_create_a_span_if_index_is_lt_0(self):
         ''' Adaptive uses -1 in the index field to represent the lack of
         that element. This test makes sure rendered text does no create a span
@@ -406,3 +424,4 @@ class ClonoFilterModelTest(TestCase):
         ).save()
         self.assertEqual(
             [[10, 10], [36, 1], [39, 1], [42, 2]], self.f.cdr3_length_sum())
+
