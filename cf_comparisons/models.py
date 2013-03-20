@@ -21,7 +21,6 @@ class Comparison(models.Model):
         returnable = defaultdict(list)
         if len(samples) > 1:
             shared_nucleotides = Clonotype.objects.filter(sample__in=samples).values('nucleotide').annotate(seq_count=Count('nucleotide')).filter(seq_count__gte=len(samples)).values_list('nucleotide', flat=True)
-            print shared_nucleotides
 
             # Now get all clonotypes with these shared sequences
             shared_clonotypes = Clonotype.objects.filter(sample__in=samples).filter(nucleotide__in=shared_nucleotides)

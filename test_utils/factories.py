@@ -8,7 +8,10 @@ import factory
 from django.http import HttpRequest
 from django.contrib.auth.models import User
 #from django.http import Http404
-from django.template import RequestContext
+#from django.template import RequestContext
+from clonotypes.models import AminoAcid, Rearrangement, Clonotype
+from patients.models import Patient
+from samples.models import Sample
 
 
 class FakeMessages:
@@ -65,12 +68,90 @@ def render_to_response_echo(*args, **kwargs):
     locals.update(dict(template_name=args[0]))
     return locals
 
+
 def render_echo(*args, **kwargs):
     ''' mocked render that just returns what was passed in,
     also puts the template name into the results dict '''
-    request = args[0]
+#    request = args[0]
     context = args[2]
     context['template'] = args[1]
     return context
 
 
+class RearrangementFactory(factory.Factory):
+    '''
+    Creates a rearrangement
+    '''
+    FACTORY_FOR = Rearrangement
+    nucleotide = 'ATGCATGC'
+    v_family_name = 'v1'
+    v_gene_name = '1'
+    v_ties = '1,2'
+    d_gene_name = '2'
+    j_gene_name = 'j3'
+    j_ties = 'j4,j5'
+    sequence_status = 'Productive'
+    v_deletion = 2
+    d5_deletion = 3
+    d3_deletion = 2
+    j_deletion = 3
+    n2_insertion = 4
+    n1_insertion = 5
+    v_index = 3
+    n1_index = 4
+    n2_index = -1
+    d_index = 10
+    j_index = 5
+    cdr3_length = 42
+
+
+class AminoAcidFactory(factory.Factory):
+    '''
+    Creates an Amino Acid
+    '''
+    FACTORY_FOR = AminoAcid
+    sequence = 'CASS'
+
+class PatientFactory(factory.Factory):
+    FACTORY_FOR = Patient
+    name = 'test patient'
+    birthday = '2011-11-11'
+    disease = 'fake disease'
+    gender = 'M'
+
+class SampleFactory(factory.Factory):
+    FACTORY_FOR = Sample
+    patient = factory.SubFactory(PatientFactory)
+    draw_date = '2012-12-12'
+    cell_type = 'cd4+'
+
+class ClonotypeFactory(factory.Factory):
+    FACTORY_FOR = Clonotype
+    sample = factory.SubFactory(SampleFactory)
+    sequence_id = 'C0FW0ACXX_1_Patient-15-D_1'
+    container = 'UCSC-Kim-P01-01'
+    nucleotide = 'GGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA'
+    amino_acid = 'CASSLGPLAEKETQYF'
+    normalized_frequency = 9.336458E-6
+    normalized_copy = 2
+    raw_frequency = 1.6548345E-5
+    copy = 2
+    cdr3_length = 42
+    v_family_name = 7
+    v_gene_name = '(undefined)'
+    v_ties = 'TRBV7-9'
+    d_gene_name = 'TRBD1-2'
+    j_gene_name = 'TRBJ2-5'
+    j_ties = ''
+    v_deletion = 1
+    d5_deletion = 4
+    d3_deletion = 7
+    j_deletion = 3
+    n2_insertion = 5
+    n1_insertion = 5
+    sequence_status = 'Productive'
+    v_index = 19
+    n1_index = 45
+    n2_index = 35
+    d_index = 40
+    j_index = 50

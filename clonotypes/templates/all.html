@@ -31,7 +31,7 @@
           <td>{{ clonotype.d_gene_name }}</td>
           <td>{{ clonotype.j_gene_name }}</td>
           <td>{{ clonotype.sequence_status }}</td>
-          <td><a href="{% url clonotypes.views.detail clonotype.id %}">More
+          <td><a href="{% url 'clonotypes.views.detail' clonotype.id %}">More
               Info</a></td>
         </tr>
         {% endfor %}

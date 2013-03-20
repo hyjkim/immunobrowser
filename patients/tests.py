@@ -18,7 +18,7 @@ class PatientModelTest(TestCase):
     # check db to see if patient exists
     men_in_db = Patient.objects.filter(gender='M')
     self.assertEquals(len(men_in_db), 1)
-    
+
 
     # can create a patient that is female
     woman = Patient()
@@ -68,13 +68,14 @@ class PatientModelTest(TestCase):
 
     # can create a patient that is male
     man = Patient()
-    man.birthday = timezone.now()
+    #man.birthday = timezone.now()
+    man.birthday = datetime.date(2011, 11, 11)
     man.save()
 
     # check db to see if patient exists
     man_in_db = Patient.objects.get(birthday=man.birthday)
-    self.assertEquals(man.birthday.date(), man_in_db.birthday)
-  
+    self.assertEquals(man.birthday, man_in_db.birthday)
+
 
 
   def test_can_create_a_new_patient_and_save_to_db(self):

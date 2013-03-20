@@ -8,4 +8,5 @@ class Sample(models.Model):
   draw_date = models.DateField(blank=True, null=True)
   def __unicode__(self):
     #return self.patient.name + " " + self.draw_date.isoformat() + " " + self.cell_type
-    return u'%s %s %s' %(self.patient.name, self.draw_date.isoformat(), self.cell_type)
+#    return u'%s %s %s' %(self.patient.name, self.draw_date.isoformat(), self.cell_type)
+    return u'%s %s %s' %(self.patient.name, self.draw_date, self.cell_type)

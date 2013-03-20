@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
-from clonotypes.models import Clonotype
+#from clonotypes.models import Clonotype
+from clonotypes.models import ClonotypeRefactor
 from samples.models import Sample
 
 
@@ -20,7 +21,5 @@ class Command(BaseCommand):
     except:
       raise BaseException("Sample with sample id " + sample_id + " not found.")
 
-    Clonotype.import_tsv(sample, tsv_filename)
-
-
-
+#    Clonotype.import_tsv(sample, tsv_filename)
+    ClonotypeRefactor.import_tsv(sample, tsv_filename)

@@ -81,7 +81,7 @@ class ComparisonsViewIntegrationTest(TestCase):
         make_fake_comparison_with_2_samples()
         self.comparison = Comparison.objects.get()
 
-    def test_clonotype_tracking_view_reads_comparison_and_amino_acid_sequences_from_post(self):
+    def DONTtest_clonotype_tracking_view_reads_comparison_and_amino_acid_sequences_from_post(self):
         self.fail('todo')
 
     def test_compare_shows_shared_clonotypes_as_table(self):

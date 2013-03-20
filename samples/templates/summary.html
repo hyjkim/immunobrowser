@@ -14,9 +14,9 @@
   Number of reads: {{ clonofilter.size }} <br />
   Normalized sum of reads: {{ clonofilter.norm_size }}
 </div>
-<div><img src="{% url clonotypes.views.bubble_default sample.id %}?clonofilter={{ clonofilter.id }}">
+<div><img src="{% url 'clonotypes.views.bubble_default' sample.id %}?clonofilter={{ clonofilter.id }}">
 </div>
-<div><img src="{% url clonotypes.views.spectratype_default sample.id  %}?clonofilter={{ clonofilter.id }}">
+<div><img src="{% url 'clonotypes.views.spectratype_default' sample.id  %}?clonofilter={{ clonofilter.id }}">
 </div>
-<a href="{% url clonotypes.views.all sample.id %}">View all Clonotypes</a>
+<a href="{% url 'clonotypes.views.all' sample.id %}">View all Clonotypes</a>
 {% endblock %}

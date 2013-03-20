@@ -2,9 +2,139 @@ from django.db import models
 from samples.models import Sample
 from utils.text_manipulation import convert
 import csv
+from utils.utils import sub_dict_remove_strict
 
 # Create your models here.
 
+
+class AminoAcid(models.Model):
+    sequence = models.CharField(max_length=300)
+    samples = models.ManyToManyField(Sample)
+
+
+class Rearrangement(models.Model):
+    '''
+    Stores a DNA-level rearrangement of a TCR.
+    '''
+    nucleotide = models.CharField(max_length=300)
+    v_family_name = models.CharField(max_length=100)
+    v_gene_name = models.CharField(max_length=100)
+    v_ties = models.CharField(max_length=100)
+    d_gene_name = models.CharField(max_length=100)
+    j_gene_name = models.CharField(max_length=100)
+    j_ties = models.CharField(max_length=100)
+    sequence_status = models.CharField(max_length=100)
+    v_deletion = models.IntegerField()
+    d5_deletion = models.IntegerField()
+    d3_deletion = models.IntegerField()
+    j_deletion = models.IntegerField()
+    n2_insertion = models.IntegerField()
+    n1_insertion = models.IntegerField()
+    v_index = models.IntegerField()
+    n1_index = models.IntegerField()
+    n2_index = models.IntegerField()
+    d_index = models.IntegerField()
+    j_index = models.IntegerField()
+    cdr3_length = models.IntegerField()
+    amino_acid = models.ForeignKey(AminoAcid, blank=True, null=True)
+
+
+class ClonotypeRefactor(models.Model):
+    sample = models.ForeignKey(Sample)
+    sequence_id = models.CharField(max_length=100)
+    container = models.CharField(max_length=100)
+    normalized_frequency = models.FloatField()
+    normalized_copy = models.IntegerField()
+    raw_frequency = models.FloatField()
+    copy = models.IntegerField()
+    rearrangement = models.ForeignKey(Rearrangement)
+
+    @staticmethod
+    def import_tsv(sample, filename):
+        headers = None
+        num_to_insert = 100
+#        clonotype_list = []
+#        amino_acid_list = []
+#        rearrangement_list = []
+        reader = csv.reader(open(filename, 'r'), delimiter="\t")
+
+        rearrangement_cols = ['nucleotide',
+                              'v_family_name',
+                              'v_gene_name',
+                              'v_ties',
+                              'd_gene_name',
+                              'j_gene_name',
+                              'j_ties',
+                              'sequence_status',
+                              'v_deletion',
+                              'd5_deletion',
+                              'd3_deletion',
+                              'j_deletion',
+                              'n2_insertion',
+                              'n1_insertion',
+                              'v_index',
+                              'n1_index',
+                              'n2_index',
+                              'd_index',
+                              'j_index',
+                              'cdr3_length',
+                              ]
+        amino_acid_cols = ['amino_acid']
+        clonotype_cols=[
+                                 'sequence_id',
+                                 'container',
+                                 'normalized_frequency',
+                                 'normalized_copy',
+                                 'raw_frequency',
+                                 'copy',
+                                ]
+
+        for row in reader:
+            if reader.line_num == 1:
+                headers = row
+                headers = map(convert, headers)
+            else:
+                line_dict = {}
+                line_dict = dict(zip(headers, row))
+
+# split into clonotype, rearrangement and amino acid dicts
+                amino_acid_dict = sub_dict_remove_strict(line_dict, amino_acid_cols)
+                rearrangement_dict = sub_dict_remove_strict(line_dict, rearrangement_cols)
+                clonotype_dict = sub_dict_remove_strict(line_dict, clonotype_cols)
+
+
+
+# throw error if any leftover columns
+                if line_dict:
+                    raise Exception('Unidentified column in file')
+                if clonotype_dict['normalized_frequency'] == '':
+                    raise Exception('Normalized_frequency cannot be null')
+                if not amino_acid_dict['amino_acid'] == '':
+                    # Fix discrepancies between column and model fields
+                    amino_acid_dict['sequence'] = amino_acid_dict['amino_acid']
+                    del amino_acid_dict['amino_acid']
+                    aa, created = AminoAcid.objects.get_or_create(**amino_acid_dict)
+                    aa.samples.add(sample)
+                    aa.save()
+                    r, created = Rearrangement.objects.get_or_create(amino_acid=aa, **rearrangement_dict)
+                else:
+                    r, created = Rearrangement.objects.get_or_create(**rearrangement_dict)
+                clonotype_dict['rearrangement'] = r
+                clonotype_dict['sample'] = sample
+                ClonotypeRefactor.objects.create(**clonotype_dict)
+
+''' Bulk create is not compatible with objects with dependencies
+                if AminoAcid.filter(**amino_acid_dict).count() == 0:
+                    amino_acid_list.append(AminoAcid(**amino_acid_dict))
+                if Rearrangement.filter(**rearrangement_dict).count() == 0:
+                    rearrangement_list.append(AminoAcid(**rearrangement_dict)
+                clonotype_list.append(Clonotype(sample=sample, **clonotype_dict))
+                if len(clonotype_list) > num_to_insert:
+                    Clonotype.objects.bulk_create(clonotype_list)
+                    clonotype_list = []
+        Clonotype.objects.bulk_create(clonotype_list)
+
+'''
 
 class Clonotype(models.Model):
     sample = models.ForeignKey(Sample)

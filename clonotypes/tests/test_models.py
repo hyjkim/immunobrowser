@@ -1,17 +1,116 @@
 from django.test import TestCase
 from patients.models import Patient
 from samples.models import Sample
-from clonotypes.models import Clonotype
+from clonotypes.models import Clonotype, AminoAcid, Rearrangement, ClonotypeRefactor
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
 import re
+from test_utils.factories import AminoAcidFactory, SampleFactory, RearrangementFactory
+
+
+class ClonotypeRefactorTest(TestCase):
+    def test_refactored_clonotypes_have_these_required_fields(self):
+        s = SampleFactory()
+        r = RearrangementFactory()
+        data = {'sample': s,
+                'sequence_id': 'test',
+                'container': 'test',
+                'normalized_frequency': 0.1,
+                'normalized_copy': 1,
+                'copy': 1,
+                'raw_frequency': 0.1,
+                'rearrangement': r,
+                }
+        c = ClonotypeRefactor()
+        for key, value in data.items():
+            setattr(c, key, value)
+        c.save()
+
+        c_in_db = ClonotypeRefactor.objects.get()
+
+        for key, value in data.items():
+            self.assertEqual(value, getattr(c_in_db, key), 'key value %s not equal' % key)
+
+
+class RearrangementModelTest(TestCase):
+    def test_rearrangements_have_an_optional_amino_acid(self):
+        aa = AminoAcidFactory()
+        r = RearrangementFactory()
+        r.amino_acid = aa
+        r.save()
+        self.assertEqual(aa, r.amino_acid)
+
+    def test_rearrangements_have_these_required_fields(self):
+        data = {
+            'nucleotide': 'ATGCATGC',
+            'v_family_name': 'v1',
+            'v_gene_name': '1',
+            'v_ties': '1,2',
+            'd_gene_name': '2',
+            'j_gene_name': 'j3',
+            'j_ties': 'j4,j5',
+            'v_deletion': 2,
+            'd5_deletion': 3,
+            'd3_deletion': 2,
+            'j_deletion': 3,
+            'n2_insertion': 4,
+            'n1_insertion': 5,
+            'v_index': 3,
+            'n1_index': 4,
+            'n2_index': -1,
+            'd_index': 10,
+            'j_index': 5,
+            'sequence_status': 'Productive',
+            'cdr3_length': 42,
+        }
+        r = Rearrangement()
+        for key, value in data.items():
+            setattr(r, key, value)
+        r.save()
+
+        r_in_db = Rearrangement.objects.get()
+
+        for key, value in data.items():
+            self.assertEqual(value, getattr(r_in_db, key), 'key value %s not equal' % key)
+
+class AminoAcidModelTest(TestCase):
+    def test_amino_acid_should_have_amino_acid_sequence(self):
+        data = {'sequence': 'CASS'}
+        aa = AminoAcid()
+
+        for key, value in data.items():
+            setattr(aa, key, value)
+        aa.save()
+        aa_in_db = AminoAcid.objects.get()
+        for key, value in data.items():
+            self.assertEqual(value, getattr(aa_in_db, key))
+
+    def test_amino_acid_can_be_made_from_multiple_rearrangements(self):
+        aa = AminoAcidFactory()
+        r = RearrangementFactory()
+        r.amino_acid = aa
+        r.save()
+        r2 = RearrangementFactory()
+        r2.amino_acid = aa
+        r2.save()
+        self.assertEqual(r, aa.rearrangement_set.all()[0])
+        self.assertEqual(r2, aa.rearrangement_set.all()[1])
+
+    def DONTtest_amino_acid_can_exist_in_multiple_samples(self):
+        '''
+        Because there's no intrinsic link between samples and
+        amino acid sequences, we store all the samples that contain
+        this amino acid sequence here. This should make querying for
+        shared amino acids much faster.
+        '''
+        s = SampleFactory()
+        s2 = SampleFactory()
+        aa = AminoAcidFactory()
+        aa.samples.add(s)
+        aa.samples.add(s2)
+        self.assertEqual(set([s, s2]), set(aa.samples.all()))
 
 
 class ClonotypeModelTest(TestCase):
-
-
-    def test_add_rearrangement_and_receptor_models_and_refactor_clonotype_model(self):
-        self.fail('TODO')
-
     def test_parse_nucleotide_should_not_create_a_span_if_index_is_lt_0(self):
         ''' Adaptive uses -1 in the index field to represent the lack of
         that element. This test makes sure rendered text does no create a span
@@ -102,8 +201,8 @@ class ClonotypeModelTest(TestCase):
         self.assertRaises(
             IOError, Clonotype.import_tsv, s, '/fake/path/to/fake/file')
 
-    def test_create_clonotypes_for_a_sample(self):
-        p = Patient()
+        def test_create_clonotypes_for_a_sample(self):
+            p = Patient()
         p.save()
         s = Sample(patient=p)
         s.save()
@@ -214,8 +313,8 @@ class ClonoFilterModelTest(TestCase):
         self.assertQuerysetEqual(filtered_clonotypes,
                                  map(repr, self.f.get_clonotypes()))
 
-    def test_clonofilter_has_normalization_factor_as_a_float(self):
-        self.f.norm_factor = 1
+        def test_clonofilter_has_normalization_factor_as_a_float(self):
+            self.f.norm_factor = 1
         self.f.save()
         f = ClonoFilter.objects.get()
         self.assertEqual(f.norm_factor, self.f.norm_factor)
@@ -259,10 +358,11 @@ class ClonoFilterModelTest(TestCase):
         self.assertEqual(len(j_gene_names), len(vj_counts[0]))
 
     def test_vj_counts_returns_a_2d_list_of_v_j_and_sum_of_copies(self):
-#        from collections import defaultdict
+        #        from collections import defaultdict
         vj_counts = self.f.vj_counts()
         self.assertIsInstance(vj_counts[0], list)
-        self.assertEqual(['[2.0, 0]', '[0, 1.0]', '[1.0, 0]'], map(repr, vj_counts))
+        self.assertEqual(
+            ['[2.0, 0]', '[0, 1.0]', '[1.0, 0]'], map(repr, vj_counts))
 
     def test_cdr3_length_sum_returns_a_list(self):
         sums = self.f.cdr3_length_sum()
