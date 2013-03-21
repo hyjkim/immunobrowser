@@ -1,15 +1,16 @@
 from django.test import TestCase
 from patients.models import Patient
 from samples.models import Sample
-from clonotypes.models import Clonotype, AminoAcid, Rearrangement, ClonotypeRefactor
+from clonotypes.models import Clonotype, AminoAcid, Recombination, ClonoFilter
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
 import re
-from test_utils.factories import AminoAcidFactory, SampleFactory, ClonotypeFactory
+from test_utils.factories import AminoAcidFactory, SampleFactory, ClonotypeFactory, RecombinationFactory
+
 
 class ClonotypeRefactorTest(TestCase):
     def test_refactored_clonotypes_have_these_required_fields(self):
         s = SampleFactory()
-        r = RearrangementFactory()
+        r = RecombinationFactory()
         data = {'sample': s,
                 'sequence_id': 'test',
                 'container': 'test',
@@ -17,28 +18,29 @@ class ClonotypeRefactorTest(TestCase):
                 'normalized_copy': 1,
                 'copy': 1,
                 'raw_frequency': 0.1,
-                'rearrangement': r,
+                'recombination': r,
                 }
-        c = ClonotypeRefactor()
+        c = Clonotype()
         for key, value in data.items():
             setattr(c, key, value)
         c.save()
 
-        c_in_db = ClonotypeRefactor.objects.get()
+        c_in_db = Clonotype.objects.get()
 
         for key, value in data.items():
-            self.assertEqual(value, getattr(c_in_db, key), 'key value %s not equal' % key)
+            self.assertEqual(
+                value, getattr(c_in_db, key), 'key value %s not equal' % key)
 
 
-class RearrangementModelTest(TestCase):
-    def test_rearrangements_have_an_optional_amino_acid(self):
+class RecombinationModelTest(TestCase):
+    def test_recombinations_have_an_optional_amino_acid(self):
         aa = AminoAcidFactory()
-        r = RearrangementFactory()
+        r = RecombinationFactory()
         r.amino_acid = aa
         r.save()
         self.assertEqual(aa, r.amino_acid)
 
-    def test_rearrangements_have_these_required_fields(self):
+    def test_recombinations_have_these_required_fields(self):
         data = {
             'nucleotide': 'ATGCATGC',
             'v_family_name': 'v1',
@@ -61,15 +63,98 @@ class RearrangementModelTest(TestCase):
             'sequence_status': 'Productive',
             'cdr3_length': 42,
         }
-        r = Rearrangement()
+        r = Recombination()
         for key, value in data.items():
             setattr(r, key, value)
         r.save()
 
-        r_in_db = Rearrangement.objects.get()
+        r_in_db = Recombination.objects.get()
 
         for key, value in data.items():
-            self.assertEqual(value, getattr(r_in_db, key), 'key value %s not equal' % key)
+            self.assertEqual(
+                value, getattr(r_in_db, key), 'key value %s not equal' % key)
+
+    def test_v_family_names_returns_list_of_distinct_v_family_names(self):
+        make_fake_patient_with_3_clonotypes()
+        self.assertIsInstance(Recombination.v_family_names(), list)
+        self.assertEqual(['7', '8', '9'], Recombination.v_family_names())
+
+    def test_j_gene_names_returns_list_of_distinct_j_gene_names(self):
+        make_fake_patient_with_3_clonotypes()
+        self.assertIsInstance(Recombination.j_gene_names(), list)
+        self.assertEqual(
+            [u'TRBJ2-5', u'TRBJ2-4'], Recombination.j_gene_names())
+
+    def test_parse_nucleotide_should_not_create_a_span_if_index_is_lt_0(self):
+        ''' Adaptive uses -1 in the index field to represent the lack of
+        that element. This test makes sure rendered text does no create a span
+        for an empty region '''
+        make_fake_patient()
+        r = Recombination.objects.get()
+        r.n1_index = -1
+        pr = r.parsed_nucleotide()
+
+        self.assertNotIn('<span class="n1_additions"', pr)
+
+        r = Recombination.objects.get()
+        r.d_index = -1
+        pr = r.parsed_nucleotide()
+
+        self.assertNotIn('<span class="d_gene"', pr)
+
+        r = Recombination.objects.get()
+        r.n2_index = -1
+        pr = r.parsed_nucleotide()
+
+        self.assertNotIn('<span class="n2_additions"', pr)
+
+    def test_parsed_nucleotide_should_wrap_spans_around_nucleotide_groups(self):
+        make_fake_patient()
+        r = Recombination.objects.get()
+        pr = r.parsed_nucleotide()
+
+        # Test v
+        regex = re.compile('<span class="v_gene">(.*?)</span>')
+        match = regex.match(pr)
+        self.assertEqual(len(match.groups()[0]), r.n2_index)
+
+        # N2
+        regex = re.compile('.*<span class="n2_additions">(.*?)</span>')
+        match = regex.match(pr)
+        num_n2_additions = r.d_index - r.n2_index
+        self.assertEqual(len(match.groups()[0]), num_n2_additions)
+
+        # D
+        regex = re.compile('.*<span class="d_gene">(.*?)</span>')
+        match = regex.match(pr)
+        d_length = r.n1_index - r.d_index
+        self.assertEqual(len(match.groups()[0]), d_length)
+
+        # N1
+        regex = re.compile('.*<span class="n1_additions">(.*?)</span>')
+        match = regex.match(pr)
+        num_n1_additions = r.j_index - r.n1_index
+        self.assertEqual(len(match.groups()[0]), num_n1_additions)
+
+        # J
+        regex = re.compile('.*<span class="j_gene">(.*?)</span>')
+        match = regex.match(pr)
+        j_length = len(r.nucleotide) - r.j_index
+        self.assertEqual(len(match.groups()[0]), j_length)
+
+    def test_parsed_nucleotide_should_return_nucleotide_sequence(self):
+        make_fake_patient()
+        r = Recombination.objects.get()
+        pr = r.parsed_nucleotide()
+        no_html = re.sub('<[^<]+?>', '', pr)
+        self.assertEqual(r.nucleotide, no_html)
+
+    def test_parsed_nucleotide_returns_a_string(self):
+        make_fake_patient()
+        r = Recombination.objects.get()
+        pr = r.parsed_nucleotide()
+        self.assertIsInstance(pr, str)
+
 
 class AminoAcidModelTest(TestCase):
     def test_amino_acid_should_have_amino_acid_sequence(self):
@@ -83,6 +168,7 @@ class AminoAcidModelTest(TestCase):
         for key, value in data.items():
             self.assertEqual(value, getattr(aa_in_db, key))
 
+
 class AminoAcidModelTest(TestCase):
     def test_amino_acid_should_have_amino_acid_sequence(self):
         data = {'sequence': 'CASS'}
@@ -95,16 +181,16 @@ class AminoAcidModelTest(TestCase):
         for key, value in data.items():
             self.assertEqual(value, getattr(aa_in_db, key))
 
-    def test_amino_acid_can_be_made_from_multiple_clonotypes(self):
+    def test_amino_acid_can_be_made_from_multiple_recombinations(self):
         aa = AminoAcidFactory()
-        c = ClonotypeFactory()
-        c.amino_acid = aa
-        c.save()
-        c2 = ClonotypeFactory()
-        c2.amino_acid = aa
-        c2.save()
-        self.assertEqual(c, aa.clonotype_set.all()[0])
-        self.assertEqual(c2, aa.clonotype_set.all()[1])
+        r = RecombinationFactory()
+        r.amino_acid = aa
+        r.save()
+        r2 = RecombinationFactory()
+        r2.amino_acid = aa
+        r2.save()
+        self.assertEqual(r, aa.recombination_set.all()[0])
+        self.assertEqual(r2, aa.recombination_set.all()[1])
 
     def DONTtest_amino_acid_can_exist_in_multiple_samples(self):
         '''
@@ -129,76 +215,6 @@ class ClonotypeModelTest(TestCase):
         c.save()
         self.assertEqual(aa, c.amino_acid)
 
-    def test_parse_nucleotide_should_not_create_a_span_if_index_is_lt_0(self):
-        ''' Adaptive uses -1 in the index field to represent the lack of
-        that element. This test makes sure rendered text does no create a span
-        for an empty region '''
-        make_fake_patient()
-        c = Clonotype.objects.get()
-        c.n1_index = -1
-        pc = c.parsed_nucleotide()
-
-        self.assertNotIn('<span class="n1_additions"', pc)
-
-        c = Clonotype.objects.get()
-        c.d_index = -1
-        pc = c.parsed_nucleotide()
-
-        self.assertNotIn('<span class="d_gene"', pc)
-
-        c = Clonotype.objects.get()
-        c.n2_index = -1
-        pc = c.parsed_nucleotide()
-
-        self.assertNotIn('<span class="n2_additions"', pc)
-
-    def test_parsed_nucleotide_should_wrap_spans_around_nucleotide_groups(self):
-        make_fake_patient()
-        c = Clonotype.objects.get()
-        pc = c.parsed_nucleotide()
-
-        # Test v
-        regex = re.compile('<span class="v_gene">(.*?)</span>')
-        match = regex.match(pc)
-        self.assertEqual(len(match.groups()[0]), c.n2_index)
-
-        # N2
-        regex = re.compile('.*<span class="n2_additions">(.*?)</span>')
-        match = regex.match(pc)
-        num_n2_additions = c.d_index - c.n2_index
-        self.assertEqual(len(match.groups()[0]), num_n2_additions)
-
-        # D
-        regex = re.compile('.*<span class="d_gene">(.*?)</span>')
-        match = regex.match(pc)
-        d_length = c.n1_index - c.d_index
-        self.assertEqual(len(match.groups()[0]), d_length)
-
-        # N1
-        regex = re.compile('.*<span class="n1_additions">(.*?)</span>')
-        match = regex.match(pc)
-        num_n1_additions = c.j_index - c.n1_index
-        self.assertEqual(len(match.groups()[0]), num_n1_additions)
-
-        # J
-        regex = re.compile('.*<span class="j_gene">(.*?)</span>')
-        match = regex.match(pc)
-        j_length = len(c.nucleotide) - c.j_index
-        self.assertEqual(len(match.groups()[0]), j_length)
-
-    def test_parsed_nucleotide_should_return_nucleotide_sequence(self):
-        make_fake_patient()
-        c = Clonotype.objects.get()
-        pc = c.parsed_nucleotide()
-        no_html = re.sub('<[^<]+?>', '', pc)
-        self.assertEqual(c.nucleotide, no_html)
-
-    def test_parsed_nucleotide_returns_a_string(self):
-        make_fake_patient()
-        c = Clonotype.objects.get()
-        pc = c.parsed_nucleotide()
-        self.assertIsInstance(pc, str)
-
     def DONT_test_bulk_insert_of_tsv_to_database(self):
         # Make a test sample
         p = Patient()
@@ -219,41 +235,22 @@ class ClonotypeModelTest(TestCase):
         self.assertRaises(
             IOError, Clonotype.import_tsv, s, '/fake/path/to/fake/file')
 
-        def test_create_clonotypes_for_a_sample(self):
-            p = Patient()
+    def test_create_clonotypes_for_a_sample(self):
+        p = Patient()
         p.save()
         s = Sample(patient=p)
         s.save()
+        r = RecombinationFactory()
 
         c = Clonotype(
             sample=s,
+            recombination=r,
             sequence_id='C0FW0ACXX_1_Patient-15-D_1',
             container='UCSC-Kim-P01-01',
-            nucleotide='GGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA',
-            amino_acid='CASSLGPLAEKETQYF',
             normalized_frequency=9.336458E-6,
             normalized_copy=2,
             raw_frequency=1.6548345E-5,
             copy=2,
-            cdr3_length=42,
-            v_family_name=7,
-            v_gene_name='(undefined)',
-            v_ties='TRBV7-9',
-            d_gene_name='TRBD1-2',
-            j_gene_name='TRBJ2-5',
-            j_ties='',
-            v_deletion=1,
-            d5_deletion=4,
-            d3_deletion=7,
-            j_deletion=3,
-            n2_insertion=5,
-            n1_insertion=5,
-            sequence_status='Productive',
-            v_index=19,
-            n1_index=45,
-            n2_index=35,
-            d_index=40,
-            j_index=50,
         )
         c.save()
 
@@ -265,19 +262,6 @@ class ClonotypeModelTest(TestCase):
 #    def test_vj_usage_returns_double_array(self):
 #        s = Sample.objects.get()
 #        self.assertEqual("",vj_usage(s))
-
-    def test_v_family_names_returns_list_of_distinct_v_family_names(self):
-        make_fake_patient_with_3_clonotypes()
-        self.assertIsInstance(Clonotype.v_family_names(), list)
-        self.assertEqual(['7', '8', '9'], Clonotype.v_family_names())
-
-    def test_j_gene_names_returns_list_of_distinct_j_gene_names(self):
-        make_fake_patient_with_3_clonotypes()
-        self.assertIsInstance(Clonotype.j_gene_names(), list)
-        self.assertEqual([u'TRBJ2-5', u'TRBJ2-4'], Clonotype.j_gene_names())
-
-
-from clonotypes.models import ClonoFilter
 
 
 class ClonoFilterModelTest(TestCase):
@@ -324,8 +308,9 @@ class ClonoFilterModelTest(TestCase):
         self.assertIsInstance(f.max_length, int)
 
     def test_clonofilter_filters_on_min_and_max_length(self):
-        filtered_clonotypes = Clonotype.objects.filter(cdr3_length__gte=37,
-                                                       cdr3_length__lte=40)
+        filtered_clonotypes = Clonotype.objects.filter(
+            recombination__cdr3_length__gte=37,
+            recombination__cdr3_length__lte=40)
         self.f.min_length = 37
         self.f.max_length = 40
         self.assertQuerysetEqual(filtered_clonotypes,
@@ -369,8 +354,8 @@ class ClonoFilterModelTest(TestCase):
         self.assertEqual(self.s, self.f.sample)
 
     def test_vj_counts_returns_an_empty_2d_list_with_dimensions_len_vfam_by_jgene(self):
-        v_family_names = Clonotype.v_family_names()
-        j_gene_names = Clonotype.j_gene_names()
+        v_family_names = Recombination.v_family_names()
+        j_gene_names = Recombination.j_gene_names()
         vj_counts = self.f.vj_counts()
         self.assertEqual(len(v_family_names), len(vj_counts))
         self.assertEqual(len(j_gene_names), len(vj_counts[0]))
@@ -390,18 +375,8 @@ class ClonoFilterModelTest(TestCase):
         hist = self.f.cdr3_length_sum()
         self.assertEqual([[36, 1], [39, 1], [42, 2]], hist)
 
-    # This method should really use a clonotype factory...
     def test_cdr3_length_sum_should_sort_output_by_cdr3_length(self):
-        Clonotype(
-            sample=self.s,
-            sequence_id='C0FW0ACXX_1_Patient-15-D_1',
-            container='UCSC-Kim-P01-01',
-            nucleotide='GGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA',
-            amino_acid='',
-            normalized_frequency=9.336458E-6,
-            normalized_copy=1,
-            raw_frequency=1.6548345E-5,
-            copy=10,
+        r = RecombinationFactory(
             cdr3_length=10,
             v_family_name=9,
             v_gene_name='(undefined)',
@@ -421,7 +396,19 @@ class ClonoFilterModelTest(TestCase):
             n2_index=35,
             d_index=40,
             j_index=50,
-        ).save()
+            nucleotide='GGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA',
+        )
+
+        ClonotypeFactory(
+            sample=self.s,
+            recombination=r,
+            sequence_id='C0FW0ACXX_1_Patient-15-D_1',
+            container='UCSC-Kim-P01-01',
+            normalized_frequency=9.336458E-6,
+            normalized_copy=1,
+            raw_frequency=1.6548345E-5,
+            copy=10,
+        )
+
         self.assertEqual(
             [[10, 10], [36, 1], [39, 1], [42, 2]], self.f.cdr3_length_sum())
-

@@ -9,7 +9,7 @@ from django.http import HttpRequest
 from django.contrib.auth.models import User
 #from django.http import Http404
 #from django.template import RequestContext
-from clonotypes.models import AminoAcid, Rearrangement, Clonotype
+from clonotypes.models import AminoAcid, Recombination, Clonotype
 from patients.models import Patient
 from samples.models import Sample
 
@@ -78,31 +78,19 @@ def render_echo(*args, **kwargs):
     return context
 
 
-class RearrangementFactory(factory.Factory):
-    '''
-    Creates a rearrangement
-    '''
-    FACTORY_FOR = Rearrangement
-    nucleotide = 'ATGCATGC'
-    v_family_name = 'v1'
-    v_gene_name = '1'
-    v_ties = '1,2'
-    d_gene_name = '2'
-    j_gene_name = 'j3'
-    j_ties = 'j4,j5'
-    sequence_status = 'Productive'
-    v_deletion = 2
-    d5_deletion = 3
-    d3_deletion = 2
-    j_deletion = 3
-    n2_insertion = 4
-    n1_insertion = 5
-    v_index = 3
-    n1_index = 4
-    n2_index = -1
-    d_index = 10
-    j_index = 5
-    cdr3_length = 42
+class PatientFactory(factory.Factory):
+    FACTORY_FOR = Patient
+    name = 'test patient'
+    birthday = '2011-11-11'
+    disease = 'fake disease'
+    gender = 'M'
+
+
+class SampleFactory(factory.Factory):
+    FACTORY_FOR = Sample
+    patient = factory.SubFactory(PatientFactory)
+    draw_date = '2012-12-12'
+    cell_type = 'cd4+'
 
 
 class AminoAcidFactory(factory.Factory):
@@ -112,43 +100,14 @@ class AminoAcidFactory(factory.Factory):
     FACTORY_FOR = AminoAcid
     sequence = 'CASSLGPLAEKETQYF'
 
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        from clonotypes.models import AminoAcid
-        try:
-            if 'sequence' in kwargs:
-                sequence = kwargs['sequence']
-            else:
-                sequence = 'CASSLGPLAEKETQYF'
-            amino_acid = AminoAcid.objects.filter(sequence=sequence).get()
-        except AminoAcid.DoesNotExist:
-            amino_acid = super(AminoAcidFactory, cls)._prepare(create, **kwargs)
-        return amino_acid
 
-class PatientFactory(factory.Factory):
-    FACTORY_FOR = Patient
-    name = 'test patient'
-    birthday = '2011-11-11'
-    disease = 'fake disease'
-    gender = 'M'
-
-class SampleFactory(factory.Factory):
-    FACTORY_FOR = Sample
-    patient = factory.SubFactory(PatientFactory)
-    draw_date = '2012-12-12'
-    cell_type = 'cd4+'
-
-class ClonotypeFactory(factory.Factory):
-    FACTORY_FOR = Clonotype
-    sample = factory.SubFactory(SampleFactory)
-    sequence_id = 'C0FW0ACXX_1_Patient-15-D_1'
-    container = 'UCSC-Kim-P01-01'
+class RecombinationFactory(factory.Factory):
+    '''
+    Creates a recombination
+    '''
+    FACTORY_FOR = Recombination
+    amino_acid = factory.SubFactory(AminoAcidFactory)
     nucleotide = 'GGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA'
-    normalized_frequency = 9.336458E-6
-    normalized_copy = 2
-    raw_frequency = 1.6548345E-5
-    copy = 2
-    cdr3_length = 42
     v_family_name = 7
     v_gene_name = '(undefined)'
     v_ties = 'TRBV7-9'
@@ -167,13 +126,16 @@ class ClonotypeFactory(factory.Factory):
     n2_index = 35
     d_index = 40
     j_index = 50
+    cdr3_length = 42
 
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        clonotype = super(ClonotypeFactory, cls)._prepare(create, **kwargs)
-        amino_acid = AminoAcidFactory()
-        amino_acid.samples.add(clonotype.sample)
-        amino_acid.save()
 
-        return clonotype
-
+class ClonotypeFactory(factory.Factory):
+    FACTORY_FOR = Clonotype
+    sample = factory.SubFactory(SampleFactory)
+    sequence_id = 'C0FW0ACXX_1_Patient-15-D_1'
+    container = 'UCSC-Kim-P01-01'
+    normalized_frequency = 9.336458E-6
+    normalized_copy = 2
+    raw_frequency = 1.6548345E-5
+    copy = 2
+    recombination = factory.SubFactory(RecombinationFactory)

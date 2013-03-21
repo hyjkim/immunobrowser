@@ -35,7 +35,8 @@ def bubble(request, clonofilter):
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from pylab import text, xlabel, ylabel
     from numpy import median
-    from clonotypes.models import Clonotype
+    #from clonotypes.models import Clonotype
+    from clonotypes.models import Recombination
 
     response = HttpResponse(content_type='image/png')
     fig = Figure()
@@ -51,8 +52,8 @@ def bubble(request, clonofilter):
     vj_counts = clonofilter.vj_counts()
 
     # Calculate the plotting area by finding the number of v's and j's
-    width = len(Clonotype.v_family_names())
-    height = len(Clonotype.j_gene_names())
+    width = len(Recombination.v_family_names())
+    height = len(Recombination.j_gene_names())
 
 
 
