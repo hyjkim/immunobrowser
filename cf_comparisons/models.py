@@ -5,6 +5,70 @@ from clonotypes.models import ClonoFilter
 class Comparison(models.Model):
     clonofilters = models.ManyToManyField(ClonoFilter)
 
+    def get_amino_acids(self):
+        ''' Returns the set of amino acids associated with the clonotypes
+        retrieved from get_clonotypes()'''
+        from clonotypes.models import AminoAcid
+        clonotypes = self.get_clonotypes()
+        return AminoAcid.objects.filter(id__in=clonotypes.values('recombination__amino_acid_id'))
+
+    def get_recombinations(self):
+        ''' Returns the set of recombinations associated with the clonotypes
+        retrieved from get_clonotypes()'''
+        from clonotypes.models import Recombination
+        clonotypes = self.get_clonotypes()
+        recombinations = Recombination.objects.filter(id__in=clonotypes.values('recombination_id'))
+        return recombinations
+
+    def get_clonotypes(self):
+        '''
+        Returns a union of the clonotypes for each member clonofilter queryset
+        '''
+        from clonotypes.models import Clonotype
+        returnable = Clonotype.objects.none()
+        for clonofilter in self.clonofilters.all():
+            returnable |= clonofilter.get_clonotypes()
+
+        return returnable
+
+    def get_shared_recombinations(self):
+        '''
+        Given a comparison, returns the recombinations shared by all samples
+        Returns a nested dict in the format:
+            {'recombination.id': {'clonofilter': <sum_of_norm_counts>, 'clonofilter2': <sum of norm counts>}}
+        '''
+        from clonotypes.models import Recombination
+        from collections import defaultdict
+
+        # Get all nucleotide_sequences belonging to samples and then only report those
+        # that have at least len(samples) shared clonotypes
+        returnable = defaultdict(dict)
+
+        # Get a list of clonofilters
+        clonofilters = self.clonofilters.all()
+        # Get a list of sample ids
+        samples = [clonofilter.sample for clonofilter in samples]
+
+        if len(samples) > 1:
+
+            # Now get all clonotypes with these shared sequences
+            shared_recombinations = reduce(lambda q, s: q.filter(clonotype__sample=s), samples, self.get_recombinations())
+            shared_recombination = shared_recombinations.distinct()
+
+            # Format the shared clonotypes as a dict of lists:
+            # {'sequence': [<clonotype 1>, <clonotype2>]}
+            for recombination in shared_recombinations:
+                # Get the set of clonotypes for each recombination
+                for clonotype in recombination.clonotype_set.all():
+                    if clonotype.sample in samples:
+                        returnable[recombination.nucleotide]
+                    # Get the set of samples for each clonotype
+                    # Add # of reads per thing
+#                returnable[recombination.nucleotide].append(clonotype)
+
+        return dict(returnable)
+
+
     def get_shared_clonotypes(self):
         '''
         Returns clonotypes that are shared by all members in the clonofilter
@@ -23,7 +87,7 @@ class Comparison(models.Model):
 
             # Now get all clonotypes with these shared sequences
             #shared_recombinations = reduce(lambda q, s: q.filter(clonotype__sample=s), samples, Recombination.objects.all())
-            shared_recombinations = reduce(lambda q, s: q.filter(clonotype__sample=s), samples, Recombination.objects.all())
+            shared_recombinations = reduce(lambda q, s: q.filter(clonotype__sample=s), samples, self.get_recombinations())
             shared_recombination = shared_recombinations.distinct()
 
             # Format the shared clonotypes as a dict of lists:
@@ -54,8 +118,8 @@ class Comparison(models.Model):
         # that have at least len(samples) shared clonotypes
         returnable = defaultdict(list)
         if len(samples) > 1:
-            shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, AminoAcid.objects.all())
-            #shared_amino_acid = reduce(lambda q, s: q.filter(samples=s), samples, AminoAcid.objects.all())
+            shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, self.get_amino_acids())
+            #shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, AminoAcid.objects.all())
             shared_amino_acid = shared_amino_acid.distinct()
 
             # Format the shared clonotypes as a dict of lists:

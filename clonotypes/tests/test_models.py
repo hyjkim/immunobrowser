@@ -273,6 +273,18 @@ class ClonoFilterModelTest(TestCase):
     def test_normalization_factor_initializes_to_1(self):
         self.assertEqual(1, self.f.norm_factor)
 
+    def test_get_recombinations_filters_properly(self):
+        self.f.min_length=40
+        self.f.save()
+        recombinations = Recombination.objects.filter(cdr3_length__gte=40)
+        self.assertEqual(map(repr, recombinations),
+                         map(repr, self.f.get_recombinations()))
+
+    def test_given_a_clonofilter_return_a_recombination_queryset(self):
+        recombination_qs = self.f.get_recombinations()
+        self.assertEqual(map(repr,Recombination.objects.all()),
+                                 map(repr, recombination_qs))
+
     def test_norm_size_method_returns_normalized_sum_of_copy(self):
         from django.db.models import Sum
         self.f.norm_factor = 10.0

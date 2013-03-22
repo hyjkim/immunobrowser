@@ -14,6 +14,65 @@ class ComparsionModelMethodsTest(TestCase):
         make_fake_comparison_with_2_samples()
         self.comparison = Comparison.objects.get()
 
+    def DONTtest_get_filtered_queryset_applies_clonofilters_to_set_of_clonotypes(self):
+        ''' Tests to make sure that all clonofilters are applied to the queryset '''
+        self.fail('todo')
+
+    def DONTtest_get_shared_recombinations_reports_a_sum_of_normalized_counts_as_nested_dict_value(self):
+        '''todo: call on two datasets, one with norm factors, one without and make sure values are expected'''
+        self.fail('todo: call on two datasets, one with norm factors, one without and make sure values are expected')
+
+    def test_get_shared_recombinations_returns_a_nested_dict(self):
+        '''
+        Tests that the method get_shared_clonotypes() returns a list of lists of clonotypes.
+        Each item in the outer list is a shared clonotype and each item in the inner
+        list is a sample-specific clonotype
+        '''
+        shared_recombinations = self.comparison.get_shared_recombinations()
+        self.assertIsInstance(shared_recombinations, dict)
+
+        for nested in shared_recombinations.values():
+            self.assertIsInstance(nested, dict)
+
+    def test_get_amino_acids_returns_a_union_of_individual_clonofilter_querysets(self):
+        from clonotypes.models import AminoAcid
+        from test_utils.factories import AminoAcidFactory
+        amino_acids = AminoAcid.objects.all()
+        self.assertEqual(map(repr, amino_acids),
+                         map(repr, self.comparison.get_amino_acids()))
+        # Make sure nonmember amino acids are not included
+        AminoAcidFactory()
+        self.assertNotEqual(map(repr, AminoAcid.objects.all()),
+                            map(repr, self.comparison.get_amino_acids()))
+
+    def test_get_recombinations_returns_a_union_of_individual_clonofilter_querysets(self):
+        from clonotypes.models import Recombination
+        from test_utils.factories import RecombinationFactory, ClonotypeFactory
+        recombinations = Recombination.objects.all()
+        self.assertEqual(map(repr, recombinations),
+                         map(repr, self.comparison.get_recombinations()))
+
+        # Make sure nonmember recombinations are not included
+        nonmember_recombination = RecombinationFactory()
+        ClonotypeFactory(recombination=nonmember_recombination)
+        self.assertNotEqual(map(repr, Recombination.objects.all()),
+                            map(repr, self.comparison.get_recombinations()))
+
+    def test_get_clonotypes_returns_a_union_of_individual_clonofilter_querysets(self):
+        from test_utils.factories import SampleFactory, ClonotypeFactory
+        from clonotypes.models import Clonotype
+
+        cfs = self.comparison.clonofilters.all()
+        qs_union = cfs[0].get_clonotypes() | cfs[1].get_clonotypes()
+        self.assertEqual(map(repr, qs_union),
+                         map(repr, self.comparison.get_clonotypes()))
+
+        # Make sure that nonmember clonotypes are not included
+        nonmember_sample = SampleFactory()
+        nonmember_clonotype = ClonotypeFactory(sample=nonmember_sample)
+        self.assertNotEqual(map(repr, Clonotype.objects.all()),
+                            map(repr, self.comparison.get_clonotypes()))
+
     def test_nonempty_shared_clonotype_amino_set_returns_clonotypes(self):
         shared_clonotypes = self.comparison.get_shared_clonotypes_amino()
         s1 = Sample.objects.all()[0]

@@ -224,6 +224,11 @@ class ClonoFilter(models.Model):
         clonotype_queryset = Clonotype.objects.filter(query)
         return clonotype_queryset
 
+    def get_recombinations(self):
+        clonotypes = self.get_clonotypes()
+        recombinations = Recombination.objects.filter(id__in=clonotypes.values('recombination_id'))
+        return recombinations
+
     def norm_size(self):
         '''
         Returns the normalized sum of 'copy' given a clonofilter
