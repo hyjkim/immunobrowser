@@ -5,6 +5,13 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
 
 
+def amino_acid_detail(request, amino_acid_id):
+    from clonotypes.models import AminoAcid
+    amino_acid = AminoAcid.objects.get(id=amino_acid_id)
+    context = {'amino_acid': amino_acid}
+    return render(request, 'amino_acid_detail.html', context)
+
+
 def all(request, sample_id):
     sample = Sample.objects.get(id=sample_id)
     clonotypes = Clonotype.objects.filter(sample=sample)
@@ -21,7 +28,7 @@ def all(request, sample_id):
 
 
 def detail(request, clonotype_id):
-    pass
+#    pass
 #    try:
     clonotype = Clonotype.objects.get(id=clonotype_id)
     sample = clonotype.sample

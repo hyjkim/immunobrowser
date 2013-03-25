@@ -1,12 +1,58 @@
 from django.test import TestCase
 #from patients.models import Patient
 from samples.models import Sample
-from clonotypes.models import Clonotype, ClonoFilter
+from clonotypes.models import Clonotype, ClonoFilter, AminoAcid
 from django.core.urlresolvers import reverse
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
 from mock import MagicMock, patch, call
-from clonotypes.views import all, detail, bubble, bubble_default, spectratype, spectratype_default
+from clonotypes.views import all, detail, bubble, bubble_default, spectratype, spectratype_default, amino_acid_detail
 from test_utils.factories import render_echo, FakeRequestFactory
+
+
+class AminoAcidViewUnitTest(TestCase):
+    ''' Here, we mock out the rendering stack for fast unit tests of the view'''
+
+    def setUp(self):
+        self.renderPatch = patch('clonotypes.views.render', render_echo)
+        self.renderPatch.start()
+        self.request = FakeRequestFactory()
+        make_fake_patient()
+        self.s = Sample.objects.get()
+        self.aa = AminoAcid.objects.get()
+
+    def tearDown(self):
+        self.renderPatch.stop()
+
+    def test_amino_acid_detail_view_passes_amino_acid_to_template(self):
+        mock_response = amino_acid_detail(self.request, self.aa.id)
+        self.assertEqual(self.aa, mock_response.get('amino_acid'))
+
+
+class AminoAcidViewIntegrationTest(TestCase):
+    ''' Integration tests for all amino acids views
+    '''
+    def setUp(self):
+        make_fake_patient()
+        self.fake_sample = Sample.objects.get()
+        self.aa = AminoAcid.objects.get()
+
+    def test_amino_acid_detail_view_uses_amino_acid_template(self):
+        response = self.client.get(
+            reverse('clonotypes.views.amino_acid_detail', args=[self.aa.id]))
+        self.assertTemplateUsed(response, 'amino_acid_detail.html')
+
+    def test_amino_acid_detail_view_shows_amino_acid_sequence(self):
+        response = self.client.get(
+            reverse('clonotypes.views.amino_acid_detail', args=[self.aa.id]))
+        self.assertIn(self.aa.sequence, response.content)
+
+    def test_amino_acid_detail_view_shows_all_recombinations(self):
+        from django.utils.html import strip_tags
+        response = self.client.get(
+            reverse('clonotypes.views.amino_acid_detail', args=[self.aa.id]))
+        recombinations = self.aa.recombination_set.all()
+        for recombination in recombinations:
+            self.assertIn(recombination.nucleotide, strip_tags(response.content))
 
 
 class ClonotypesViewTest(TestCase):
@@ -172,7 +218,8 @@ class ClonotypesImagesTest(TestCase):
         cf.save()
         self.request = FakeRequestFactory(GET={'clonofilter': cf.id})
         with patch('clonotypes.views.spectratype', bubble_patch):
-            (request_echo, clonofilter_echo) = spectratype_default(self.request, s.id)
+            (request_echo,
+             clonofilter_echo) = spectratype_default(self.request, s.id)
             self.assertEqual(cf.id, clonofilter_echo.id)
             self.assertEqual(cf, clonofilter_echo)
 
@@ -182,7 +229,8 @@ class ClonotypesImagesTest(TestCase):
         cf.save()
         self.request = FakeRequestFactory(GET={'clonofilter': cf.id})
         with patch('clonotypes.views.bubble', bubble_patch):
-            (request_echo, clonofilter_echo) = bubble_default(self.request, s.id)
+            (request_echo, clonofilter_echo) = bubble_default(
+                self.request, s.id)
             self.assertEqual(cf.id, clonofilter_echo.id)
             self.assertEqual(cf, clonofilter_echo)
 
@@ -249,7 +297,8 @@ class ClonotypesImagesTest(TestCase):
 
     def test_spectratype_default_url_resolves_and_returns_a_png(self):
         s = Sample.objects.get()
-        response = self.client.get(reverse('clonotypes.views.spectratype_default', args=[s.id]))
+        response = self.client.get(
+            reverse('clonotypes.views.spectratype_default', args=[s.id]))
         self.assertEqual('image/png', response['content-type'])
 
 

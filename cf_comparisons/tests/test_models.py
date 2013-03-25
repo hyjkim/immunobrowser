@@ -14,25 +14,41 @@ class ComparsionModelMethodsTest(TestCase):
         make_fake_comparison_with_2_samples()
         self.comparison = Comparison.objects.get()
 
-    def DONTtest_get_filtered_queryset_applies_clonofilters_to_set_of_clonotypes(self):
-        ''' Tests to make sure that all clonofilters are applied to the queryset '''
-        self.fail('todo')
-
-    def DONTtest_get_shared_recombinations_reports_a_sum_of_normalized_counts_as_nested_dict_value(self):
+    def DONTtest_get_shared_amino_acids_counts_reports_a_sum_of_normalized_counts_as_nested_dict_value(self):
         '''todo: call on two datasets, one with norm factors, one without and make sure values are expected'''
         self.fail('todo: call on two datasets, one with norm factors, one without and make sure values are expected')
 
-    def test_get_shared_recombinations_returns_a_nested_dict(self):
+    def DONTtest_get_shared_recombinations_counts_reports_a_sum_of_normalized_counts_as_nested_dict_value(self):
+        '''todo: call on two datasets, one with norm factors, one without and make sure values are expected'''
+        self.fail('todo: call on two datasets, one with norm factors, one without and make sure values are expected')
+
+    def test_get_shared_amino_acids_returns_a_list_of_shared_amino_acids(self):
+        samples = [clonofilter.sample for clonofilter in self.comparison.clonofilters.all()]
+        shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, self.comparison.get_amino_acids())
+        self.assertEqual(set(shared_amino_acid), set(self.comparison.get_shared_amino_acids()))
+
+    def test_get_shared_amino_acids_counts_returns_a_nested_dict_of_floats(self):
+        shared_amino_acids = self.comparison.get_shared_amino_acids_counts()
+        self.assertIsInstance(shared_amino_acids, dict)
+
+        for nested in shared_amino_acids.values():
+            self.assertIsInstance(nested, dict)
+            for count_sum in nested.values():
+                self.assertIsInstance(count_sum, float)
+
+    def test_get_shared_recombinations_counts_returns_a_nested_dict_of_floats(self):
         '''
         Tests that the method get_shared_clonotypes() returns a list of lists of clonotypes.
         Each item in the outer list is a shared clonotype and each item in the inner
         list is a sample-specific clonotype
         '''
-        shared_recombinations = self.comparison.get_shared_recombinations()
+        shared_recombinations = self.comparison.get_shared_recombinations_counts()
         self.assertIsInstance(shared_recombinations, dict)
 
         for nested in shared_recombinations.values():
             self.assertIsInstance(nested, dict)
+            for count_sum in nested.values():
+                self.assertIsInstance(count_sum, float)
 
     def test_get_amino_acids_returns_a_union_of_individual_clonofilter_querysets(self):
         from clonotypes.models import AminoAcid
@@ -77,8 +93,8 @@ class ComparsionModelMethodsTest(TestCase):
         shared_clonotypes = self.comparison.get_shared_clonotypes_amino()
         s1 = Sample.objects.all()[0]
         s2 = Sample.objects.all()[1]
-        self.assertEqual({u'CASSLGPLAEKETQYF': [s1, s2]}
-                         , shared_clonotypes)
+        self.assertEqual({u'CASSLGPLAEKETQYF': [s1, s2]
+                          }, shared_clonotypes)
 
     def test_get_shared_clonotypes_returns_empty_dict_if_only_one_clonofilter_is_provided(self):
         cf = ClonoFilter.objects.all()[0]

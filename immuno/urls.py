@@ -17,6 +17,7 @@ urlpatterns = patterns('',
                        url(r'^admin/', include(admin.site.urls)),
 
                        # Dynamic
+                       url(r'^amino_acid/(\d+)?$', 'clonotypes.views.amino_acid_detail'),
                        url(r'^samples/(\d+)/bubble.png', 'clonotypes.views.bubble_default'),
                        url(r'^samples/(\d+)/spectratype.png', 'clonotypes.views.spectratype_default'),
                        url(r'^samples/(\d+)/?$', 'samples.views.summary'),

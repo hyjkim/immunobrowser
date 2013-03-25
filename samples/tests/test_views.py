@@ -11,7 +11,7 @@ from clonotypes.forms import ClonoFilterForm
 from django.forms.models import model_to_dict
 
 
-class SampleMockedViewTest(TestCase):
+class SampleViewUnitTest(TestCase):
     ''' Here, we mock out the rendering stack for fast unit tests of the view'''
 
     def setUp(self):

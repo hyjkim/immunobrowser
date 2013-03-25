@@ -18,7 +18,6 @@ class ComparisonsViewUnitTest(TestCase):
         self.renderPatch = patch('cf_comparisons.views.render', render_echo)
         self.renderPatch.start()
         self.request = FakeRequestFactory()
-        #make_fake_patient_with_3_clonotypes()
         make_fake_comparison_with_2_samples()
         self.comparison = Comparison.objects.get()
 
@@ -27,7 +26,8 @@ class ComparisonsViewUnitTest(TestCase):
 
     def test_compare_should_pass_shared_clonotypes_to_template_via_context(self):
         mock_response = compare(self.request, self.comparison.id)
-        self.assertEqual(self.comparison.get_shared_clonotypes_amino(), mock_response.get('shared_clonotypes'))
+        self.assertEqual(self.comparison.get_shared_amino_acids_counts(
+        ), mock_response.get('shared_clonotypes'))
 
     def test_compare_should_pass_num_forms_to_template_via_context(self):
         mock_response = compare(self.request, self.comparison.id)
@@ -84,6 +84,14 @@ class ComparisonsViewIntegrationTest(TestCase):
     def DONTtest_clonotype_tracking_view_reads_comparison_and_amino_acid_sequences_from_post(self):
         self.fail('todo')
 
+    def test_compare_shows_links_to_shared_amino_acid(self):
+        from clonotypes.models import AminoAcid
+        response = self.client.get(
+            reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
+        aa = self.comparison.get_shared_amino_acids()[0]
+        self.assertIn(reverse('clonotypes.views.amino_acid_detail',
+                      args=[aa.id]), response.content)
+
     def test_compare_shows_shared_clonotypes_as_table(self):
         response = self.client.get(
             reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
@@ -95,7 +103,8 @@ class ComparisonsViewIntegrationTest(TestCase):
         self.assertIn("", response.content)
 
     def test_compare_creates_a_new_comparison_if_filter_form_is_changed(self):
-        clonofilters = {'0-sample': 1, '1-sample': 2, '0-min_length': 1, 'num_forms': 2}
+        clonofilters = {'0-sample': 1, '1-sample': 2,
+                        '0-min_length': 1, 'num_forms': 2}
         self.client.post(reverse('cf_comparisons.views.compare',
                          args=[self.comparison.id]), clonofilters)
         self.assertEqual(2, Comparison.objects.all().count())

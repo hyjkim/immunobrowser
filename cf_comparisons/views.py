@@ -55,7 +55,8 @@ def compare(request, comparison_id):
             id=clonofilter.id).values()[0], prefix=str(index)))
 
     #shared_clonotypes = comparison.get_shared_clonotypes()
-    shared_clonotypes = comparison.get_shared_clonotypes_amino()
+    shared_clonotypes = comparison.get_shared_amino_acids_counts()
+    #print shared_clonotypes
     context = {'filter_forms': filter_forms,
                'comparison': comparison,
                'num_forms': len(filter_forms),
@@ -72,6 +73,7 @@ def bubble(request, comparison_id):
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from pylab import text, xlabel, ylabel, get_cmap, cm
+    from clonotypes.models import Recombination
 
     comparison = Comparison.objects.get(id=comparison_id)
     clonofilters = comparison.clonofilters.all()
@@ -87,7 +89,11 @@ def bubble(request, comparison_id):
     x = []
     y = []
     color = []
+    data = []
     area = []
+
+    width = len(Recombination.v_family_names())
+    height = len(Recombination.j_gene_names())
 
     # get a list of vj_counts
     vj_counts_list = [clonofilter.vj_counts()
@@ -100,7 +106,14 @@ def bubble(request, comparison_id):
                 y.append(j_index)
 #                color.append(counts)
                 color.append(clonofilter_colors[clonofilter_index])
-                area.append(counts)
+                data.append(counts)
+
+    # Normalize area by the median and plot area
+    #area_norm_factor = (1.0/median(data)) * width * height
+
+    if data:
+        area_norm_factor = (2.0/max(data)) * width * height
+        area = [datapoint * area_norm_factor for datapoint in data]
 
     sct = ax.scatter(x, y, c=color, s=area, linewidths=2, edgecolor='w')
     sct.set_alpha(0.4)

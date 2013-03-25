@@ -1,13 +1,17 @@
-html {
+html, body, table, th {
     margin: 0;
     padding: 0;
     border: 0;
     outline: 0;
-    font-weight: normal;
+    font-weight: 300;
     font-style: normal;
     font-size: 100%;
-    font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family:  "Helvetica Neue", 'Open Sans', Helvetica, Arial, sans-serif;
     vertical-align: baseline;
+}
+
+th {
+  font-weight: 500;
 }
 
 .filter_form {
@@ -17,3 +21,24 @@ html {
 #content {
   float: clear;
 }
+
+.v_gene {
+  color: DarkBlue
+}
+
+.n1_addition {
+  color: DarkOrange
+}
+
+.d_gene {
+  color: DarkOrchid
+}
+
+.n2_addition {
+  color: Crimson
+}
+
+.j_gene {
+  color: DarkGreen
+}
+

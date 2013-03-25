@@ -21,16 +21,19 @@
   <table>
     <th>
     </th>
-    {% for seq, list in shared_clonotypes.items %}
+    {% for aa, count_dict in shared_clonotypes.items %}
     <tr>
       <td>
-        {{ seq }}
+        {{ aa.sequence }}
       </td>
-    {% for sample in list %}
+    {% for sample, count in count_dict.items %}
       <td class="clonotype">
-    {{ sample }}
+        {{ sample }}: {{ count }}
       </td>
     {% endfor %}
+      <td>
+        <a href="{% url 'clonotypes.views.amino_acid_detail' aa.id %}">Details</a>
+      </td>
     </tr>
     {% endfor %}
   </table>
