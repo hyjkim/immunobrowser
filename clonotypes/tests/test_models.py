@@ -335,12 +335,6 @@ class ClonoFilterModelTest(TestCase):
         self.assertEqual(f.norm_factor, self.f.norm_factor)
         self.assertIsInstance(f.norm_factor, float)
 
-    def test_vj_counts_utilizes_norm_factor_if_it_exists(self):
-        self.f.norm_factor = 10
-        norm_vj_counts = self.f.vj_counts()
-        self.assertEqual(.2, norm_vj_counts[0][0])
-#        self.assertEqual([[2, 0], [0, 1], [1, 0]], norm_vj_counts)
-
     def test_clonofilter_get_clonotypes_should_not_filter_on_a_parameter_if_it_is_not_included(self):
         try:
             self.f.get_clonotypes()
@@ -364,6 +358,27 @@ class ClonoFilterModelTest(TestCase):
 
         f = ClonoFilter.objects.get()
         self.assertEqual(self.s, self.f.sample)
+
+    def test_vj_counts_dict_returns_a_nested_dict(self):
+        '''
+        dict should be indexed by:
+            dict['v_family']['j_gene'] = count
+        '''
+        vj_counts = self.f.vj_counts_dict()
+        self.assertIsInstance(vj_counts, dict)
+
+        assert(vj_counts)
+
+        for v_family in vj_counts.values():
+            self.assertIsInstance(v_family, dict)
+
+        self.assertEqual(vj_counts['9']['TRBJ2-5'], 1.0)
+
+
+    def test_vj_counts_utilizes_norm_factor_if_it_exists(self):
+        self.f.norm_factor = 10
+        norm_vj_counts = self.f.vj_counts()
+        self.assertEqual(.2, norm_vj_counts[0][0])
 
     def test_vj_counts_returns_an_empty_2d_list_with_dimensions_len_vfam_by_jgene(self):
         v_family_names = Recombination.v_family_names()

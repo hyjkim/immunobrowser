@@ -109,8 +109,6 @@ class ComparsionModelMethodsTest(TestCase):
 
         self.assertEqual(2, Comparison.objects.all().count())
 
-        self.fail('todo')
-
     def test_get_shared_clonotypes_returns_empty_dict_if_only_one_clonofilter_is_provided(self):
         cf = ClonoFilter.objects.all()[0]
         comparison = Comparison.get_or_create_from_clonofilters([cf])

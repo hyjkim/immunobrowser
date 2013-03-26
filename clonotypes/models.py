@@ -244,17 +244,52 @@ class ClonoFilter(models.Model):
         copy_sum = self.get_clonotypes().aggregate(Sum('copy'))
         return copy_sum['copy__sum']
 
-    def vj_counts(self):
+    def vj_counts_dict(self):
+        ''' Takes in a clonofilter and returns a nested dict of v_family_name
+        index in v_family_names, j_gene_name index in j_gene_names
+        and sum of copy.
+
+        dict should be indexed by:
+            dict['v_family']['j_gene'] = count
+        '''
+        from collections import defaultdict
         from django.db.models import Sum
+
+        returnable = defaultdict(lambda: defaultdict(lambda: .0))
+        filtered_query_set = self.get_clonotypes()
+        # Returns a list of dicts, each dict contains a v gene, j gene and a
+        # sum of copy
+        vj_pairs = filtered_query_set.values(
+            'recombination__v_family_name', 'recombination__j_gene_name').annotate(Sum('copy'))
+
+        for sum_dict in vj_pairs:
+            v_family = sum_dict['recombination__v_family_name']
+            j_gene = sum_dict['recombination__j_gene_name']
+
+            if self.norm_factor:
+                 returnable[v_family][j_gene] =  sum_dict[
+                    'copy__sum'] / float(self.norm_factor)
+            else:
+                returnable[v_family][j_gene] = sum_dict['copy__sum']
+
+        return returnable
+
+    def vj_counts(self):
         ''' Takes in a clonofilter and returns a nested list of v_family_name
         index in v_family_names, j_gene_name index in j_gene_names
         and sum of copy '''
+        from django.db.models import Sum
+
         filtered_query_set = self.get_clonotypes()
+        # Returns a list of dicts, each dict contains a v gene, j gene and a
+        # sum of copy
         vj_pairs = filtered_query_set.values(
             'recombination__v_family_name', 'recombination__j_gene_name').annotate(Sum('copy'))
+        # Get v and j gene names in a list
         v_family_names = Recombination.v_family_names()
         j_gene_names = Recombination.j_gene_names()
 
+        # Initialize an empty list the size of v_family_names and j_gene_names
         returnable = [([0] * len(j_gene_names)) for i in range(len(
             v_family_names))]
 
