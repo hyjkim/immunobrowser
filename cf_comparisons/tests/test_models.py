@@ -95,6 +95,21 @@ class ComparsionModelMethodsTest(TestCase):
         s2 = Sample.objects.all()[1]
         self.assertEqual({u'CASSLGPLAEKETQYF': [s1, s2]
                           }, shared_clonotypes)
+    def test_get_or_create_from_clonofilters_returns_one_comparison_if_two_supersets_exist(self):
+        '''
+        This test replicates a bug where multiple comparisons are returned if
+        multiple comparisons exist which contain a subset of clonofilters. This
+        is most evident when creating a new comparison from a list of samples
+        '''
+        s1 = Sample.objects.all()[0]
+        s2 = Sample.objects.all()[1]
+        Comparison.default_from_samples([s1])
+        Comparison.default_from_samples([s1,s2])
+        Comparison.default_from_samples([s1])
+
+        self.assertEqual(2, Comparison.objects.all().count())
+
+        self.fail('todo')
 
     def test_get_shared_clonotypes_returns_empty_dict_if_only_one_clonofilter_is_provided(self):
         cf = ClonoFilter.objects.all()[0]
@@ -115,6 +130,7 @@ class ComparsionModelMethodsTest(TestCase):
         shared_clonotypes = self.comparison.get_shared_clonotypes()
         #self.assertEqual('', shared_clonotypes)
         self.assertIsInstance(shared_clonotypes, dict)
+
 
 
 class ComparisonModelTest(TestCase):

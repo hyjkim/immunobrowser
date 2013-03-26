@@ -180,10 +180,12 @@ LOGGING = {
 
 
 # Modifying variables for running tests
+# Use sqlite3 for testing because it's so much faster
+# There are some problems with inconsistencies between dbs though..
 if 'test' in sys.argv:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
+           'ENGINE': 'django.db.backends.sqlite3',
             'NAME': ':memory',
         },
     }

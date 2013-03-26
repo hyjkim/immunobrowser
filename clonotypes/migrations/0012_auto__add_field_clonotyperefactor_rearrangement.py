@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'ClonotypeRefactor.rearrangement'
         db.add_column('clonotypes_clonotyperefactor', 'rearrangement',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['clonotypes.Rearrangement']),
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['clonotypes.Rearrangement']),
                       keep_default=False)
 
 

@@ -103,8 +103,11 @@ class ComparisonsViewIntegrationTest(TestCase):
         self.assertIn("", response.content)
 
     def test_compare_creates_a_new_comparison_if_filter_form_is_changed(self):
-        clonofilters = {'0-sample': 1, '1-sample': 2,
-                        '0-min_length': 1, 'num_forms': 2}
+        samples = Sample.objects.all()
+        clonofilters = {'0-sample': samples[0].id,
+                        '1-sample': samples[1].id,
+                        '0-min_length': 1,
+                        'num_forms': 2}
         self.client.post(reverse('cf_comparisons.views.compare',
                          args=[self.comparison.id]), clonofilters)
         self.assertEqual(2, Comparison.objects.all().count())

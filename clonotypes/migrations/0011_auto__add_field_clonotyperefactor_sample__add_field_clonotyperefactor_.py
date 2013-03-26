@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'ClonotypeRefactor.sample'
         db.add_column('clonotypes_clonotyperefactor', 'sample',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['samples.Sample']),
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['samples.Sample']),
                       keep_default=False)
 
         # Adding field 'ClonotypeRefactor.sequence_id'

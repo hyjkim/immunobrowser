@@ -40,7 +40,9 @@ class Comparison(models.Model):
         if len(samples) > 1:
             shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, self.get_amino_acids())
             shared_amino_acid = shared_amino_acid.distinct()
-        return shared_amino_acid
+            return shared_amino_acid
+        else:
+            return False
 
     def get_shared_amino_acids_counts(self):
         '''
@@ -159,7 +161,6 @@ class Comparison(models.Model):
         returnable = defaultdict(list)
         if len(samples) > 1:
             shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, self.get_amino_acids())
-            #shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, AminoAcid.objects.all())
             shared_amino_acid = shared_amino_acid.distinct()
 
             # Format the shared clonotypes as a dict of lists:
@@ -170,8 +171,6 @@ class Comparison(models.Model):
                         if clonotype.sample in samples:
                             returnable[amino_acid.sequence].append(clonotype.sample)
 
-#                for sample in amino_acid.samples.all():
-#                    returnable[amino_acid.sequence].append(sample)
         return dict(returnable)
 
     @staticmethod
@@ -199,10 +198,14 @@ class Comparison(models.Model):
         from django.db.models import Count
         # Try to find a comparison with these particular clonofilters
         try:
-            comparison = Comparison.objects.filter(clonofilters__in=clonofilters).annotate(num_filters=Count('clonofilters')).filter(num_filters=len(clonofilters)).exclude(id__in=Comparison.objects.annotate(all_filters=Count('clonofilters')).filter(all_filters__gt=len(clonofilters))).get()
+            # Works with sqlite3 but not with mysql
+#            comparison = Comparison.objects.filter(clonofilters__in=clonofilters).annotate(num_filters=Count('clonofilters')).filter(num_filters=len(clonofilters)).exclude(id__in=Comparison.objects.annotate(all_filters=Count('clonofilters')).filter(all_filters__gt=len(clonofilters))).get()
+            comparison = reduce(lambda q, cf: q.filter(clonofilters=cf), clonofilters, Comparison.objects.annotate(count=Count('clonofilters')))
+            comparison = comparison.filter(count=len(clonofilters))[0]
         # If an existing clonofilter is not found, create
         # a new comparison given the default_clonofilters
-        except Comparison.DoesNotExist:
+#        except Comparison.DoesNotExist: # This exception was for the mysql
+        except:
             comparison = Comparison()
             comparison.save()
             comparison.clonofilters.add(*clonofilters)
