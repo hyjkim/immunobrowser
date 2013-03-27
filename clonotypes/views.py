@@ -1,11 +1,60 @@
 from django.shortcuts import render
-from clonotypes.models import Clonotype, ClonoFilter
+from clonotypes.models import Clonotype, ClonoFilter, Recombination
 from samples.models import Sample
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
 
 
+def v_usage_graph(request, clonofilter_id):
+    '''
+    Returns a PNG of v usage as a line graph
+    '''
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    import matplotlib.pyplot as plt
+    response = HttpResponse(content_type='image/png')
+    fig, ax = plt.subplots()
+    canvas = FigureCanvas(fig)
+
+    # variables which will contain data to be plotted
+    usage = []
+    family_index = []
+
+    # Retreive the clonofilter
+    cf = ClonoFilter.objects.get(id=clonofilter_id)
+
+    # Get v usage data
+    v_usage_dict = cf.v_usage_dict()
+
+    # Get a list of v family names
+    v_family_names = sorted(Recombination.v_family_names())
+
+    # Convert v usage dict into two lists for plotting
+    for v_index, v_family in enumerate(v_family_names):
+        if v_family in v_usage_dict:
+            usage.append(v_usage_dict[v_family])
+        else:
+            usage.append(0)
+        family_index.append(v_index)
+
+    # Generate the image
+    ax.plot(family_index, usage, '-')
+
+    # Axes labels and title
+    ax.set_title('%s V Usage' % cf.sample)
+    ax.set_xlabel('V Gene Family')
+    ax.set_ylabel('Usage')
+
+    xtickNames = plt.setp(ax, xticklabels=v_family_names)
+    plt.setp(xtickNames, rotation=90, fontsize=9)
+    ax.xaxis.set_ticks(range(len(v_family_names)))
+
+    canvas.print_png(response)
+    return response
+
 def amino_acid_detail(request, amino_acid_id):
+    '''
+    View for displaying amino acid details. Shows other samples that share this amino acid sequence
+    '''
     from clonotypes.models import AminoAcid
     amino_acid = AminoAcid.objects.get(id=amino_acid_id)
     context = {'amino_acid': amino_acid}
@@ -28,8 +77,9 @@ def all(request, sample_id):
 
 
 def detail(request, clonotype_id):
-#    pass
-#    try:
+    '''
+    Displays a detailed view of a specific clonotype
+    '''
     clonotype = Clonotype.objects.get(id=clonotype_id)
     sample = clonotype.sample
     context = {'clonotype': clonotype, 'sample': sample}
@@ -42,7 +92,6 @@ def bubble(request, clonofilter):
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     import matplotlib.pyplot as plt
     import numpy as np
-    from clonotypes.models import Recombination
     from math import sqrt
     from mpl_toolkits.axes_grid1 import make_axes_locatable
     import pylab
@@ -80,18 +129,18 @@ def bubble(request, clonofilter):
                 color.append(0)
                 data.append(0)
 
-
     # Normalize bubble areas
     if data:
         # Scales the area of a v-j junction by the size of the plot
         # and the maximum data value
-        area_norm_factor = (2.0/max(data)) * width * height
+        area_norm_factor = (2.0 / max(data)) * width * height
         area = [datapoint * area_norm_factor for datapoint in data]
 
 # Use big outlines
 #    sct = ax.scatter(x, y, c=color, s=area, linewidths=2, edgecolor='w')
 # Use small
-    sct = ax.scatter(x, y, c=color, s=area, linewidths=1, edgecolor='lightgrey', alpha=.5)
+    sct = ax.scatter(
+        x, y, c=color, s=area, linewidths=1, edgecolor='lightgrey', alpha=.5)
 #    sct.set_alpha(0.5)
 
 # Labels, legends, titles etc
@@ -101,9 +150,9 @@ def bubble(request, clonofilter):
     ax.set_ylabel('J Gene')
     # Add a grid
     ax.yaxis.grid(True, linestyle='-', which='both', color='lightgrey',
-              alpha=0.5)
+                  alpha=0.5)
     ax.xaxis.grid(True, linestyle='-', which='both', color='lightgrey',
-              alpha=0.5)
+                  alpha=0.5)
 
     # Set the axes and plotting area
     ax.set_xlim(-1, width)
@@ -115,7 +164,6 @@ def bubble(request, clonofilter):
     plt.setp(ytickNames, fontsize=9)
     ax.yaxis.set_ticks(range(len(j_list)))
 
-
     # Shrink the plot to make room for legends
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
@@ -126,14 +174,15 @@ def bubble(request, clonofilter):
     bubble_labels = []
 
     # Exponentially decreasing areas from max_data to max_data * 2^-8
-    for bubble_area in [max_data * 1.35 ** (-exp) for exp in range(0,15)]:
+    for bubble_area in [max_data * 1.35 ** (-exp) for exp in range(0, 15)]:
         # Determine marker size
-        marker_size = sqrt(bubble_area / max_data * (len(j_list) * len(v_list * 2)))
+        marker_size = sqrt(
+            bubble_area / max_data * (len(j_list) * len(v_list * 2)))
         # Determine marker color. np.nextafter() is used because pylab.cm.jet
         # function is looking for a range from [0,1)
         marker_color = pylab.cm.jet(np.nextafter(bubble_area / max_data, -1))
         bubbles.append(plt.Line2D(range(1), range(1), marker='o', markersize=marker_size, color=marker_color, linewidth=0, markeredgecolor="lightgrey", alpha=0.5))
-        bubble_labels.append('%g' %bubble_area)
+        bubble_labels.append('%g' % bubble_area)
 
     # Draw the legend
     #ax.legend(bubbles, bubble_labels, numpoints=1, loc='center left', bbox_to_anchor=(1.175, .5), prop={'size': 10})
@@ -141,7 +190,7 @@ def bubble(request, clonofilter):
 
     # Colorbar
     # Make the colorbar a bit smaller
-    divider= make_axes_locatable(ax)
+    divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="2%", pad=0.05)
     cb = plt.colorbar(sct, cax=cax)
     # Old way
@@ -169,6 +218,7 @@ def bubble_default(request, sample_id):
 
     return bubble(request, clonofilter)
 
+
 def spectratype(request, clonofilter):
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -181,7 +231,11 @@ def spectratype(request, clonofilter):
 
     cdr3_sums = array(clonofilter.cdr3_length_sum())
     ax.plot(cdr3_sums[:, 0].tolist(), cdr3_sums[:, 1].tolist(), '-')
-    ax = fig.add_subplot(111)
+
+    # Axes labels and title
+    ax.set_title('%s Spectratype' % clonofilter.sample)
+    ax.set_xlabel('CDR3 Length (Nucleotides)')
+    ax.set_ylabel('Usage')
 
     canvas.print_png(response)
     return response

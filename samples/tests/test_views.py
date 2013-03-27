@@ -68,6 +68,16 @@ class SampleViewIntegrationTest(TestCase):
         self.s = Sample.objects.get()
         self.p = Patient.objects.get()
 
+    def test_summary_displays_v_usage_graph(self):
+        cf = ClonoFilter(sample=self.s)
+        cf.save()
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), cf.id)
+        v_usage_graph_url = reverse('clonotypes.views.v_usage_graph', args=[self.s.id])
+        response = self.client.get(url)
+        self.assertIn(v_usage_graph_url, response.content)
+
+
     def test_summary_should_redirect_if_a_new_sample_is_provided_in_form(self):
         s2 = Sample(patient=self.p,cell_type="t", draw_date='1999-11-11')
         s2.save()

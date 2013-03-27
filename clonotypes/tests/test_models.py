@@ -259,16 +259,23 @@ class ClonotypeModelTest(TestCase):
 
         self.assertEqual(all_clonotypes[0], c)
 
-#    def test_vj_usage_returns_double_array(self):
-#        s = Sample.objects.get()
-#        self.assertEqual("",vj_usage(s))
-
-
 class ClonoFilterModelTest(TestCase):
     def setUp(self):
         make_fake_patient_with_3_clonotypes()
         self.s = Sample.objects.get()
         self.f = ClonoFilter(sample=self.s)
+
+    def test_v_usage_considers_norm_factor(self):
+        cf = ClonoFilter(sample=self.s, norm_factor=2)
+        v_usage_dict = cf.v_usage_dict()
+        self.assertEqual({u'9': .5, u'8': .5, u'7': 1}, v_usage_dict)
+
+    def test_v_usage_dict_returns_dict_indexed_by_v_family(self):
+        v_usage_dict = self.f.v_usage_dict()
+        self.assertIsInstance(v_usage_dict, dict)
+
+        self.assertEqual({u'9': 1, u'8': 1, u'7': 2}, v_usage_dict)
+
 
     def test_normalization_factor_initializes_to_1(self):
         self.assertEqual(1, self.f.norm_factor)

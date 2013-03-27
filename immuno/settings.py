@@ -189,3 +189,4 @@ if 'test' in sys.argv:
             'NAME': ':memory',
         },
     }
+#    SOUTH_TESTS_MIGRATE = False

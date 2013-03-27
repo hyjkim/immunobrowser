@@ -244,6 +244,28 @@ class ClonoFilter(models.Model):
         copy_sum = self.get_clonotypes().aggregate(Sum('copy'))
         return copy_sum['copy__sum']
 
+    def v_usage_dict(self):
+        '''
+        Return a dictionary indexed by v_family name with values equal to the
+        usage of each v_family within the sample
+        '''
+        from django.db.models import Sum
+        returnable = {}
+        # Get set of names in DB
+        v_family_names = Recombination.v_family_names()
+        # Use queryset filtered by values in clonofilter
+        filtered_query_set = self.get_clonotypes()
+        # Return the sums of each v family
+        v_usage_values = filtered_query_set.values('recombination__v_family_name').annotate(Sum('copy'))
+        # Transform list of dicts into single dict
+        for sum_dict in v_usage_values:
+            if self.norm_factor:
+                returnable[sum_dict['recombination__v_family_name']] = sum_dict['copy__sum'] / float(self.norm_factor)
+            else:
+                returnable[sum_dict['recombination__v_family_name']] = sum_dict['copy__sum']
+
+        return returnable
+
     def vj_counts_dict(self):
         ''' Takes in a clonofilter and returns a nested dict of v_family_name
         index in v_family_names, j_gene_name index in j_gene_names
