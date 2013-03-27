@@ -5,7 +5,7 @@ from clonotypes.models import Clonotype, ClonoFilter, AminoAcid
 from django.core.urlresolvers import reverse
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
 from mock import MagicMock, patch, call
-from clonotypes.views import all, detail, bubble, bubble_default, spectratype, spectratype_default, amino_acid_detail, v_usage_graph
+from clonotypes.views import all, detail, bubble, bubble_default, spectratype, spectratype_default, amino_acid_detail, v_usage_graph, j_usage_graph
 from test_utils.factories import render_echo, FakeRequestFactory
 
 
@@ -212,10 +212,18 @@ class ClonotypesImagesTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_j_usage_grpah_returns_a_png(self):
+        s = Sample.objects.get()
+        clonofilter = ClonoFilter(sample=s)
+        clonofilter.save()
+        response = j_usage_graph(self.request, clonofilter.id)
+        self.assertEqual('image/png', response['content-type'])
+
     def test_v_usage_grpah_returns_a_png(self):
         s = Sample.objects.get()
         clonofilter = ClonoFilter(sample=s)
-        response = v_usage_graph(self.request, clonofilter)
+        clonofilter.save()
+        response = v_usage_graph(self.request, clonofilter.id)
         self.assertEqual('image/png', response['content-type'])
 
     def test_spectratype_default_applies_clonofilter_passed_in_through_get(self):
@@ -312,8 +320,11 @@ class ClonotypesImagesIntegrationTests(TestCase):
     def setUp(self):
         make_fake_patient_with_3_clonotypes()
 
+    def test_j_usage_has_a_valid_url(self):
+        s = Sample.objects.get()
+        clonofilter = ClonoFilter(sample=s)
+        response = reverse('clonotypes.views.j_usage_graph', args=[s.id])
     def test_v_usage_has_a_valid_url(self):
         s = Sample.objects.get()
         clonofilter = ClonoFilter(sample=s)
         response = reverse('clonotypes.views.v_usage_graph', args=[s.id])
-

@@ -24,5 +24,8 @@
 <div><img src="{% url 'clonotypes.views.v_usage_graph' clonofilter.id  %}">
 </div>
 
+<div><img src="{% url 'clonotypes.views.j_usage_graph' clonofilter.id  %}">
+</div>
+
 <a href="{% url 'clonotypes.views.all' sample.id %}">View all Clonotypes</a>
 {% endblock %}

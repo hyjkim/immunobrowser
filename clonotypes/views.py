@@ -5,6 +5,54 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
 
 
+def j_usage_graph(request, clonofilter_id):
+    '''
+    Returns a PNG of j usage as a line graph
+    '''
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    import matplotlib.pyplot as plt
+    response = HttpResponse(content_type='image/png')
+    fig, ax = plt.subplots()
+    canvas = FigureCanvas(fig)
+
+    # variables which will contain data to be plotted
+    usage = []
+    gene_index = []
+
+    # Retreive the clonofilter
+    cf = ClonoFilter.objects.get(id=clonofilter_id)
+
+    # Get v usage data
+    j_usage_dict = cf.j_usage_dict()
+
+    # Get a list of v family names
+    j_gene_names = sorted(Recombination.j_gene_names())
+
+    # Convert v usage dict into two lists for plotting
+    for j_index, j_gene in enumerate(j_gene_names):
+        if j_gene in j_usage_dict:
+            usage.append(j_usage_dict[j_gene])
+        else:
+            usage.append(0)
+        gene_index.append(j_index)
+
+    # Generate the image
+    ax.plot(gene_index, usage, '-')
+
+    # Axes labels and title
+    ax.set_title('%s J Usage' % cf.sample)
+    ax.set_xlabel('J Gene Family')
+    ax.set_ylabel('Usage')
+
+    xtickNames = plt.setp(ax, xticklabels=j_gene_names)
+    plt.setp(xtickNames, rotation=90, fontsize=9)
+    ax.xaxis.set_ticks(range(len(j_gene_names)))
+
+    canvas.print_png(response)
+
+
+    return response
+
 def v_usage_graph(request, clonofilter_id):
     '''
     Returns a PNG of v usage as a line graph

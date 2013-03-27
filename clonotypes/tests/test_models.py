@@ -265,6 +265,17 @@ class ClonoFilterModelTest(TestCase):
         self.s = Sample.objects.get()
         self.f = ClonoFilter(sample=self.s)
 
+    def test_j_usage_considers_norm_factor(self):
+        cf = ClonoFilter(sample=self.s, norm_factor=2)
+        j_usage_dict = cf.j_usage_dict()
+        self.assertEqual({u'TRBJ2-4': 0.5, u'TRBJ2-5': 1.5}, j_usage_dict)
+
+    def test_j_usage_dict_returns_dict_indexed_by_j_gene(self):
+        j_usage_dict = self.f.j_usage_dict()
+        self.assertIsInstance(j_usage_dict, dict)
+
+        self.assertEqual({u'TRBJ2-4': 1, u'TRBJ2-5': 3}, j_usage_dict)
+
     def test_v_usage_considers_norm_factor(self):
         cf = ClonoFilter(sample=self.s, norm_factor=2)
         v_usage_dict = cf.v_usage_dict()
@@ -275,7 +286,6 @@ class ClonoFilterModelTest(TestCase):
         self.assertIsInstance(v_usage_dict, dict)
 
         self.assertEqual({u'9': 1, u'8': 1, u'7': 2}, v_usage_dict)
-
 
     def test_normalization_factor_initializes_to_1(self):
         self.assertEqual(1, self.f.norm_factor)
