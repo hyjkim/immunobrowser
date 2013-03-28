@@ -18,6 +18,7 @@ urlpatterns = patterns('',
 
                        # Dynamic
                        url(r'^amino_acid/(\d+)?$', 'clonotypes.views.amino_acid_detail'),
+                       url(r'^clonofilter/(\d+)/functionality.png', 'clonotypes.views.functionality_graph'),
                        url(r'^clonofilter/(\d+)/j_usage.png', 'clonotypes.views.j_usage_graph'),
                        url(r'^clonofilter/(\d+)/v_usage.png', 'clonotypes.views.v_usage_graph'),
                        url(r'^samples/(\d+)/bubble.png', 'clonotypes.views.bubble_default'),

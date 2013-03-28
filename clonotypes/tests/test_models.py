@@ -74,6 +74,12 @@ class RecombinationModelTest(TestCase):
             self.assertEqual(
                 value, getattr(r_in_db, key), 'key value %s not equal' % key)
 
+    def test_functionality_states_returns_list_of_all_functionality_states_in_db(self):
+        make_fake_patient_with_3_clonotypes()
+        self.assertIsInstance(Recombination.functionality_states(), list)
+        self.assertEqual([u'Productive', u'Out of frame'], Recombination.functionality_states())
+
+
     def test_v_family_names_returns_list_of_distinct_v_family_names(self):
         make_fake_patient_with_3_clonotypes()
         self.assertIsInstance(Recombination.v_family_names(), list)
@@ -265,6 +271,12 @@ class ClonoFilterModelTest(TestCase):
         self.s = Sample.objects.get()
         self.f = ClonoFilter(sample=self.s)
 
+    def test_functionality_dict_contains_all_functional_groups(self):
+        self.assertEqual({u'Out of frame': 2, u'Productive': 2}, self.f.functionality_dict())
+
+    def test_functionality_dict_returns_dict(self):
+        self.assertIsInstance(self.f.functionality_dict(), dict)
+
     def test_j_usage_considers_norm_factor(self):
         cf = ClonoFilter(sample=self.s, norm_factor=2)
         j_usage_dict = cf.j_usage_dict()
@@ -325,6 +337,8 @@ class ClonoFilterModelTest(TestCase):
         self.f.norm_factor = 10
         norm_cdr3_length_sum = self.f.cdr3_length_sum()
         self.assertEqual([[36, .1], [39, .1], [42, .2]], norm_cdr3_length_sum)
+
+#    def test_clonofilter_
 
     def test_clonofilter_has_min_and_max_length_as_int(self):
         self.f.min_length = 1

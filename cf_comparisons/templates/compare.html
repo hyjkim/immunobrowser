@@ -13,7 +13,29 @@
   </form>
 </div>
 
+<div name="counts_table">
+  <table>
+    <tr>
+      <th>Sample
+      </th>
+      <th>Raw Counts
+      </th>
+      <th>Normalized Counts
+      </th>
+    </tr>
+    {% for clonofilter in comparison.clonofilters.all %}
+    <tr>
+      <td><a href="{% url 'samples.views.summary' clonofilter.sample.id %}?clonofilter={{ clonofilter.id }}">{{ clonofilter.sample }}</a>
+      </td>
+      <td>{{ clonofilter.size }}
+      </td>
+      <td>{{ clonofilter.norm_size }}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
 </div>
+
 <div class="bubble_wrapper">
   <img src="{% url 'cf_comparisons.views.bubble' comparison.id %}">
 </div>
@@ -26,11 +48,11 @@
       <td>
         {{ aa.sequence }}
       </td>
-    {% for sample, count in count_dict.items %}
+      {% for sample, count in count_dict.items %}
       <td class="clonotype">
         {{ sample }}: {{ count }}
       </td>
-    {% endfor %}
+      {% endfor %}
       <td>
         <a href="{% url 'clonotypes.views.amino_acid_detail' aa.id %}">Details</a>
       </td>

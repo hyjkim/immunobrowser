@@ -84,6 +84,21 @@ class ComparisonsViewIntegrationTest(TestCase):
     def DONTtest_clonotype_tracking_view_reads_comparison_and_amino_acid_sequences_from_post(self):
         self.fail('todo')
 
+    def test_comparison_has_links_to_clonofilters_within_comparison(self):
+        response = self.client.get(
+            reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
+        for clonofilter in self.comparison.clonofilters.all():
+            url = "%s?clonofilter=%d" % (reverse('samples.views.summary', args=[clonofilter.sample.id]), clonofilter.id)
+            self.assertIn(url, response.content)
+
+    def test_comparison_view_shows_a_table_of_raw_and_normalized_sample_sizes(self):
+        response = self.client.get(
+            reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
+        self.assertIn("Raw Counts", response.content)
+        self.assertIn("Normalized Counts", response.content)
+        for clonofilter in self.comparison.clonofilters.all():
+            self.assertIn(str(clonofilter.sample), response.content)
+
     def test_compare_shows_links_to_shared_amino_acid(self):
         from clonotypes.models import AminoAcid
         response = self.client.get(
@@ -100,7 +115,7 @@ class ComparisonsViewIntegrationTest(TestCase):
     def test_compare_should_have_number_of_forms_as_hidden_field(self):
         response = self.client.get(
             reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
-        self.assertIn("", response.content)
+        self.assertIn('<input type="hidden" name="num_forms" value="2">', response.content)
 
     def test_compare_creates_a_new_comparison_if_filter_form_is_changed(self):
         samples = Sample.objects.all()

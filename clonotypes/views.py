@@ -5,6 +5,26 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
 
 
+def functionality_graph(request, clonofilter_id):
+    '''
+    Returns a PNG of functionality of the clonofilter as a pie chart
+    '''
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    import matplotlib.pyplot as plt
+    response = HttpResponse(content_type='image/png')
+    fig, ax = plt.subplots()
+    canvas = FigureCanvas(fig)
+
+    clonofilter = ClonoFilter.objects.get(id=clonofilter_id)
+    functionality_dict = clonofilter.functionality_dict()
+    values = functionality_dict.values()
+    labels = functionality_dict.keys()
+    ax.pie(values, labels=labels)
+
+
+    canvas.print_png(response)
+    return response
+
 def j_usage_graph(request, clonofilter_id):
     '''
     Returns a PNG of j usage as a line graph
@@ -37,7 +57,7 @@ def j_usage_graph(request, clonofilter_id):
         gene_index.append(j_index)
 
     # Generate the image
-    ax.plot(gene_index, usage, '-')
+    ax.plot(gene_index, usage, '-', marker='o')
 
     # Axes labels and title
     ax.set_title('%s J Usage' % cf.sample)
@@ -85,7 +105,7 @@ def v_usage_graph(request, clonofilter_id):
         family_index.append(v_index)
 
     # Generate the image
-    ax.plot(family_index, usage, '-')
+    ax.plot(family_index, usage, '-', marker='o')
 
     # Axes labels and title
     ax.set_title('%s V Usage' % cf.sample)

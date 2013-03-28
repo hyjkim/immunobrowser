@@ -68,6 +68,15 @@ class SampleViewIntegrationTest(TestCase):
         self.s = Sample.objects.get()
         self.p = Patient.objects.get()
 
+    def test_summary_displays_functionality_graph(self):
+        cf = ClonoFilter(sample=self.s)
+        cf.save()
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), cf.id)
+        functionality_graph_url = reverse('clonotypes.views.functionality_graph', args=[cf.id])
+        response = self.client.get(url)
+        self.assertIn(functionality_graph_url, response.content)
+
     def test_summary_displays_j_usage_graph(self):
         cf = ClonoFilter(sample=self.s)
         cf.save()

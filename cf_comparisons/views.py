@@ -72,18 +72,23 @@ def bubble(request, comparison_id):
     '''
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-    from pylab import text, xlabel, ylabel, get_cmap, cm
+#    from pylab import text, xlabel, ylabel, get_cmap, cm
+    import matplotlib.pyplot as plt
     from clonotypes.models import Recombination
+    from math import sqrt
+    import pylab
+    import numpy as np
 
     comparison = Comparison.objects.get(id=comparison_id)
-    clonofilters = comparison.clonofilters.all()
+    clonofilters = sorted(comparison.clonofilters.all())
     response = HttpResponse(content_type='image/png')
     fig = Figure()
     canvas = FigureCanvas(fig)
     ax = fig.add_subplot(111)
 
     #clonofilter_colors = (cm(1.*i/len(clonofilters)) for i in range(len(clonofilters)))
-    cm = get_cmap('gist_rainbow')
+    cm = pylab.get_cmap('gist_rainbow')
+    #cm = get_cmap('jet')
     clonofilter_colors = [cm(1.*i/len(clonofilters)) for i in range(len(clonofilters))]
 
     x = []
@@ -92,21 +97,27 @@ def bubble(request, comparison_id):
     data = []
     area = []
 
-    width = len(Recombination.v_family_names())
-    height = len(Recombination.j_gene_names())
+    # Calculate the plotting area by finding the number of v's and j's
+    v_list = sorted(Recombination.v_family_names())
+    j_list = sorted(Recombination.j_gene_names())
+    width = len(v_list)
+    height = len(j_list)
 
     # get a list of vj_counts
-    vj_counts_list = [clonofilter.vj_counts()
+    vj_counts_dict_list = [clonofilter.vj_counts_dict()
                       for clonofilter in clonofilters]
 
-    for clonofilter_index, vj_counts in enumerate(vj_counts_list):
-        for v_index, list in enumerate(vj_counts):
-            for j_index, counts in enumerate(list):
+    for clonofilter_index, vj_counts_dict in enumerate(vj_counts_dict_list):
+        for v_index, v_family in enumerate(v_list):
+            for j_index, j_gene in enumerate(j_list):
                 x.append(v_index)
                 y.append(j_index)
-#                color.append(counts)
                 color.append(clonofilter_colors[clonofilter_index])
-                data.append(counts)
+                if vj_counts_dict[v_family][j_gene]:
+                    data.append(vj_counts_dict[v_family][j_gene])
+                else:
+                    data.append(0)
+
 
     # Normalize area by the median and plot area
     #area_norm_factor = (1.0/median(data)) * width * height
@@ -117,5 +128,55 @@ def bubble(request, comparison_id):
 
     sct = ax.scatter(x, y, c=color, s=area, linewidths=2, edgecolor='w')
     sct.set_alpha(0.4)
+
+# Labels, legends, titles etc
+    # Set titles
+    ax.set_title('V-J Usage Comparison')
+    ax.set_xlabel('V Gene Family')
+    ax.set_ylabel('J Gene')
+    # Add a grid
+    ax.yaxis.grid(True, linestyle='-', which='both', color='lightgrey',
+                  alpha=0.5)
+    ax.xaxis.grid(True, linestyle='-', which='both', color='lightgrey',
+                  alpha=0.5)
+
+    # Set the axes and plotting area
+    ax.set_xlim(-1, width)
+    ax.set_ylim(-1, height)
+    xtickNames = plt.setp(ax, xticklabels=v_list)
+    plt.setp(xtickNames, rotation=90, fontsize=9)
+    ax.xaxis.set_ticks(range(len(v_list)))
+    ytickNames = plt.setp(ax, yticklabels=j_list)
+    plt.setp(ytickNames, fontsize=9)
+    ax.yaxis.set_ticks(range(len(j_list)))
+
+    # Shrink the plot to make room for legends
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
+    # Draw the bubble size legend
+    max_data = max(data)
+    bubbles = []
+    bubble_labels = []
+
+    # Labels for exponentially decreasing bubble sizes
+    for bubble_area in [max_data * 1.45 ** (-exp) for exp in range(0, 10)]:
+        # Determine marker size
+        marker_size = sqrt(
+            bubble_area / max_data * (len(j_list) * len(v_list * 2)))
+        marker_color = 'lightgrey'
+        bubbles.append(plt.Line2D(range(1), range(1), marker='o', markersize=marker_size, color=marker_color, linewidth=0, markeredgecolor="lightgrey", alpha=0.5))
+        bubble_labels.append('%g' % bubble_area)
+
+    # Labels for sample colors
+    for index, clonofilter in enumerate(clonofilters):
+        marker_size = sqrt(width * height/ 1.5)
+        marker_color = clonofilter_colors[index]
+        bubbles.append(plt.Line2D(range(1), range(1), marker='o', markersize=marker_size, color=marker_color, linewidth=0, markeredgecolor="lightgrey", alpha=0.5))
+        bubble_labels.append('%s' % clonofilter.sample)
+
+
+    ax.legend(bubbles, bubble_labels, numpoints=1, loc='center left', bbox_to_anchor=(1., .5), labelspacing=1.5, prop={'size': 10}, title="Counts")
+
     canvas.print_png(response)
     return response
