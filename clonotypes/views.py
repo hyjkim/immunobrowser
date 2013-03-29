@@ -5,6 +5,22 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
 
 
+def domination_graph(request, clonofilter_id):
+    '''
+    Returns a PNG of the domination of a repertoire by a few highly expanded clones
+    '''
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    import matplotlib.pyplot as plt
+    response = HttpResponse(content_type='image/png')
+    fig, ax = plt.subplots()
+    canvas = FigureCanvas(fig)
+
+    clonofilter = ClonoFilter.objects.get(id=clonofilter_id)
+    # Get clonotypes ordered by copy number
+
+    canvas.print_png(response)
+    return response
+
 def functionality_graph(request, clonofilter_id):
     '''
     Returns a PNG of functionality of the clonofilter as a pie chart
@@ -288,6 +304,11 @@ def bubble_default(request, sample_id):
 
 
 def spectratype(request, clonofilter):
+    ''' Given a clonofilter id, generate and return a spectratype
+    plot. A spectratype plot shows the CDR3 length distributions
+    of recombinations in a way that represents the total makeup
+    of an immune repertoire sampling.
+    '''
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from numpy import array

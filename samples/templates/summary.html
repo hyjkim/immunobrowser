@@ -11,8 +11,9 @@
   </div>
 </form>
 <div>
+  Number of recombinations: {{ clonofilter.count }} <br />
   Number of reads: {{ clonofilter.size }} <br />
-  Normalized sum of reads: {{ clonofilter.norm_size }}
+  Normalized sum of reads: {{ clonofilter.norm_size }} <br />
 </div>
 
 <div><img src="{% url 'clonotypes.views.bubble_default' sample.id %}?clonofilter={{ clonofilter.id }}">
@@ -29,6 +30,10 @@
 
 <div><img src="{% url 'clonotypes.views.functionality_graph' clonofilter.id  %}">
 </div>
+
+<div><img src="{% url 'clonotypes.views.domination_graph' clonofilter.id  %}">
+</div>
+
 
 <a href="{% url 'clonotypes.views.all' sample.id %}">View all Clonotypes</a>
 {% endblock %}

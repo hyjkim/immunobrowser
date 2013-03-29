@@ -22,6 +22,15 @@ class ComparsionModelMethodsTest(TestCase):
         '''todo: call on two datasets, one with norm factors, one without and make sure values are expected'''
         self.fail('todo: call on two datasets, one with norm factors, one without and make sure values are expected')
 
+    def test_colors_list_returns_a_list_of_colors(self):
+        self.assertEqual([(1.0, 0.0, 0.16, 1.0), (0.0, 1.0, 0.54817625975121254, 1.0)],
+                         self.comparison.colors_list())
+
+    def test_colors_dict_returns_a_dict_of_colors(self):
+        self.assertEqual([(0.0, 1.0, 0.54817625975121254, 1.0), (1.0, 0.0, 0.16, 1.0)],
+                         self.comparison.colors_dict().values())
+        self.assertIsInstance(self.comparison.colors_dict().keys()[0], ClonoFilter)
+
     def test_get_shared_amino_acids_returns_a_list_of_shared_amino_acids(self):
         samples = [clonofilter.sample for clonofilter in self.comparison.clonofilters.all()]
         shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, self.comparison.get_amino_acids())

@@ -6,6 +6,31 @@ from utils.utils import undefaulted
 class Comparison(models.Model):
     clonofilters = models.ManyToManyField(ClonoFilter)
 
+    def colors_list(self):
+        '''
+        Returns a list of matplotlib color tuples in the ordered
+        by the index of the clonofilter
+        '''
+        import pylab
+        cm = pylab.get_cmap('gist_rainbow')
+        clonofilters = sorted(self.clonofilters.all())
+        returnable = [cm(1.*i/len(clonofilters)) for i in range(len(clonofilters))]
+        return returnable
+
+    def colors_dict(self):
+        '''
+        Returns a dict of colors indexed with clonofilters as keys and
+        matplotlib colors and values
+        '''
+        import pylab
+
+        returnable = {}
+        clonofilters = sorted(self.clonofilters.all())
+        cm = pylab.get_cmap('gist_rainbow')
+        for index, clonofilter in enumerate(clonofilters):
+            returnable[clonofilter] = cm(1.*index/len(clonofilters))
+        return returnable
+
     def get_amino_acids(self):
         ''' Returns the set of amino acids associated with the clonotypes
         retrieved from get_clonotypes()'''

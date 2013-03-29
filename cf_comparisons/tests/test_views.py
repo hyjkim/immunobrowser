@@ -84,6 +84,13 @@ class ComparisonsViewIntegrationTest(TestCase):
     def DONTtest_clonotype_tracking_view_reads_comparison_and_amino_acid_sequences_from_post(self):
         self.fail('todo')
 
+    def test_compare_view_contains_a_combined_spectratype(self):
+        response = self.client.get(reverse('cf_comparisons.views.compare',
+                                           args=[self.comparison.id]))
+        self.assertIn(
+            reverse('cf_comparisons.views.spectratype', args=[self.comparison.id]),
+            response.content)
+
     def test_comparison_has_links_to_clonofilters_within_comparison(self):
         response = self.client.get(
             reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
@@ -94,6 +101,7 @@ class ComparisonsViewIntegrationTest(TestCase):
     def test_comparison_view_shows_a_table_of_raw_and_normalized_sample_sizes(self):
         response = self.client.get(
             reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
+        self.assertIn("Number of Recombinations", response.content)
         self.assertIn("Raw Counts", response.content)
         self.assertIn("Normalized Counts", response.content)
         for clonofilter in self.comparison.clonofilters.all():

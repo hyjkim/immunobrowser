@@ -18,6 +18,8 @@
     <tr>
       <th>Sample
       </th>
+      <th>Number of Recombinations
+      </th>
       <th>Raw Counts
       </th>
       <th>Normalized Counts
@@ -26,6 +28,8 @@
     {% for clonofilter in comparison.clonofilters.all %}
     <tr>
       <td><a href="{% url 'samples.views.summary' clonofilter.sample.id %}?clonofilter={{ clonofilter.id }}">{{ clonofilter.sample }}</a>
+      </td>
+      <td>{{ clonofilter.count }} 
       </td>
       <td>{{ clonofilter.size }}
       </td>
@@ -39,6 +43,11 @@
 <div class="bubble_wrapper">
   <img src="{% url 'cf_comparisons.views.bubble' comparison.id %}">
 </div>
+
+<div class="spectratype_wrapper">
+  <img src="{% url 'cf_comparisons.views.spectratype' comparison.id %}">
+</div>
+
 <div class="shared_clonotype_wrapper">
   <table>
     <th>

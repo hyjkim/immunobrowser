@@ -5,7 +5,7 @@ from clonotypes.models import Clonotype, ClonoFilter, AminoAcid
 from django.core.urlresolvers import reverse
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
 from mock import MagicMock, patch, call
-from clonotypes.views import all, detail, bubble, bubble_default, spectratype, spectratype_default, amino_acid_detail, v_usage_graph, j_usage_graph, functionality_graph
+from clonotypes.views import all, detail, bubble, bubble_default, spectratype, spectratype_default, amino_acid_detail, v_usage_graph, j_usage_graph, functionality_graph, domination_graph
 from test_utils.factories import render_echo, FakeRequestFactory
 
 
@@ -211,6 +211,13 @@ class ClonotypesImagesTest(TestCase):
 
     def tearDown(self):
         self.renderPatch.stop()
+
+    def test_domaintion_graph_returns_a_png(self):
+        s = Sample.objects.get()
+        clonofilter = ClonoFilter(sample=s)
+        clonofilter.save()
+        response = domination_graph(self.request, clonofilter.id)
+        self.assertEqual('image/png', response['content-type'])
 
     def test_functionality_graph_returns_a_png(self):
         s = Sample.objects.get()

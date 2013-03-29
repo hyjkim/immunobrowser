@@ -314,6 +314,9 @@ class ClonoFilterModelTest(TestCase):
         self.assertEqual(map(repr,Recombination.objects.all()),
                                  map(repr, recombination_qs))
 
+    def test_count_method_returns_number_of_recombinations(self):
+        self.assertEqual(3, self.f.count())
+
     def test_norm_size_method_returns_normalized_sum_of_copy(self):
         from django.db.models import Sum
         self.f.norm_factor = 10.0

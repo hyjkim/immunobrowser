@@ -117,7 +117,7 @@ class Recombination(models.Model):
     nucleotide = models.CharField(max_length=300)
     v_family_name = models.CharField(max_length=100)
     v_gene_name = models.CharField(max_length=100)
-    v_ties = models.CharField(max_length=100)
+    v_ties = models.CharField(max_length=500)
     d_gene_name = models.CharField(max_length=100)
     j_gene_name = models.CharField(max_length=100)
     j_ties = models.CharField(max_length=100)
@@ -289,7 +289,7 @@ class ClonoFilter(models.Model):
     min_length = models.IntegerField(null=True)
     max_length = models.IntegerField(null=True)
     norm_factor = models.FloatField(null=True, default=1)
-    functionality = MultiSelectField(max_length=250, blank=True, choices=TYPES)
+#    functionality = MultiSelectField(max_length=250, blank=True, choices=TYPES)
 
     @staticmethod
     def default_from_sample(sample):
@@ -332,6 +332,12 @@ class ClonoFilter(models.Model):
         clonotypes = self.get_clonotypes()
         recombinations = Recombination.objects.filter(id__in=clonotypes.values('recombination_id'))
         return recombinations
+
+    def count(self):
+        '''
+        Returns the number of recombinations in a clonofilter
+        '''
+        return self.get_clonotypes().count()
 
     def norm_size(self):
         '''

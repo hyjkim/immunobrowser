@@ -64,6 +64,60 @@ def compare(request, comparison_id):
                }
     return render(request, 'compare.html', context)
 
+def spectratype(request, comparison_id):
+    '''
+    Takes in a comparison id and generates a combined spectratype.
+
+    This spectratype should also plot an average spectratype with +/-
+    one standard deviation.
+    '''
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    from numpy import array
+    from collections import defaultdict
+
+    # Init various stuffs
+    fig, ax = plt.subplots()
+    canvas = FigureCanvas(fig)
+    response = HttpResponse(content_type='image/png')
+    comp = Comparison.objects.get(id=comparison_id)
+    color_dict = comp.colors_dict()
+    legend_items = []
+    legend_labels = []
+
+    # Generate cdr3 sums for each clonofilter
+    for clonofilter, color in color_dict.items():
+        cdr3_sums = array(clonofilter.cdr3_length_sum())
+        ax.plot(cdr3_sums[:, 0].tolist(), cdr3_sums[:, 1].tolist(), '-', color=color)
+        # Used in generating the legend
+        legend_items.append(plt.Line2D(range(1), range(1) ,color=color))
+        legend_labels.append(str(clonofilter.sample))
+
+    # Get average cdr3 sums
+    average = defaultdict(lambda: 0)
+    for clonofilter in comp.clonofilters.all():
+        cdr3_sums = array(clonofilter.cdr3_length_sum())
+        for x, y in cdr3_sums:
+            average[x] += y
+
+    # scale the average
+    averaged_values = array(average.values()) / len(comp.clonofilters.all())
+    ax.plot(average.keys(), averaged_values, color="black")
+
+
+
+    # Axes labels and title
+    ax.set_title('%s Spectratype' % clonofilter.sample)
+    ax.set_xlabel('CDR3 Length (Nucleotides)')
+    ax.set_ylabel('Usage')
+
+    # legend time
+    ax.legend(legend_items, legend_labels)
+
+
+    # print and return reponse
+    canvas.print_png(response)
+    return response
 
 def bubble(request, comparison_id):
     '''
@@ -72,7 +126,6 @@ def bubble(request, comparison_id):
     '''
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-#    from pylab import text, xlabel, ylabel, get_cmap, cm
     import matplotlib.pyplot as plt
     from clonotypes.models import Recombination
     from math import sqrt
@@ -86,10 +139,7 @@ def bubble(request, comparison_id):
     canvas = FigureCanvas(fig)
     ax = fig.add_subplot(111)
 
-    #clonofilter_colors = (cm(1.*i/len(clonofilters)) for i in range(len(clonofilters)))
-    cm = pylab.get_cmap('gist_rainbow')
-    #cm = get_cmap('jet')
-    clonofilter_colors = [cm(1.*i/len(clonofilters)) for i in range(len(clonofilters))]
+    clonofilter_colors = comparison.colors_list()
 
     x = []
     y = []
