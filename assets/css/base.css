@@ -22,6 +22,11 @@ th {
   float: clear;
 }
 
+.nucleotide {
+  font-family: "Lucida Console", Monaco, monospace
+
+}
+
 .v_gene {
   color: DarkBlue
 }

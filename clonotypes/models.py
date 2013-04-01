@@ -160,32 +160,45 @@ class Recombination(models.Model):
 
         nucleotide = str(self.nucleotide)
 
+        # format j gene
         nucleotide_html = '<span class="j_gene">%s</span>' % nucleotide[
             self.j_index:]
+
+        # format n1 region
         if self.n1_index > 0:
             nucleotide_html = ('<span class="n1_additions">%s</span>'
                                % nucleotide[self.n1_index:self.j_index]) + \
                 nucleotide_html
+        # exclude n1 region
         else:
             self.n1_index = self.j_index
 
+        # format d region
         if self.d_index > 0:
             nucleotide_html = ('<span class="d_gene">%s</span>' %
                                nucleotide[self.d_index:self.n1_index]) + \
                 nucleotide_html
+        # exclude d region
         else:
             self.d_index = self.n1_index
 
+        # format n2 region
         if self.n2_index > 0:
             nucleotide_html = ('<span class="n2_additions">%s</span>' %
                                nucleotide[self.n2_index:self.d_index]) + \
                 nucleotide_html
+        # exclude n2 region
         else:
             self.n2_index = self.d_index
 
+        # format v region
         nucleotide_html = ('<span class="v_gene">%s</span>' %
                            nucleotide[:self.n2_index]) + \
             nucleotide_html
+
+        # wrap sequence in a span
+        nucleotide_html = '<span class="nucleotide">%s</span>' % nucleotide_html
+
 
         nucleotide_html = mark_safe(nucleotide_html)
         return nucleotide_html
