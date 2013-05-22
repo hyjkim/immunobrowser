@@ -36,8 +36,11 @@ urlpatterns = patterns('',
                        url(r'^compare/(\d+)', 'cf_comparisons.views.compare'),
                        url(r'^compare/samples', 'cf_comparisons.views.sample_compare'),
 
+                       # testing
+                       url(r'^qunit$', 'fts.views.qunit'),
+
 
 
                        # Media and static
-                       url(r'^assets/(?P<path>.*)$', 'django.views.static.serve', { 'document_root' : settings.MEDIA_ROOT }),
+#                       url(r'^static/(?P<path>.*)$', 'django.views.static.serve', { 'document_root' : settings.MEDIA_ROOT }),
                        )

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %} qunit tests {% endblock %}
+{% block css %}
+<link href="{{ STATIC_URL }}libs/qunit.css" rel="stylesheet" type="text/css"></script>
+{% endblock %}
+
+{% block js %}
+<div id="qunit" </div>
+<script src="{{ STATIC_URL }}libs/qunit.js"></script>
+<script src="{{ STATIC_URL }}dashboard/tests.js"></script>
+{% endblock %}
