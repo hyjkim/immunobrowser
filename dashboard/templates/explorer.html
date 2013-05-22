@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<ul>
+  {% for patient in patients %}
+  <li>
+  <a href="{% url 'patients.views.patient_summary' patient.id %}">{{ patient }}</a>
+  <ul>
+    {% for sample in patient.sample_set.all %}
+    <li><a href="{% url 'samples.views.summary' sample.id %} ">{{ sample }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+  </li>
+
+  {% endfor %}
+</ul>
+{% endblock %}

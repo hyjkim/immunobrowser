@@ -24,6 +24,7 @@ class ComparsionModelMethodsTest(TestCase):
 
     def test_colors_list_returns_a_list_of_colors(self):
         self.assertEqual([(1.0, 0.0, 0.16, 1.0), (0.0, 1.0, 0.54817625975121254, 1.0)],
+#        self.assertEqual([(0.0, 1.0, 0.54817625975121254, 1.0), (1.0, 0.0, 0.16, 1.0)],
                          self.comparison.colors_list())
 
     def test_colors_dict_returns_a_dict_of_colors(self):

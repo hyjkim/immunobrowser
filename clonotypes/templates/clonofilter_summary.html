@@ -1,0 +1,24 @@
+<div>
+  Number of recombinations: {{ clonofilter.count }} <br />
+  Number of reads: {{ clonofilter.size }} <br />
+  Normalized sum of reads: {{ clonofilter.norm_size }} <br />
+</div>
+
+<div><img src="{% url 'clonotypes.views.bubble_default' clonofilter.sample.id %}?clonofilter={{ clonofilter.id }}">
+</div>
+
+<div><img src="{% url 'clonotypes.views.spectratype_default' clonofilter.sample.id  %}?clonofilter={{ clonofilter.id }}">
+</div>
+
+<div><img src="{% url 'clonotypes.views.v_usage_graph' clonofilter.id  %}">
+</div>
+
+<div><img src="{% url 'clonotypes.views.j_usage_graph' clonofilter.id  %}">
+</div>
+
+<div><img src="{% url 'clonotypes.views.functionality_graph' clonofilter.id  %}">
+</div>
+
+<div><img src="{% url 'clonotypes.views.domination_graph' clonofilter.id  %}">
+</div>
+

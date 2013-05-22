@@ -79,7 +79,6 @@ class RecombinationModelTest(TestCase):
         self.assertIsInstance(Recombination.functionality_states(), list)
         self.assertEqual([u'Productive', u'Out of frame'], Recombination.functionality_states())
 
-
     def test_v_family_names_returns_list_of_distinct_v_family_names(self):
         make_fake_patient_with_3_clonotypes()
         self.assertIsInstance(Recombination.v_family_names(), list)
@@ -120,7 +119,7 @@ class RecombinationModelTest(TestCase):
         pr = r.parsed_nucleotide()
 
         # Test v
-        regex = re.compile('<span class="v_gene">(.*?)</span>')
+        regex = re.compile('.*<span class="v_gene">(.*?)</span>')
         match = regex.match(pr)
         self.assertEqual(len(match.groups()[0]), r.n2_index)
 

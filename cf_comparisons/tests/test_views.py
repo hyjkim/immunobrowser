@@ -140,6 +140,15 @@ class ComparisonsViewIntegrationTest(TestCase):
             'cf_comparisons.views.compare', args=[self.comparison.id]), {})
         self.assertRedirects(response, '/compare/1')
 
+    def test_sample_compare_uses_a_template_tag(self):
+        from django.template import Template, Context
+        t = Template('{% load comparison_tags %}{% sample_compare_tag sample_compare_form %}')
+        c = Context({'sample_compare_form': None})
+#        t.render(c)
+        self.assertIn('<form action=', t.render(c))
+#        self.assertEqual('', t.render(c))
+#        self.assertEqual(c['clonotype'], self.clonotype)
+
     def test_sample_compare_redirects_to_compare_view_after_post(self):
         sample_ids = [sample.id for sample in Sample.objects.all()]
         comparison = Comparison.default_from_samples(Sample.objects.all())

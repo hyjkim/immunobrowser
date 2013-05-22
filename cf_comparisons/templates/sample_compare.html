@@ -1,8 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-<form action="#" method="post">
-  {% csrf_token %}
-  {{sample_compare_form.as_p}}
-  <input type="submit" />
-</form>
+{% load comparison_tags %}
+{% sample_compare_tag sample_compare_form%}
 {% endblock %}
