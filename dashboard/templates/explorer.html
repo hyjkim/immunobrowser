@@ -4,9 +4,11 @@
   {% for patient in patients %}
   <li>
   <a href="{% url 'patients.views.patient_summary' patient.id %}">{{ patient }}</a>
+  <input type="checkbox" id="patient_{{ patient.id }}">
   <ul>
     {% for sample in patient.sample_set.all %}
     <li><a href="{% url 'samples.views.summary' sample.id %} ">{{ sample }}</a>
+    <input type="checkbox" id="sample_{{ sample.id }}">
     </li>
     {% endfor %}
   </ul>

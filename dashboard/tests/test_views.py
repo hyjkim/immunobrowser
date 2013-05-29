@@ -42,6 +42,16 @@ class DashboardViewIntegrationTest(TestCase):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
 
+    def test_explorer_should_display_a_checkbox_by_each_patient_and_sample(self):
+        patients = [PatientFactory() for x in range(2)]
+        [SampleFactory(patient=p) for p in patients]
+        response = self.client.get(reverse('dashboard.views.explorer'))
+
+        for patient in patients:
+            self.assertIn('<input type="checkbox" id="patient_%s"' %(patient.id), response.content)
+            for sample in patient.sample_set.all():
+                self.assertIn('<input type="checkbox" id="sample_%s"' %(sample.id), response.content)
+
     def test_explorer_should_display_all_patients_and_samples_with_links(self):
         patients = [PatientFactory() for x in range(2)]
         [SampleFactory(patient=p) for p in patients]

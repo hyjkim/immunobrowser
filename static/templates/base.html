@@ -3,20 +3,16 @@
     <title>{% block title %}TCR-B browser{% endblock %}</title>
     <link rel="icon" type="image/x-icon"
     href="{{ STATIC_URL }}images/favicon.ico" />
-
     {% block site_css %}
     <link href="{{ STATIC_URL }}css/reset.css" rel="stylesheet"
     type="text/css" media="all"/>
-
     <link href="{{ STATIC_URL }}css/base.css" rel="stylesheet"
     type="text/css" media="screen"/>
     {% endblock %}
-
     {% block css %}{% endblock %}
 
-    {% block js_header %}
+    {% block js_head %}
     <script type='text/javascript' src="{{ STATIC_URL }}libs/jquery.js"></script>
-    
     {% endblock %}
 
 
