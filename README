@@ -1,0 +1,25 @@
+#Fri May 10 12:58:58 PDT 2013
+
+# create the environment:
+python ~/bin/scripts/virtualenv.py --distribute env
+# activate the virtual environment
+source env/bin/activate
+# install requirements
+pip install -r requirements.pip
+# sync the db
+./manage.py syncdb
+# install static libs
+mkdir static
+cd static
+mkdir libs
+cd libs
+wget http://underscorejs.org/underscore.js
+wget http://backbonejs.org/backbone.js
+wget http://code.jquery.com/jquery-1.9.1.js -O jquery.js
+wget http://code.jquery.com/qunit/qunit-1.11.0.js -O qunit.js
+wget http://code.jquery.com/qunit/qunit-1.11.0.css -O qunit.css
+wget https://raw.github.com/mbraak/jqTree/master/tree.jquery.js
+wget https://raw.github.com/mbraak/jqTree/master/jqtree.css
+wget https://raw.github.com/mbraak/jqTree/master/extra/js/jquery.cookie.js
+cd ../..
+
