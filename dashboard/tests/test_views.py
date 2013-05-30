@@ -3,7 +3,7 @@ from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory
 from mock import patch
 from dashboard.views import explorer, menu_json
 from django.core.urlresolvers import reverse
-
+import simplejson as json
 
 class DashboardViewUnitTest(TestCase):
     ''' Here, we mock out the rendering stack for fast unit tests of the view'''
@@ -16,10 +16,41 @@ class DashboardViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
-    def test_menu_json_should_return_json_object_containing_all_patients_and_samples(self):
+    def test_menu_json_returns_http_response_json(self):
+        from django.http import HttpResponse
         response = menu_json(self.request)
-        self.assertEqual('{"patient1": {"sample1": "sample1", "sample2": "sample2"}}', response.content)
+        self.assertIsInstance(response, HttpResponse)
+        self.assertEqual('application/json', response['content-type'])
 
+    def test_menu_json_should_return_json_object_containing_patient_labels(self):
+        PatientFactory()
+        response = menu_json(self.request)
+        menu = json.loads(response.content)
+        self.assertEqual('test patient', menu[0]['label'])
+
+    def test_menu_json_reponse_should_contain_patient_id(self):
+        PatientFactory()
+        response = menu_json(self.request)
+        menu = json.loads(response.content)
+        self.assertEqual('patient_1', menu[0]['id'])
+
+    def test_menu_json_response_should_contain_label_for_each_child(self):
+        p = PatientFactory()
+        s = SampleFactory(patient=p)
+        s2 = SampleFactory(patient=p)
+        response = menu_json(self.request)
+        menu = json.loads(response.content)
+        self.assertEqual(str(s), menu[0]['children'][0]['label'])
+        self.assertEqual(str(s2), menu[0]['children'][1]['label'])
+
+    def test_menu_json_response_should_contain_label_for_each_child(self):
+        p = PatientFactory()
+        s = SampleFactory(patient=p)
+        s2 = SampleFactory(patient=p)
+        response = menu_json(self.request)
+        menu = json.loads(response.content)
+        self.assertEqual('sample_%s' % (str(s.id)), menu[0]['children'][0]['id'])
+        self.assertEqual('sample_%s' % (str(s2.id)), menu[0]['children'][1]['id'])
 
     def test_dashboard_should_show_all_patients_and_samples_in_hierarchical_sidebar(self):
         pass

@@ -38,18 +38,46 @@
     function(data) {
       var $tree = $('#tree1');
       $tree.tree({
-        data: data
+        data: data,
       });
 
       $tree.bind('tree.click',
       function(e) {
         e.preventDefault();
         var selected_node = e.node;
+
         if($tree.tree('isNodeSelected', selected_node)) {
           $tree.tree('removeFromSelection', selected_node);
         }
         else {
-          $tree.tree('addToSelection', selected_node);
+          if(selected_node.children.length == 0) {
+            $tree.tree('addToSelection', selected_node);
+          }
+        }
+
+        if(!selected_node.is_open) {
+          $tree.tree('toggle', selected_node);
+          $.each(selected_node.children, function(index, child_node) {
+            $tree.tree('addToSelection', child_node);
+          });
+        }
+        else {
+          var num_selected_children = 0;
+          $.each(selected_node.children, function(index, child_node) {
+            if($tree.tree('isNodeSelected', child_node)) {
+              num_selected_children++;
+            }
+          });
+        }
+        if (num_selected_children == selected_node.children.length) {
+          $.each(selected_node.children, function(index, child_node) {
+            $tree.tree('removeFromSelection', child_node);
+          });
+        }
+        else {
+          $.each(selected_node.children, function(index, child_node) {
+            $tree.tree('addToSelection', child_node);
+          });
         }
       });
       console.log(data);
