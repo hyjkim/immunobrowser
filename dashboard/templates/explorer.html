@@ -30,14 +30,31 @@
 <script type='text/javascript' src="{{ STATIC_URL }}libs/jquery.cookie.js"></script>
 
 <script>
+  $(function() {
+
+
     $.getJSON(
     '{% url 'dashboard.views.menu_json' %}',
     function(data) {
-      $('#tree1').tree({
+      var $tree = $('#tree1');
+      $tree.tree({
         data: data
+      });
+
+      $tree.bind('tree.click',
+      function(e) {
+        e.preventDefault();
+        var selected_node = e.node;
+        if($tree.tree('isNodeSelected', selected_node)) {
+          $tree.tree('removeFromSelection', selected_node);
+        }
+        else {
+          $tree.tree('addToSelection', selected_node);
+        }
       });
       console.log(data);
     }
     );
+  });
 </script>
 {% endblock %}
