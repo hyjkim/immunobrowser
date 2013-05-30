@@ -142,6 +142,7 @@ INSTALLED_APPS = (
 
     # Imported apps
     'south',
+    'tastypie',
 
     ## Actual apps
     'patients',

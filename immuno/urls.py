@@ -1,9 +1,16 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
+from tastypie.api import Api
+from immuno.api import PatientResource, SampleResource
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
+
+# tastypie api setup
+v1_api = Api(api_name='v1')
+v1_api.register(PatientResource())
+v1_api.register(SampleResource())
 
 urlpatterns = patterns('',
                        # Examples:
@@ -19,6 +26,7 @@ urlpatterns = patterns('',
                        # Dynamic
                        url(r'^patients/(\d+)/$', 'patients.views.patient_summary'),
                        url(r'^dashboard$', 'dashboard.views.explorer'),
+                       url(r'^dashboard/menu.json$', 'dashboard.views.menu_json'),
                        url(r'^amino_acid/(\d+)?$', 'clonotypes.views.amino_acid_detail'),
                        url(r'^clonofilter/(\d+)/domination.png', 'clonotypes.views.domination_graph'),
                        url(r'^clonofilter/(\d+)/functionality.png', 'clonotypes.views.functionality_graph'),
@@ -36,11 +44,13 @@ urlpatterns = patterns('',
                        url(r'^compare/(\d+)', 'cf_comparisons.views.compare'),
                        url(r'^compare/samples', 'cf_comparisons.views.sample_compare'),
 
-                       # testing
-                       url(r'^qunit$', 'fts.views.qunit'),
-
+                       # api
+                        url(r'^api/', include(v1_api.urls)),
 
 
                        # Media and static
 #                       url(r'^static/(?P<path>.*)$', 'django.views.static.serve', { 'document_root' : settings.MEDIA_ROOT }),
+
+                       # testing
+                       url(r'^qunit$', 'fts.views.qunit'),
                        )

@@ -1,16 +1,13 @@
-This should include all the third party python modules used for the development of the
-immunobrowser.
-
-### Whatever App the one that's running... forgot the word ###
+Django==1.5.1
 cython
-numpy
+numpy==1.7.1
 scipy
-matplotlib
-
+matplotlib==1.2.1
+django-tastypie
+simplejson==3.3.0
 ### Development ###
 south
 mock
-numpy
 mysql
 mysql-python
 selenium

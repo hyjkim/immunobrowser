@@ -1,7 +1,7 @@
 from django.test import TestCase
 from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory, SampleFactory
 from mock import patch
-from dashboard.views import explorer
+from dashboard.views import explorer, menu_json
 from django.core.urlresolvers import reverse
 
 
@@ -15,6 +15,11 @@ class DashboardViewUnitTest(TestCase):
 
     def tearDown(self):
         self.renderPatch.stop()
+
+    def test_menu_json_should_return_json_object_containing_all_patients_and_samples(self):
+        response = menu_json(self.request)
+        self.assertEqual('{"patient1": {"sample1": "sample1", "sample2": "sample2"}}', response.content)
+
 
     def test_dashboard_should_show_all_patients_and_samples_in_hierarchical_sidebar(self):
         pass
@@ -41,6 +46,9 @@ class DashboardViewIntegrationTest(TestCase):
     def DONTtest_explorer_url_is_valid(self):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
+
+    def test_menu_json_route_exists(self):
+        reverse('dashboard.views.menu_json')
 
     def test_explorer_should_display_a_checkbox_by_each_patient_and_sample(self):
         patients = [PatientFactory() for x in range(2)]

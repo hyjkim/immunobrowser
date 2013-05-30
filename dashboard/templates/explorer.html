@@ -1,5 +1,12 @@
 {% extends "base.html" %}
+{% block css %}
+<link rel="stylesheet" href="{{ STATIC_URL }}libs/jqtree.css">
+{% endblock %}
 {% block content %}
+
+<div id="tree1"></div>
+<div id="tree2"></div>
+
 <ul>
   {% for patient in patients %}
   <li>
@@ -16,4 +23,21 @@
 
   {% endfor %}
 </ul>
+{% endblock %}
+
+{% block site_js %}
+<script type='text/javascript' src="{{ STATIC_URL }}libs/tree.jquery.js"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/jquery.cookie.js"></script>
+
+<script>
+    $.getJSON(
+    '{% url 'dashboard.views.menu_json' %}',
+    function(data) {
+      $('#tree1').tree({
+        data: data
+      });
+      console.log(data);
+    }
+    );
+</script>
 {% endblock %}
