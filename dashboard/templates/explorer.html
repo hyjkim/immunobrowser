@@ -4,9 +4,31 @@
 {% endblock %}
 {% block content %}
 
-<div id="tree1"></div>
+<div id="tree1">
+
+<ul>
+  {% for patient in patients %}
+  <li>
+  <a href="{% url 'patients.views.patient_summary' patient.id %}">{{ patient }}</a>
+  <input type="checkbox" id="patient_{{ patient.id }}">
+  <ul>
+    {% for sample in patient.sample_set.all %}
+    <li><a href="{% url 'samples.views.summary' sample.id %} ">{{ sample }}</a>
+    <input type="checkbox" id="sample_{{ sample.id }}">
+    </li>
+    {% endfor %}
+  </ul>
+  </li>
+
+  {% endfor %}
+</ul>
+</div>
 <input type="button" value="Add To Comparison">
 <input type="button" value="Compare">
+
+<div id="main">
+</div>
+
 {% endblock %}
 
 {% block site_js %}
@@ -20,15 +42,61 @@
     $.getJSON(
     '{% url 'dashboard.views.menu_json' %}',
     function(data) {
+           // Get csrf token
+      var csrftoken = $.cookie('csrftoken');
+
+      // set header
+      function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+      }
+      function sameOrigin(url) {
+        // test that a given url is a same-origin URL
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+        // or any other URL that isn't scheme relative or absolute i.e relative.
+        !(/^(\/\/|http:|https:).*/.test(url));
+      }
+      $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+          if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+            // Send the token to same-origin, relative URLs only.
+            // Send the token only if the method warrants CSRF protection
+            // Using the CSRFToken value acquired earlier
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+        }
+      });
+
+ // build jqTree
       var $tree = $('#tree1');
       $tree.tree({
         data: data,
       });
 
+      // submit array of primary keys to add_samples view
       $(":button").click(function() {
-        console.log(JSON.stringify($tree.tree('getSelectedNodes')))
-      });
+        //        console.log(JSON.stringify($tree.tree('getSelectedNodes')))
+        $selectedNodes = $tree.tree('getSelectedNodes');
+        var selectedNodeKeys = [];
+        $.each($selectedNodes, function(index, node) {
+          selectedNodeKeys.push(node.pk);
+        });
+        $.post("{% url 'dashboard.views.add_samples' %}", {
+          sample_ids: JSON.stringify(selectedNodeKeys),
+          }, function(data) {
+          $('div#main').html(data);
+        });
 
+      });
+    
+      // modify default tree behavior
       $tree.bind('tree.click',
       function(e) {
         e.preventDefault();

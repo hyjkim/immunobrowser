@@ -16,8 +16,10 @@ class DashboardViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
-    def test_add_samples_takes_in_array_of_jqTree_nodes_and_creates_a_new_comparison(self):
-        add_samples(self.request)
+    def test_add_samples_takes_in_string_of_comma_delimited_sample_ids_via_post_and_returns_a_clonofilter_view(self):
+        self.request.POST['sample_ids'] = [1,2,3]
+        response = add_samples(self.request)
+        self.assertEqual('compare.html', response['template'])
 
 
     def test_menu_json_returns_http_response_json(self):
@@ -82,8 +84,13 @@ class DashboardViewIntegrationTest(TestCase):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
 
+    def test_add_samples_route_exists(self):
+        url = reverse('dashboard.views.add_samples')
+        self.assertEqual('/dashboard/add_samples', url)
+
     def test_menu_json_route_exists(self):
-        reverse('dashboard.views.menu_json')
+        url = reverse('dashboard.views.menu_json')
+        self.assertEqual('/dashboard/menu.json', url)
 
     def test_explorer_should_display_a_checkbox_by_each_patient_and_sample(self):
         patients = [PatientFactory() for x in range(2)]
