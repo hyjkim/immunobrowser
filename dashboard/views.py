@@ -5,6 +5,13 @@ import simplejson as json
 from patients.models import Patient
 from samples.models import Sample
 
+def add_samples(request):
+    '''
+    Processes an ajax request from the javascript menu, obtains the corresponding comparison
+    and sends a template based html of the clonofilters in the comparison
+    '''
+    pass
+
 def explorer(request):
     '''
     View for the hierarchical patient/sample selector.
@@ -32,6 +39,7 @@ def menu_json(request):
                 sample_dict = {}
                 sample_dict['label'] = str(sample)
                 sample_dict['id'] = 'sample_%s' % (sample.id)
+                sample_dict['pk'] = sample.id
                 patient_dict['children'].append(sample_dict)
         data.append(patient_dict)
 

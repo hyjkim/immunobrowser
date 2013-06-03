@@ -5,24 +5,8 @@
 {% block content %}
 
 <div id="tree1"></div>
-<div id="tree2"></div>
-
-<ul>
-  {% for patient in patients %}
-  <li>
-  <a href="{% url 'patients.views.patient_summary' patient.id %}">{{ patient }}</a>
-  <input type="checkbox" id="patient_{{ patient.id }}">
-  <ul>
-    {% for sample in patient.sample_set.all %}
-    <li><a href="{% url 'samples.views.summary' sample.id %} ">{{ sample }}</a>
-    <input type="checkbox" id="sample_{{ sample.id }}">
-    </li>
-    {% endfor %}
-  </ul>
-  </li>
-
-  {% endfor %}
-</ul>
+<input type="button" value="Add To Comparison">
+<input type="button" value="Compare">
 {% endblock %}
 
 {% block site_js %}
@@ -39,6 +23,10 @@
       var $tree = $('#tree1');
       $tree.tree({
         data: data,
+      });
+
+      $(":button").click(function() {
+        console.log(JSON.stringify($tree.tree('getSelectedNodes')))
       });
 
       $tree.bind('tree.click',

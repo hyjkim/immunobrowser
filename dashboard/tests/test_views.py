@@ -1,7 +1,7 @@
 from django.test import TestCase
 from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory, SampleFactory
 from mock import patch
-from dashboard.views import explorer, menu_json
+from dashboard.views import explorer, menu_json, add_samples
 from django.core.urlresolvers import reverse
 import simplejson as json
 
@@ -15,6 +15,10 @@ class DashboardViewUnitTest(TestCase):
 
     def tearDown(self):
         self.renderPatch.stop()
+
+    def test_add_samples_takes_in_array_of_jqTree_nodes_and_creates_a_new_comparison(self):
+        add_samples(self.request)
+
 
     def test_menu_json_returns_http_response_json(self):
         from django.http import HttpResponse
