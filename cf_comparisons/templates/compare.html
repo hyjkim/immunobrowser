@@ -51,20 +51,25 @@
 <div class="shared_clonotype_wrapper">
   <table>
     <th>
+      {% for sample in samples %}
+      <td>
+        {{ sample }}
+      </td>
+
+      {% endfor %}
     </th>
     {% for aa, count_dict in shared_clonotypes.items %}
     <tr>
       <td>
-        {{ aa.sequence }}
+        <a href="{% url 'clonotypes.views.amino_acid_detail' aa.id %}">
+          {{ aa.sequence }}</a>
       </td>
-      {% for sample, count in count_dict.items %}
+      {% for sample, clonotype in count_dict.items %}
       <td class="clonotype">
-        {{ sample }}: {{ count }}
+        <a href="{% url 'clonotypes.views.detail' clonotype.id %}">
+          {{ sample }}: {{ clonotype.copy }}</a>
       </td>
       {% endfor %}
-      <td>
-        <a href="{% url 'clonotypes.views.amino_acid_detail' aa.id %}">Details</a>
-      </td>
     </tr>
     {% endfor %}
   </table>

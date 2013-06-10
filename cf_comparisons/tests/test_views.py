@@ -24,9 +24,15 @@ class ComparisonsViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_compare_should_pass_samples_to_template_via_context(self):
+        mock_response = compare(self.request, self.comparison.id)
+        self.assertEqual(self.comparison.get_samples(
+        ), mock_response.get('samples'))
+
+
     def test_compare_should_pass_shared_clonotypes_to_template_via_context(self):
         mock_response = compare(self.request, self.comparison.id)
-        self.assertEqual(self.comparison.get_shared_amino_acids_counts(
+        self.assertEqual(self.comparison.get_shared_amino_acids_clonotypes(
         ), mock_response.get('shared_clonotypes'))
 
     def test_compare_should_pass_num_forms_to_template_via_context(self):
@@ -84,6 +90,13 @@ class ComparisonsViewIntegrationTest(TestCase):
     def DONTtest_clonotype_tracking_view_reads_comparison_and_amino_acid_sequences_from_post(self):
         self.fail('todo')
 
+    def test_compare_view_shows_sample_name_in_header_of_shared_clonotype_table(self):
+        response = self.client.get(reverse('cf_comparisons.views.compare',
+                                           args=[self.comparison.id]))
+        self.fail('todo')
+
+
+
     def test_compare_view_contains_a_combined_spectratype(self):
         response = self.client.get(reverse('cf_comparisons.views.compare',
                                            args=[self.comparison.id]))
@@ -106,6 +119,15 @@ class ComparisonsViewIntegrationTest(TestCase):
         self.assertIn("Normalized Counts", response.content)
         for clonofilter in self.comparison.clonofilters.all():
             self.assertIn(str(clonofilter.sample), response.content)
+
+    def test_compare_shared_clonotypes_should_link_to_clonotype_detail(self):
+        from clonotypes.models import Clonotype
+        response = self.client.get(
+            reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
+        samples = self.comparison.get_samples()
+        self.assertEqual('', response.context['shared_clonotypes'])
+#        self.assertIn(reverse('clonotypes.views.detail', args=[self.comparison.id]),response.content)
+        self.fail('todo')
 
     def test_compare_shows_links_to_shared_amino_acid(self):
         from clonotypes.models import AminoAcid
@@ -144,10 +166,7 @@ class ComparisonsViewIntegrationTest(TestCase):
         from django.template import Template, Context
         t = Template('{% load comparison_tags %}{% sample_compare_tag sample_compare_form %}')
         c = Context({'sample_compare_form': None})
-#        t.render(c)
         self.assertIn('<form action=', t.render(c))
-#        self.assertEqual('', t.render(c))
-#        self.assertEqual(c['clonotype'], self.clonotype)
 
     def test_sample_compare_redirects_to_compare_view_after_post(self):
         sample_ids = [sample.id for sample in Sample.objects.all()]

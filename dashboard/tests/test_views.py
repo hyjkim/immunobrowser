@@ -16,11 +16,12 @@ class DashboardViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
-    def test_add_samples_takes_in_string_of_comma_delimited_sample_ids_via_post_and_returns_a_clonofilter_view(self):
-        self.request.POST['sample_ids'] = [1,2,3]
+    def test_add_samples_takes_in_string_of_comma_delimited_sample_ids_via_post_and_redirects_to_a_clonofilter_view(self):
+        from django.http import HttpResponseRedirect
+        self.request.POST['sample_ids'] = "[1,2,3]"
         response = add_samples(self.request)
-        self.assertEqual('compare.html', response['template'])
-
+        self.assertIsInstance(response, HttpResponseRedirect)
+        self.assertEqual('/compare/1', response['Location'])
 
     def test_menu_json_returns_http_response_json(self):
         from django.http import HttpResponse
@@ -61,28 +62,27 @@ class DashboardViewUnitTest(TestCase):
     def test_dashboard_should_show_all_patients_and_samples_in_hierarchical_sidebar(self):
         pass
 
-    def test_explorer_should_pass_patients_to_template_via_context(self):
-        from patients.models import Patient
-        PatientFactory()
-        PatientFactory()
-
-        mock_response = explorer(self.request)
-        self.assertEqual(
-            map(repr, Patient.objects.all()),
-            map(repr, mock_response.get('patients'))
-        )
-
-    def test_explorer_should_render_explorer_template(self):
-        from patients.models import Patient
-        mock_response = explorer(self.request)
-        self.assertEqual('explorer.html', mock_response.get('template'))
-
 
 class DashboardViewIntegrationTest(TestCase):
     ''' For testing dashboard stuff that requires calling the call stack '''
     def DONTtest_explorer_url_is_valid(self):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
+
+    def test_explorer_should_pass_patients_to_template_via_context(self):
+        from patients.models import Patient
+        PatientFactory()
+        PatientFactory()
+
+        mock_response = self.client.get(reverse('dashboard.views.explorer'))
+        self.assertEqual(
+            map(repr, Patient.objects.all()),
+            map(repr, mock_response.context['patients'])
+        )
+
+    def test_explorer_should_render_explorer_template(self):
+        response = self.client.get(reverse('dashboard.views.explorer'))
+        self.assertTemplateUsed(response, 'explorer.html')
 
     def test_add_samples_route_exists(self):
         url = reverse('dashboard.views.add_samples')

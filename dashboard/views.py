@@ -16,7 +16,6 @@ def add_samples(request):
     sample_ids = json.loads(request.POST['sample_ids'])
     samples = Sample.objects.filter(id__in=sample_ids)
     comparison = Comparison.default_from_samples(samples)
-    print 'got comparison with id %s' % (comparison.id)
 
 #    return HttpResponse("add_samples called\n", mimetype='application/json')
     return HttpResponseRedirect(reverse('cf_comparisons.views.compare', args=[comparison.id]))

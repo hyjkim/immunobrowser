@@ -22,20 +22,34 @@ class ComparsionModelMethodsTest(TestCase):
         '''todo: call on two datasets, one with norm factors, one without and make sure values are expected'''
         self.fail('todo: call on two datasets, one with norm factors, one without and make sure values are expected')
 
+    def test_get_samples_returns_list_of_samples_only_in_comparison(self):
+        samples = Sample.objects.all()
+        self.assertEqual(map(repr, samples),
+                         map(repr, self.comparison.get_samples()))
+
     def test_colors_list_returns_a_list_of_colors(self):
         self.assertEqual([(1.0, 0.0, 0.16, 1.0), (0.0, 1.0, 0.54817625975121254, 1.0)],
-#        self.assertEqual([(0.0, 1.0, 0.54817625975121254, 1.0), (1.0, 0.0, 0.16, 1.0)],
                          self.comparison.colors_list())
 
     def test_colors_dict_returns_a_dict_of_colors(self):
-        self.assertEqual([(0.0, 1.0, 0.54817625975121254, 1.0), (1.0, 0.0, 0.16, 1.0)],
-                         self.comparison.colors_dict().values())
+        self.assertEqual([(0.0, 1.0, 0.54817625975121254, 1.0), (1.0, 0.0, 0.16, 1.0)].sort(),
+                         self.comparison.colors_dict().values().sort())
         self.assertIsInstance(self.comparison.colors_dict().keys()[0], ClonoFilter)
 
     def test_get_shared_amino_acids_returns_a_list_of_shared_amino_acids(self):
         samples = [clonofilter.sample for clonofilter in self.comparison.clonofilters.all()]
         shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, self.comparison.get_amino_acids())
         self.assertEqual(set(shared_amino_acid), set(self.comparison.get_shared_amino_acids()))
+
+    def test_get_shared_amino_acids_clonotypes_returns_a_nested_dict_of_clonotypes(self):
+        from clonotypes.models import Clonotype
+        shared_amino_acids = self.comparison.get_shared_amino_acids_clonotypes()
+        self.assertIsInstance(shared_amino_acids, dict)
+
+        for nested in shared_amino_acids.values():
+            self.assertIsInstance(nested, dict)
+            for clonotype in nested.values():
+                self.assertIsInstance(clonotype, Clonotype)
 
     def test_get_shared_amino_acids_counts_returns_a_nested_dict_of_floats(self):
         shared_amino_acids = self.comparison.get_shared_amino_acids_counts()

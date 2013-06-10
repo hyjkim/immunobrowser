@@ -54,12 +54,15 @@ def compare(request, comparison_id):
         filter_forms.append(ClonoFilterForm(initial=ClonoFilter.objects.filter(
             id=clonofilter.id).values()[0], prefix=str(index)))
 
-    shared_clonotypes = comparison.get_shared_amino_acids_counts()
+    #shared_clonotypes = comparison.get_shared_amino_acids_counts()
+    shared_clonotypes = comparison.get_shared_amino_acids_clonotypes()
+    samples = comparison.get_samples()
 #    shared_clonotypes = []
     context = {'filter_forms': filter_forms,
                'comparison': comparison,
                'num_forms': len(filter_forms),
                'shared_clonotypes': shared_clonotypes,
+               'samples': samples,
                }
     return render(request, 'compare.html', context)
 

@@ -82,12 +82,12 @@
 
       // submit array of primary keys to add_samples view
       $(":button").click(function() {
-        //        console.log(JSON.stringify($tree.tree('getSelectedNodes')))
         $selectedNodes = $tree.tree('getSelectedNodes');
         var selectedNodeKeys = [];
         $.each($selectedNodes, function(index, node) {
           selectedNodeKeys.push(node.pk);
         });
+        console.log(JSON.stringify(selectedNodeKeys))
         $.post("{% url 'dashboard.views.add_samples' %}", {
           sample_ids: JSON.stringify(selectedNodeKeys),
           }, function(data) {

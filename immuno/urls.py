@@ -37,7 +37,7 @@ urlpatterns = patterns('',
                        url(r'^clonofilter/(\d+)/j_usage.png', 'clonotypes.views.j_usage_graph'),
                        url(r'^clonofilter/(\d+)/v_usage.png', 'clonotypes.views.v_usage_graph'),
 
-                       url(r'^samples/', 'samples.views.home'),
+                       url(r'^samples/$', 'samples.views.home'),
                        url(r'^samples/(\d+)/bubble.png', 'clonotypes.views.bubble_default'),
                        url(r'^samples/(\d+)/spectratype.png', 'clonotypes.views.spectratype_default'),
                        url(r'^samples/(\d+)/?$', 'samples.views.summary'),

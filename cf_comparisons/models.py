@@ -31,6 +31,13 @@ class Comparison(models.Model):
             returnable[clonofilter] = cm(1.*index/len(clonofilters))
         return returnable
 
+    def get_samples(self):
+        '''
+        Returns a queryset of samples associated with this comparsion
+        '''
+        samples = [clonofilter.sample for clonofilter in self.clonofilters.all()]
+        return samples
+
     def get_amino_acids(self):
         ''' Returns the set of amino acids associated with the clonotypes
         retrieved from get_clonotypes()'''
@@ -61,13 +68,44 @@ class Comparison(models.Model):
         ''' Returns a list of amino acids shared by the clonofilters
         defined in a comparison
         '''
-        samples = [clonofilter.sample for clonofilter in self.clonofilters.all()]
+        samples = self.get_samples()
         if len(samples) > 1:
             shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, self.get_amino_acids())
             shared_amino_acid = shared_amino_acid.distinct()
             return shared_amino_acid
         else:
             return False
+
+    def get_shared_amino_acids_clonotypes(self):
+        '''
+        Given a comparison, returns the amino acids shared by all clonofilters within a comparison
+        Returns a nested dict in the format:
+            {'amino_acid': {'clonofilter': <sum_of_norm_counts>, 'clonofilter2': <sum of norm counts>}}
+        '''
+        from clonotypes.models import AminoAcid
+        from collections import defaultdict
+        from django.db.models import Q
+
+        # Get a list of sample ids
+        samples = self.get_samples()
+        # Get all nucleotide_sequences belonging to samples and then only report those
+        # that have at least len(samples) shared clonotypes
+        returnable = defaultdict(lambda: defaultdict(lambda: .0))
+        shared_amino_acid = self.get_shared_amino_acids()
+        if shared_amino_acid:
+
+            # Format the shared clonotypes as a dict of lists:
+            # {'sequence': [<clonotype 1>, <clonotype2>]}
+            for amino_acid in shared_amino_acid:
+                for recombination in amino_acid.recombination_set.all():
+                    for clonotype in recombination.clonotype_set.all():
+                        if clonotype.sample in samples:
+                            returnable[amino_acid][clonotype.sample] = clonotype
+                            #returnable[amino_acid.sequence][clonotype.sample] += clonotype.copy
+
+        return undefaulted(returnable)
+
+
 
     def get_shared_amino_acids_counts(self):
         '''
@@ -80,7 +118,7 @@ class Comparison(models.Model):
         from django.db.models import Q
 
         # Get a list of sample ids
-        samples = [clonofilter.sample for clonofilter in self.clonofilters.all()]
+        samples = self.get_samples()
         # Get all nucleotide_sequences belonging to samples and then only report those
         # that have at least len(samples) shared clonotypes
         returnable = defaultdict(lambda: defaultdict(lambda: .0))
@@ -114,10 +152,9 @@ class Comparison(models.Model):
         # Get a list of clonofilters
         clonofilters = self.clonofilters.all()
         # Get a list of sample ids
-        samples = [clonofilter.sample for clonofilter in clonofilters]
+        samples = self.get_samples()
 
         if len(samples) > 1:
-
             # Now get all clonotypes with these shared sequences
             shared_recombinations = reduce(lambda q, s: q.filter(clonotype__sample=s), samples, self.get_recombinations())
             shared_recombination = shared_recombinations.distinct()
