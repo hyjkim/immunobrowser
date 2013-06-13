@@ -1,12 +1,23 @@
 from django.test import TestCase
 #from patients.models import Patient
 from samples.models import Sample
-from clonotypes.models import Clonotype, ClonoFilter, AminoAcid
+from clonotypes.models import Clonotype, ClonoFilter, AminoAcid, Recombination
 from django.core.urlresolvers import reverse
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
 from mock import MagicMock, patch, call
 from clonotypes.views import all, detail, bubble, bubble_default, spectratype, spectratype_default, amino_acid_detail, v_usage_graph, j_usage_graph, functionality_graph, domination_graph
 from test_utils.factories import render_echo, FakeRequestFactory
+
+
+class RecombinationViewUnitTest(TestCase):
+    ''' Here, we mock out the rendering stack for fast unit tests of the view'''
+    def setUp(self):
+        self.renderPatch = patch('clonotypes.views.render', render_echo)
+        self.renderPatch.start()
+        self.request = FakeRequestFactory()
+        make_fake_patient()
+        self.s = Sample.objects.get()
+        self.recombination = Recombination.objects.get()
 
 
 class AminoAcidViewUnitTest(TestCase):
@@ -27,6 +38,14 @@ class AminoAcidViewUnitTest(TestCase):
         mock_response = amino_acid_detail(self.request, self.aa.id)
         self.assertEqual(self.aa, mock_response.get('amino_acid'))
 
+    def test_amino_acid_detail_view_uses_amino_acid_template_tag(self):
+        from django.template import Template, Context
+        t = Template('{% load clonotype_tags %}{% amino_acid_tag amino_acid %}')
+        c = Context({'amino_acid': self.aa})
+        t.render(c)
+        self.assertEqual(c['amino_acid'], self.aa)
+
+
 
 class AminoAcidViewIntegrationTest(TestCase):
     ''' Integration tests for all amino acids views
@@ -35,6 +54,18 @@ class AminoAcidViewIntegrationTest(TestCase):
         make_fake_patient()
         self.fake_sample = Sample.objects.get()
         self.aa = AminoAcid.objects.get()
+
+    def test_amino_acid_detail_view_contains_links_to_samples(self):
+        pass
+
+    def test_amino_acid_detail_view_contains_links_to_clonotype(self):
+        response = self.client.get(
+            reverse('clonotypes.views.amino_acid_detail', args=[self.aa.id]))
+
+        for recombination in self.aa.recombination_set.all():
+            for clonotype in recombination.clonotype_set.all():
+                self.assertIn(reverse('clonotypes.views.detail', args=[clonotype.id]),
+                        response.content)
 
     def test_amino_acid_detail_view_uses_amino_acid_template(self):
         response = self.client.get(

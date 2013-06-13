@@ -93,18 +93,12 @@ class Comparison(models.Model):
         returnable = defaultdict(lambda: defaultdict(lambda: .0))
         shared_amino_acid = self.get_shared_amino_acids()
         if shared_amino_acid:
-
-            # Format the shared clonotypes as a dict of lists:
-            # {'sequence': [<clonotype 1>, <clonotype2>]}
             for amino_acid in shared_amino_acid:
                 for recombination in amino_acid.recombination_set.all():
                     for clonotype in recombination.clonotype_set.all():
                         if clonotype.sample in samples:
                             returnable[amino_acid][clonotype.sample] = clonotype
-                            #returnable[amino_acid.sequence][clonotype.sample] += clonotype.copy
-
         return undefaulted(returnable)
-
 
 
     def get_shared_amino_acids_counts(self):

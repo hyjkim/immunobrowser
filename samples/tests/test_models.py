@@ -1,5 +1,5 @@
 from django.test import TestCase
-from datetime import date
+#from datetime import date
 from test_utils.ghetto_factory import make_fake_patient_with_3_clonotypes
 from samples.models import Sample
 #from patients.models import Patient
