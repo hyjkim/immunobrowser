@@ -6,13 +6,6 @@ from utils.utils import sub_dict_remove_strict
 
 # Create your models here.
 
-# Multifield obtained from http://djangosnippets.org/snippets/2753/
-from django import forms
-#from django.db import models
-from django.utils.text import capfirst
-from django.core import exceptions
-
-
 # needed for South compatibility
 
 from south.modelsinspector import add_introspection_rules
@@ -24,8 +17,7 @@ add_introspection_rules([], ["^coop\.utils\.fields\.MultiSelectField"])
 TYPES = ((1, 'Productive'),
         (2, 'Out of frame'),
         (3, 'Has Stop'),
-)
-
+         )
 
 
 class AminoAcid(models.Model):
@@ -121,10 +113,8 @@ class Recombination(models.Model):
         # wrap sequence in a span
         nucleotide_html = '<span class="nucleotide">%s</span>' % nucleotide_html
 
-
         nucleotide_html = mark_safe(nucleotide_html)
         return nucleotide_html
-
 
 
 class Clonotype(models.Model):
@@ -137,12 +127,10 @@ class Clonotype(models.Model):
     copy = models.IntegerField()
     recombination = models.ForeignKey(Recombination)
 
-
-
     @staticmethod
     def import_tsv(sample, filename):
         headers = None
-        num_to_insert = 100
+#        num_to_insert = 100
 #        clonotype_list = []
 #        amino_acid_list = []
 #        recombination_list = []
@@ -223,8 +211,16 @@ class ClonoFilter(models.Model):
     min_copy = models.IntegerField(null=True)
     min_length = models.IntegerField(null=True)
     max_length = models.IntegerField(null=True)
-    norm_factor = models.FloatField(null=True, default=1)
+    norm_factor = models.FloatField(null=True)
 #    functionality = MultiSelectField(max_length=250, blank=True, choices=TYPES)
+
+    def save(self, *args, **kwargs):
+        super(ClonoFilter, self).save(*args, **kwargs)
+        if self.norm_factor is None:
+            size = self.size()
+            if size is not None:
+                self.norm_factor = float(size)
+                super(ClonoFilter, self).save(*args, **kwargs)
 
     @staticmethod
     def default_from_sample(sample):
@@ -236,6 +232,7 @@ class ClonoFilter(models.Model):
         # for each request
         cf_dict = model_to_dict(cf)
         cf_dict['sample'] = sample
+        cf_dict['norm_factor'] = cf.size()
         del cf_dict['id']
 
         cf, created = ClonoFilter.objects.get_or_create(**cf_dict)
@@ -265,7 +262,8 @@ class ClonoFilter(models.Model):
 
     def get_recombinations(self):
         clonotypes = self.get_clonotypes()
-        recombinations = Recombination.objects.filter(id__in=clonotypes.values('recombination_id'))
+        recombinations = Recombination.objects.filter(
+            id__in=clonotypes.values('recombination_id'))
         return recombinations
 
     def count(self):
@@ -296,12 +294,14 @@ class ClonoFilter(models.Model):
         from django.db.models import Sum
         returnable = {}
         filtered_query_set = self.get_clonotypes()
-        functionality_counts = filtered_query_set.values('recombination__sequence_status').annotate(Sum('copy'))
+        functionality_counts = filtered_query_set.values(
+            'recombination__sequence_status').annotate(Sum('copy'))
 #        for state in Recombination.functionality_states():
 #            if state in functionality_counts:
 #                pass
         for functionality_count in functionality_counts:
-            returnable[functionality_count['recombination__sequence_status']] = functionality_count['copy__sum']
+            returnable[functionality_count['recombination__sequence_status']
+                       ] = functionality_count['copy__sum']
 
         return returnable
 
@@ -317,13 +317,16 @@ class ClonoFilter(models.Model):
         # Use queryset filtered by values in clonofilter
         filtered_query_set = self.get_clonotypes()
         # Return the sums of each v family
-        j_usage_values = filtered_query_set.values('recombination__j_gene_name').annotate(Sum('copy'))
+        j_usage_values = filtered_query_set.values(
+            'recombination__j_gene_name').annotate(Sum('copy'))
         # Transform list of dicts into single dict
         for sum_dict in j_usage_values:
             if self.norm_factor:
-                returnable[sum_dict['recombination__j_gene_name']] = sum_dict['copy__sum'] / float(self.norm_factor)
+                returnable[sum_dict['recombination__j_gene_name']
+                           ] = sum_dict['copy__sum'] / float(self.norm_factor)
             else:
-                returnable[sum_dict['recombination__j_gene_name']] = sum_dict['copy__sum']
+                returnable[sum_dict[
+                    'recombination__j_gene_name']] = sum_dict['copy__sum']
 
         return returnable
 
@@ -339,13 +342,16 @@ class ClonoFilter(models.Model):
         # Use queryset filtered by values in clonofilter
         filtered_query_set = self.get_clonotypes()
         # Return the sums of each v family
-        v_usage_values = filtered_query_set.values('recombination__v_family_name').annotate(Sum('copy'))
+        v_usage_values = filtered_query_set.values(
+            'recombination__v_family_name').annotate(Sum('copy'))
         # Transform list of dicts into single dict
         for sum_dict in v_usage_values:
             if self.norm_factor:
-                returnable[sum_dict['recombination__v_family_name']] = sum_dict['copy__sum'] / float(self.norm_factor)
+                returnable[sum_dict['recombination__v_family_name']
+                           ] = sum_dict['copy__sum'] / float(self.norm_factor)
             else:
-                returnable[sum_dict['recombination__v_family_name']] = sum_dict['copy__sum']
+                returnable[sum_dict[
+                    'recombination__v_family_name']] = sum_dict['copy__sum']
 
         return returnable
 
@@ -372,7 +378,7 @@ class ClonoFilter(models.Model):
             j_gene = sum_dict['recombination__j_gene_name']
 
             if self.norm_factor:
-                 returnable[v_family][j_gene] =  sum_dict[
+                returnable[v_family][j_gene] = sum_dict[
                     'copy__sum'] / float(self.norm_factor)
             else:
                 returnable[v_family][j_gene] = sum_dict['copy__sum']
@@ -399,8 +405,10 @@ class ClonoFilter(models.Model):
             v_family_names))]
 
         for sum_dict in vj_pairs:
-            v_index = v_family_names.index(sum_dict['recombination__v_family_name'])
-            j_index = j_gene_names.index(sum_dict['recombination__j_gene_name'])
+            v_index = v_family_names.index(
+                sum_dict['recombination__v_family_name'])
+            j_index = j_gene_names.index(
+                sum_dict['recombination__j_gene_name'])
             if self.norm_factor:
                 returnable[v_index][j_index] = sum_dict[
                     'copy__sum'] / float(self.norm_factor)

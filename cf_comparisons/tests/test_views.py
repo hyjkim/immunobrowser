@@ -34,11 +34,6 @@ class ComparisonsViewUnitTest(TestCase):
         self.assertEqual(self.comparison.get_samples(
         ), mock_response.get('samples'))
 
-    def test_compare_should_pass_shared_clonotypes_to_template_via_context(self):
-        mock_response = compare(self.request, self.comparison.id)
-        self.assertEqual(self.comparison.get_shared_amino_acids_clonotypes(
-        ), mock_response.get('shared_clonotypes'))
-
     def test_compare_should_pass_num_forms_to_template_via_context(self):
         mock_response = compare(self.request, self.comparison.id)
         self.assertEqual(2, mock_response.get('num_forms'))

@@ -269,6 +269,7 @@ class ClonoFilterModelTest(TestCase):
         make_fake_patient_with_3_clonotypes()
         self.s = Sample.objects.get()
         self.f = ClonoFilter(sample=self.s)
+        self.f.save()
 
     def test_functionality_dict_contains_all_functional_groups(self):
         self.assertEqual({u'Out of frame': 2, u'Productive': 2}, self.f.functionality_dict())
@@ -285,7 +286,7 @@ class ClonoFilterModelTest(TestCase):
         j_usage_dict = self.f.j_usage_dict()
         self.assertIsInstance(j_usage_dict, dict)
 
-        self.assertEqual({u'TRBJ2-4': 1, u'TRBJ2-5': 3}, j_usage_dict)
+        self.assertEqual({u'TRBJ2-4': 0.25, u'TRBJ2-5': 0.75}, j_usage_dict)
 
     def test_v_usage_considers_norm_factor(self):
         cf = ClonoFilter(sample=self.s, norm_factor=2)
@@ -296,10 +297,11 @@ class ClonoFilterModelTest(TestCase):
         v_usage_dict = self.f.v_usage_dict()
         self.assertIsInstance(v_usage_dict, dict)
 
-        self.assertEqual({u'9': 1, u'8': 1, u'7': 2}, v_usage_dict)
+        self.assertEqual({u'9': 0.25, u'8': 0.25, u'7': 0.5}, v_usage_dict)
 
-    def test_normalization_factor_initializes_to_1(self):
-        self.assertEqual(1, self.f.norm_factor)
+    def test_normalization_factor_initializes_to_sum_of_raw_counts(self):
+        self.f.save()
+        self.assertEqual(self.f.size(), self.f.norm_factor)
 
     def test_get_recombinations_filters_properly(self):
         self.f.min_length=40
@@ -385,10 +387,6 @@ class ClonoFilterModelTest(TestCase):
         self.assertEqual(0, self.f.min_copy)
 
     def test_clonofilter_has_sample(self):
-        tmp = ClonoFilter()
-        tmp.sample = self.s
-        tmp.save()
-
         f = ClonoFilter.objects.get()
         self.assertEqual(self.s, self.f.sample)
 
@@ -405,7 +403,7 @@ class ClonoFilterModelTest(TestCase):
         for v_family in vj_counts.values():
             self.assertIsInstance(v_family, dict)
 
-        self.assertEqual(vj_counts['9']['TRBJ2-5'], 1.0)
+        self.assertEqual(vj_counts['9']['TRBJ2-5'], 0.25)
 
 
     def test_vj_counts_utilizes_norm_factor_if_it_exists(self):
@@ -425,7 +423,7 @@ class ClonoFilterModelTest(TestCase):
         vj_counts = self.f.vj_counts()
         self.assertIsInstance(vj_counts[0], list)
         self.assertEqual(
-            ['[2.0, 0]', '[0, 1.0]', '[1.0, 0]'], map(repr, vj_counts))
+            ['[0.5, 0]', '[0, 0.25]', '[0.25, 0]'], map(repr, vj_counts))
 
     def test_cdr3_length_sum_returns_a_list(self):
         sums = self.f.cdr3_length_sum()
@@ -433,7 +431,7 @@ class ClonoFilterModelTest(TestCase):
 
     def test_cdr3_length_sum_returns_a_nested_list_of_cdr3_lengths_and_their_counts(self):
         hist = self.f.cdr3_length_sum()
-        self.assertEqual([[36, 1], [39, 1], [42, 2]], hist)
+        self.assertEqual([[36, 0.25], [39, .25], [42, 0.5]], hist)
 
     def test_cdr3_length_sum_should_sort_output_by_cdr3_length(self):
         r = RecombinationFactory(
@@ -471,4 +469,4 @@ class ClonoFilterModelTest(TestCase):
         )
 
         self.assertEqual(
-            [[10, 10], [36, 1], [39, 1], [42, 2]], self.f.cdr3_length_sum())
+            [[10, 2.5], [36, 0.25], [39, 0.25], [42, .5]], self.f.cdr3_length_sum())

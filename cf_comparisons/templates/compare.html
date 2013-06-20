@@ -77,31 +77,4 @@
 
 </div>
 
-<!-- Following uses old shared_clonotypes object and should be deprecated -->
-<div class="shared_clonotype_wrapper">
-  <table>
-    <th>
-      {% for sample in samples %}
-      <td>
-        {{ sample }}
-      </td>
-
-      {% endfor %}
-    </th>
-    {% for aa, count_dict in shared_clonotypes.items %}
-    <tr>
-      <td>
-        <a href="{% url 'clonotypes.views.amino_acid_detail' aa.id %}">
-          {{ aa.sequence }}</a>
-      </td>
-      {% for sample, clonotype in count_dict.items %}
-      <td class="clonotype">
-        <a href="{% url 'clonotypes.views.detail' clonotype.id %}">
-          {{ sample }}: {{ clonotype.copy }}</a>
-      </td>
-      {% endfor %}
-    </tr>
-    {% endfor %}
-  </table>
-</div>
 {% endblock %}
