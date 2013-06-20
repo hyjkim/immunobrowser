@@ -11,3 +11,8 @@ def clonotype_tag(clonotype):
 @register.inclusion_tag('amino_acid.html')
 def amino_acid_tag(amino_acid):
     return {'amino_acid': amino_acid}
+
+@register.inclusion_tag('recombination.html')
+def recombination_tag(recombination):
+    return {'recombination': recombination}
+

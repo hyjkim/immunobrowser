@@ -2,7 +2,6 @@
 {% block content %}
 {% load clonotype_tags %}
 {% clonotype_tag clonotype %}
-<div id="amino_acid_detail">
+{% recombination_tag clonotype.recombination %}
 {% amino_acid_tag clonotype.recombination.amino_acid %}
-</div>
 {% endblock %}

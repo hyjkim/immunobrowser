@@ -24,11 +24,14 @@ class ComparisonsViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_compare_sends_shared_amino_acids_and_related_clonotypes(self):
+        mock_response = compare(self.request, self.comparison.id)
+        self.assertEquals('', mock_response.get('shared_amino_acids'))
+
     def test_compare_should_pass_samples_to_template_via_context(self):
         mock_response = compare(self.request, self.comparison.id)
         self.assertEqual(self.comparison.get_samples(
         ), mock_response.get('samples'))
-
 
     def test_compare_should_pass_shared_clonotypes_to_template_via_context(self):
         mock_response = compare(self.request, self.comparison.id)
@@ -95,13 +98,12 @@ class ComparisonsViewIntegrationTest(TestCase):
                                            args=[self.comparison.id]))
         self.fail('todo')
 
-
-
     def test_compare_view_contains_a_combined_spectratype(self):
         response = self.client.get(reverse('cf_comparisons.views.compare',
                                            args=[self.comparison.id]))
         self.assertIn(
-            reverse('cf_comparisons.views.spectratype', args=[self.comparison.id]),
+            reverse('cf_comparisons.views.spectratype', args=[
+                    self.comparison.id]),
             response.content)
 
     def test_comparison_has_links_to_clonofilters_within_comparison(self):
@@ -145,7 +147,8 @@ class ComparisonsViewIntegrationTest(TestCase):
     def test_compare_should_have_number_of_forms_as_hidden_field(self):
         response = self.client.get(
             reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
-        self.assertIn('<input type="hidden" name="num_forms" value="2">', response.content)
+        self.assertIn('<input type="hidden" name="num_forms" value="2">',
+                      response.content)
 
     def test_compare_creates_a_new_comparison_if_filter_form_is_changed(self):
         samples = Sample.objects.all()

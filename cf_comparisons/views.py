@@ -56,6 +56,9 @@ def compare(request, comparison_id):
 
     #shared_clonotypes = comparison.get_shared_amino_acids_counts()
     shared_clonotypes = comparison.get_shared_amino_acids_clonotypes()
+
+#    shared_amino_acids = comparison.get_shared_amino_acids_related()
+
     samples = comparison.get_samples()
 #    shared_clonotypes = []
     context = {'filter_forms': filter_forms,

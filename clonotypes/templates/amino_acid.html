@@ -1,0 +1,43 @@
+<div>
+  {{amino_acid.sequence}}
+</div>
+<table>
+  <tr>
+    <td>Nucleotide Sequence
+    </td>
+    <td>V family
+    </td>
+    <td>J gene
+    </td>
+    <td>Sample
+    </td>
+    <td>Count
+    </td>
+    <td>Clonotype Link
+    </td>
+  </tr>
+  {% for recombination in amino_acid.recombination_set.all %}
+  <tr>
+    <td>
+      {{recombination.parsed_nucleotide}}
+    </td>
+    <td>
+      {{recombination.v_family_name}}
+    </td>
+    <td>
+      {{recombination.j_gene_name}}
+    </td>
+    <td>
+      {% for clonotype in recombination.clonotype_set.all %}
+      {{clonotype.sample}}</td>
+    <td>{{clonotype.copy}}
+    </td>
+    <td>
+      <a href="{% url 'clonotypes.views.detail' clonotype.id %}">Clonotype Detail</a>
+    </td>
+      {% endfor %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+

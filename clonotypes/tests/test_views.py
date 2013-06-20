@@ -19,6 +19,13 @@ class RecombinationViewUnitTest(TestCase):
         self.s = Sample.objects.get()
         self.recombination = Recombination.objects.get()
 
+    def test_recombination_detail_view_uses_amino_acid_template_tag(self):
+        from django.template import Template, Context
+        t = Template('{% load clonotype_tags %}{% recombination_tag recombination %}')
+        c = Context({'recombination': self.recombination})
+        t.render(c)
+        self.assertEqual(c['recombination'], self.recombination)
+
 
 class AminoAcidViewUnitTest(TestCase):
     ''' Here, we mock out the rendering stack for fast unit tests of the view'''

@@ -25,6 +25,14 @@ class SampleToAmino(models.Model):
 
     amino_acids = property(get_amino_acids)
 
-    def __init__(self, *args, **kwargs):
-        super(SampleToAmino, self).__init__(*args, **kwargs)
-        self.update_amino_acids()
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            super(SampleToAmino, self).save(*args, **kwargs)
+            self.update_amino_acids()
+        else:
+            super(SampleToAmino, self).save(*args, **kwargs)
+
+#    def __init__(self, *args, **kwargs):
+#        super(SampleToAmino, self).__init__(*args, **kwargs)
+#        self.update_amino_acids()
+#        print "Creating S2a for %s" %(self.sample)

@@ -28,22 +28,28 @@ class ComparsionModelMethodsTest(TestCase):
                          map(repr, self.comparison.get_samples()))
 
     def test_colors_list_returns_a_list_of_colors(self):
-        self.assertEqual([(1.0, 0.0, 0.16, 1.0), (0.0, 1.0, 0.54817625975121254, 1.0)],
-                         self.comparison.colors_list())
+        self.assertEqual(
+            [(1.0, 0.0, 0.16, 1.0), (0.0, 1.0, 0.54817625975121254, 1.0)],
+            self.comparison.colors_list())
 
     def test_colors_dict_returns_a_dict_of_colors(self):
-        self.assertEqual([(0.0, 1.0, 0.54817625975121254, 1.0), (1.0, 0.0, 0.16, 1.0)].sort(),
-                         self.comparison.colors_dict().values().sort())
-        self.assertIsInstance(self.comparison.colors_dict().keys()[0], ClonoFilter)
+        self.assertEqual(
+            [(0.0, 1.0, 0.54817625975121254, 1.0), (1.0, 0.0,
+                                                    0.16, 1.0)].sort(),
+            self.comparison.colors_dict().values().sort())
+        self.assertIsInstance(
+            self.comparison.colors_dict().keys()[0], ClonoFilter)
 
     def test_get_shared_amino_acids_returns_a_list_of_shared_amino_acids(self):
         samples = [clonofilter.sample for clonofilter in self.comparison.clonofilters.all()]
         shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, self.comparison.get_amino_acids())
-        self.assertEqual(set(shared_amino_acid), set(self.comparison.get_shared_amino_acids()))
+        self.assertEqual(set(
+            shared_amino_acid), set(self.comparison.get_shared_amino_acids()))
 
     def test_get_shared_amino_acids_clonotypes_returns_a_nested_dict_of_clonotypes(self):
         from clonotypes.models import Clonotype
-        shared_amino_acids = self.comparison.get_shared_amino_acids_clonotypes()
+        shared_amino_acids = self.comparison.get_shared_amino_acids_clonotypes(
+        )
         self.assertIsInstance(shared_amino_acids, dict)
 
         for nested in shared_amino_acids.values():
@@ -119,6 +125,7 @@ class ComparsionModelMethodsTest(TestCase):
         s2 = Sample.objects.all()[1]
         self.assertEqual({u'CASSLGPLAEKETQYF': [s1, s2]
                           }, shared_clonotypes)
+
     def test_get_or_create_from_clonofilters_returns_one_comparison_if_two_supersets_exist(self):
         '''
         This test replicates a bug where multiple comparisons are returned if
@@ -128,7 +135,7 @@ class ComparsionModelMethodsTest(TestCase):
         s1 = Sample.objects.all()[0]
         s2 = Sample.objects.all()[1]
         Comparison.default_from_samples([s1])
-        Comparison.default_from_samples([s1,s2])
+        Comparison.default_from_samples([s1, s2])
         Comparison.default_from_samples([s1])
 
         self.assertEqual(2, Comparison.objects.all().count())
@@ -153,6 +160,17 @@ class ComparsionModelMethodsTest(TestCase):
         #self.assertEqual('', shared_clonotypes)
         self.assertIsInstance(shared_clonotypes, dict)
 
+    def test_get_shared_amino_acids_related_returns_queryset_of_recombinations_and_clonotypes(self):
+        ''' Returns a queryset of shared amino acids between two samples
+        along with related recombination and clonotype fields
+        '''
+        shared_amino_acids = self.comparison.get_shared_amino_acids_related()
+        shared_amino_acid = shared_amino_acids[1]
+        recombination = shared_amino_acid.recombination_set.all().get()
+        self.assertEqual(recombination, shared_amino_acid._related_recombination[0])
+
+        clonotypes = recombination.clonotype_set.all()
+        self.assertEqual(map(repr, clonotypes), shared_amino_acid._related_clonotypes[0])
 
 
 class ComparisonModelTest(TestCase):

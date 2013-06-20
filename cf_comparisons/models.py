@@ -14,7 +14,8 @@ class Comparison(models.Model):
         import pylab
         cm = pylab.get_cmap('gist_rainbow')
         clonofilters = sorted(self.clonofilters.all())
-        returnable = [cm(1.*i/len(clonofilters)) for i in range(len(clonofilters))]
+        returnable = [cm(1. * i / len(clonofilters))
+                      for i in range(len(clonofilters))]
         return returnable
 
     def colors_dict(self):
@@ -28,14 +29,15 @@ class Comparison(models.Model):
         clonofilters = sorted(self.clonofilters.all())
         cm = pylab.get_cmap('gist_rainbow')
         for index, clonofilter in enumerate(clonofilters):
-            returnable[clonofilter] = cm(1.*index/len(clonofilters))
+            returnable[clonofilter] = cm(1. * index / len(clonofilters))
         return returnable
 
     def get_samples(self):
         '''
         Returns a queryset of samples associated with this comparsion
         '''
-        samples = [clonofilter.sample for clonofilter in self.clonofilters.all()]
+        samples = [
+            clonofilter.sample for clonofilter in self.clonofilters.all()]
         return samples
 
     def get_amino_acids(self):
@@ -50,7 +52,8 @@ class Comparison(models.Model):
         retrieved from get_clonotypes()'''
         from clonotypes.models import Recombination
         clonotypes = self.get_clonotypes()
-        recombinations = Recombination.objects.filter(id__in=clonotypes.values('recombination_id'))
+        recombinations = Recombination.objects.filter(
+            id__in=clonotypes.values('recombination_id'))
         return recombinations
 
     def get_clonotypes(self):
@@ -64,7 +67,7 @@ class Comparison(models.Model):
 
         return returnable
 
-    def get_shared_amino_acids(self):
+    def get_shared_amino_acids_old(self):
         ''' Returns a list of amino acids shared by the clonofilters
         defined in a comparison
         '''
@@ -75,6 +78,52 @@ class Comparison(models.Model):
             return shared_amino_acid
         else:
             return False
+
+    def get_shared_amino_acids(self):
+        ''' Returns a list of amino acids shared by the clonofilters
+        defined in a comparison. Uses indexes to reduce joining time.
+        '''
+        from index.models import SampleToAmino
+        from clonotypes.models import AminoAcid
+
+        samples = self.get_samples()
+        if len(samples) > 1:
+            s2a_tuples = [SampleToAmino.objects.get_or_create(
+                sample=sample) for sample in samples]
+            amino_acids = [s2a.amino_acids for s2a, created in s2a_tuples]
+            shared_amino_acids_pks = set.intersection(*map(set, amino_acids))
+            return AminoAcid.objects.filter(id__in=shared_amino_acids_pks)
+        else:
+            return False
+
+    def get_shared_amino_acids_related(self):
+        '''
+        Returns the shared amino acids and related recombinations and clonotypes
+        as part of the _related_recombination field
+        '''
+        from clonotypes.models import AminoAcid, Recombination, Clonotype
+        shared_amino_acids = self.get_shared_amino_acids()
+        shared_queryset = AminoAcid.objects.filter(id__in=shared_amino_acids)
+        amino_acid_dict = dict(
+            [(amino_acid.id, amino_acid) for amino_acid in shared_queryset])
+        recombinations = Recombination.objects.filter(
+            amino_acid__in=shared_queryset)
+        recombination_dict = {}
+#        clonotypes = Clonotypes.objects.filter(
+#            recombination_id__in=recombinations)
+#        clonotype_dict = {}
+
+#        for clonotype in clonotypes:
+#            clonotype_dict.setdefault(
+#                clonotype.recombination_id, []).append(clonotype)
+
+        for recombination in recombinations:
+            recombination_dict.setdefault(
+                recombination.amino_acid_id, []).append(recombination)
+        for id, related_recombination in recombination_dict.items():
+            amino_acid_dict[id]._related_recombination = related_recombination
+
+        return amino_acid_dict
 
     def get_shared_amino_acids_clonotypes(self):
         '''
@@ -97,9 +146,9 @@ class Comparison(models.Model):
                 for recombination in amino_acid.recombination_set.all():
                     for clonotype in recombination.clonotype_set.all():
                         if clonotype.sample in samples:
-                            returnable[amino_acid][clonotype.sample] = clonotype
+                            returnable[
+                                amino_acid][clonotype.sample] = clonotype
         return undefaulted(returnable)
-
 
     def get_shared_amino_acids_counts(self):
         '''
@@ -125,7 +174,8 @@ class Comparison(models.Model):
                 for recombination in amino_acid.recombination_set.all():
                     for clonotype in recombination.clonotype_set.all():
                         if clonotype.sample in samples:
-                            returnable[amino_acid][clonotype.sample] += clonotype.copy
+                            returnable[amino_acid][
+                                clonotype.sample] += clonotype.copy
                             #returnable[amino_acid.sequence][clonotype.sample] += clonotype.copy
 
         return undefaulted(returnable)
@@ -150,7 +200,8 @@ class Comparison(models.Model):
 
         if len(samples) > 1:
             # Now get all clonotypes with these shared sequences
-            shared_recombinations = reduce(lambda q, s: q.filter(clonotype__sample=s), samples, self.get_recombinations())
+            shared_recombinations = reduce(lambda q, s: q.filter(
+                clonotype__sample=s), samples, self.get_recombinations())
             shared_recombination = shared_recombinations.distinct()
 
             # Format the shared clonotypes as a dict of lists:
@@ -159,13 +210,13 @@ class Comparison(models.Model):
                 # Get the set of clonotypes for each recombination
                 for clonotype in recombination.clonotype_set.all():
                     if clonotype.sample in samples:
-                        returnable[recombination.nucleotide][clonotype.sample] += clonotype.copy
+                        returnable[recombination.nucleotide][
+                            clonotype.sample] += clonotype.copy
                     # Get the set of samples for each clonotype
                     # Add # of reads per thing
 #                returnable[recombination.nucleotide].append(clonotype)
 
         return undefaulted(returnable)
-
 
     def get_shared_clonotypes(self):
         '''
@@ -177,7 +228,8 @@ class Comparison(models.Model):
 
         shared_clonotypes = [[]]
         # Get a list of sample ids
-        samples = [clonofilter.sample for clonofilter in self.clonofilters.all()]
+        samples = [
+            clonofilter.sample for clonofilter in self.clonofilters.all()]
         # Get all nucleotide_sequences belonging to samples and then only report those
         # that have at least len(samples) shared clonotypes
         returnable = defaultdict(list)
@@ -185,7 +237,8 @@ class Comparison(models.Model):
 
             # Now get all clonotypes with these shared sequences
             #shared_recombinations = reduce(lambda q, s: q.filter(clonotype__sample=s), samples, Recombination.objects.all())
-            shared_recombinations = reduce(lambda q, s: q.filter(clonotype__sample=s), samples, self.get_recombinations())
+            shared_recombinations = reduce(lambda q, s: q.filter(
+                clonotype__sample=s), samples, self.get_recombinations())
             shared_recombination = shared_recombinations.distinct()
 
             # Format the shared clonotypes as a dict of lists:
@@ -211,7 +264,8 @@ class Comparison(models.Model):
 
         shared_clonotypes = [[]]
         # Get a list of sample ids
-        samples = [clonofilter.sample for clonofilter in self.clonofilters.all()]
+        samples = [
+            clonofilter.sample for clonofilter in self.clonofilters.all()]
         # Get all nucleotide_sequences belonging to samples and then only report those
         # that have at least len(samples) shared clonotypes
         returnable = defaultdict(list)
@@ -225,7 +279,8 @@ class Comparison(models.Model):
                 for recombination in amino_acid.recombination_set.all():
                     for clonotype in recombination.clonotype_set.all():
                         if clonotype.sample in samples:
-                            returnable[amino_acid.sequence].append(clonotype.sample)
+                            returnable[
+                                amino_acid.sequence].append(clonotype.sample)
 
         return dict(returnable)
 
@@ -240,7 +295,8 @@ class Comparison(models.Model):
         default_clonofilters = [ClonoFilter.default_from_sample(sample)
                                 for sample in samples]
 
-        comparison = Comparison.get_or_create_from_clonofilters(default_clonofilters)
+        comparison = Comparison.get_or_create_from_clonofilters(
+            default_clonofilters)
 
         return comparison
 
