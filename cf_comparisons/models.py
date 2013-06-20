@@ -114,7 +114,7 @@ class Comparison(models.Model):
         for clonotype in clonotypes:
             clonotype_dict.setdefault(clonotype.recombination.amino_acid_id, []).append(clonotype)
         for id, related_clonotype in clonotype_dict.items():
-            amino_acid_dict[id]._related_clonotypes = related_clonotype
+            amino_acid_dict[id].related_clonotypes = related_clonotype
 
         return amino_acid_dict
 

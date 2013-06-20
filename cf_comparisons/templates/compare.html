@@ -55,6 +55,36 @@
       <td>
         {{ sample }}
       </td>
+      {% endfor %}
+    </th>
+
+    {% for id, aa in shared_amino_acids.items %}
+    <tr>
+      <td>
+        <a href="{% url 'clonotypes.views.amino_acid_detail' id %}">
+          {{ aa.sequence }}</a>
+      </td>
+      {% for clonotype in aa.related_clonotypes %}
+      <td class="clonotype">
+        <a href="{% url 'clonotypes.views.detail' clonotype.id %}">
+          {{ clonotype.sample }}: {{ clonotype.copy }}</a>
+      </td>
+
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+
+</div>
+
+<!-- Following uses old shared_clonotypes object and should be deprecated -->
+<div class="shared_clonotype_wrapper">
+  <table>
+    <th>
+      {% for sample in samples %}
+      <td>
+        {{ sample }}
+      </td>
 
       {% endfor %}
     </th>

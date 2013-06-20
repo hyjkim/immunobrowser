@@ -170,7 +170,7 @@ class ComparsionModelMethodsTest(TestCase):
 #        self.assertEqual(recombination, shared_amino_acid._related_recombination[0])
 
         clonotypes = self.comparison.get_shared_clonotypes()
-        self.assertEqual(clonotypes.values().sort(), shared_amino_acid._related_clonotypes.sort())
+        self.assertEqual(clonotypes.values().sort(), shared_amino_acid.related_clonotypes.sort())
 
     def test_get_shared_amino_acids_related_returns_only_clonotypes_belonging_two_shared_clonotypes(self):
         from test_utils.factories import SampleFactory, ClonotypeFactory
@@ -185,7 +185,7 @@ class ComparsionModelMethodsTest(TestCase):
         )
 
         for shared_amino_acid in self.comparison.get_shared_amino_acids_related().values():
-            for clonotype in shared_amino_acid._related_clonotypes:
+            for clonotype in shared_amino_acid.related_clonotypes:
                 self.assertNotEqual(c, clonotype)
 
 
