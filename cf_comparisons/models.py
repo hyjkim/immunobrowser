@@ -98,30 +98,23 @@ class Comparison(models.Model):
 
     def get_shared_amino_acids_related(self):
         '''
-        Returns the shared amino acids and related recombinations and clonotypes
-        as part of the _related_recombination field
+        Returns the shared amino acids and related clonotypes
+        as part of the _related_clonotypes field
         '''
         from clonotypes.models import AminoAcid, Recombination, Clonotype
+        samples = self.get_samples()
         shared_amino_acids = self.get_shared_amino_acids()
         shared_queryset = AminoAcid.objects.filter(id__in=shared_amino_acids)
         amino_acid_dict = dict(
             [(amino_acid.id, amino_acid) for amino_acid in shared_queryset])
-        recombinations = Recombination.objects.filter(
-            amino_acid__in=shared_queryset)
-        recombination_dict = {}
-#        clonotypes = Clonotypes.objects.filter(
-#            recombination_id__in=recombinations)
-#        clonotype_dict = {}
 
-#        for clonotype in clonotypes:
-#            clonotype_dict.setdefault(
-#                clonotype.recombination_id, []).append(clonotype)
+        clonotypes = Clonotype.objects.select_related().filter(recombination__amino_acid__in=shared_amino_acids).filter(sample__in=samples)
+        clonotype_dict = {}
 
-        for recombination in recombinations:
-            recombination_dict.setdefault(
-                recombination.amino_acid_id, []).append(recombination)
-        for id, related_recombination in recombination_dict.items():
-            amino_acid_dict[id]._related_recombination = related_recombination
+        for clonotype in clonotypes:
+            clonotype_dict.setdefault(clonotype.recombination.amino_acid_id, []).append(clonotype)
+        for id, related_clonotype in clonotype_dict.items():
+            amino_acid_dict[id]._related_clonotypes = related_clonotype
 
         return amino_acid_dict
 

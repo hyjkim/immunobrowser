@@ -166,11 +166,28 @@ class ComparsionModelMethodsTest(TestCase):
         '''
         shared_amino_acids = self.comparison.get_shared_amino_acids_related()
         shared_amino_acid = shared_amino_acids[1]
-        recombination = shared_amino_acid.recombination_set.all().get()
-        self.assertEqual(recombination, shared_amino_acid._related_recombination[0])
+#        recombination = shared_amino_acid.recombination_set.all().get()
+#        self.assertEqual(recombination, shared_amino_acid._related_recombination[0])
 
-        clonotypes = recombination.clonotype_set.all()
-        self.assertEqual(map(repr, clonotypes), shared_amino_acid._related_clonotypes[0])
+        clonotypes = self.comparison.get_shared_clonotypes()
+        self.assertEqual(clonotypes.values().sort(), shared_amino_acid._related_clonotypes.sort())
+
+    def test_get_shared_amino_acids_related_returns_only_clonotypes_belonging_two_shared_clonotypes(self):
+        from test_utils.factories import SampleFactory, ClonotypeFactory
+        from clonotypes.models import AminoAcid
+        s3 = SampleFactory()
+        aa = AminoAcid.objects.all()[0]
+        r = aa.recombination_set.all()[0]
+
+        c = ClonotypeFactory(
+            sample=s3,
+            recombination = r
+        )
+
+        for shared_amino_acid in self.comparison.get_shared_amino_acids_related().values():
+            for clonotype in shared_amino_acid._related_clonotypes:
+                self.assertNotEqual(c, clonotype)
+
 
 
 class ComparisonModelTest(TestCase):

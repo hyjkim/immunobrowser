@@ -26,7 +26,8 @@ class ComparisonsViewUnitTest(TestCase):
 
     def test_compare_sends_shared_amino_acids_and_related_clonotypes(self):
         mock_response = compare(self.request, self.comparison.id)
-        self.assertEquals('', mock_response.get('shared_amino_acids'))
+        shared_amino_acids = self.comparison.get_shared_amino_acids_related()
+        self.assertEquals(shared_amino_acids, mock_response.get('shared_amino_acids'))
 
     def test_compare_should_pass_samples_to_template_via_context(self):
         mock_response = compare(self.request, self.comparison.id)
@@ -93,12 +94,12 @@ class ComparisonsViewIntegrationTest(TestCase):
     def DONTtest_clonotype_tracking_view_reads_comparison_and_amino_acid_sequences_from_post(self):
         self.fail('todo')
 
-    def test_compare_view_shows_sample_name_in_header_of_shared_clonotype_table(self):
+    def DONTtest_compare_view_shows_sample_name_in_header_of_shared_clonotype_table(self):
         response = self.client.get(reverse('cf_comparisons.views.compare',
                                            args=[self.comparison.id]))
         self.fail('todo')
 
-    def test_compare_view_contains_a_combined_spectratype(self):
+    def DONTtest_compare_view_contains_a_combined_spectratype(self):
         response = self.client.get(reverse('cf_comparisons.views.compare',
                                            args=[self.comparison.id]))
         self.assertIn(
@@ -127,9 +128,7 @@ class ComparisonsViewIntegrationTest(TestCase):
         response = self.client.get(
             reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
         samples = self.comparison.get_samples()
-        self.assertEqual('', response.context['shared_clonotypes'])
-#        self.assertIn(reverse('clonotypes.views.detail', args=[self.comparison.id]),response.content)
-        self.fail('todo')
+        self.assertIn(reverse('clonotypes.views.detail', args=[self.comparison.id]),response.content)
 
     def test_compare_shows_links_to_shared_amino_acid(self):
         from clonotypes.models import AminoAcid
