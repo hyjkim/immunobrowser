@@ -27,7 +27,13 @@
 
   <body>
     <div id="header">
-      {% block header %}{% endblock %}
+      {% block header %}
+      <div class="row">
+        <div class="span12">
+          <h1>UCSC Immunobrowser</h1>
+        </div>
+      </div>
+      {% endblock %}
     </div>
 
     <div id="content">
@@ -35,7 +41,14 @@
     </div>
 
     <div id="footer">
-      {% block footer %}{% endblock %}
+      {% block footer %}
+       <div class="row">
+        <div class="span12">
+          footer information goes here
+        </div>
+      </div>
+
+      {% endblock %}
     </div>
     {% block site_js %}
     {% endblock %}
