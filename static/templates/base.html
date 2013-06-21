@@ -8,11 +8,15 @@
     type="text/css" media="all"/>
     <link href="{{ STATIC_URL }}css/base.css" rel="stylesheet"
     type="text/css" media="screen"/>
+    <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet"
+    type="text/css" media="screen"/>
+
     {% endblock %}
     {% block css %}{% endblock %}
 
     {% block js_head %}
     <script type='text/javascript' src="{{ STATIC_URL }}libs/jquery.js"></script>
+    <script type='text/javascript' src="{{ STATIC_URL }}libs/bootstrap.js"></script>
     {% endblock %}
 
 

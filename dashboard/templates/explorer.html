@@ -4,27 +4,55 @@
 {% endblock %}
 {% block content %}
 
-<div id="tree1">
+<div class="accordion" id="accordion2">
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+        Sample Navigator
+      </a>
+    </div>
+    <div id="collapseOne" class="accordion-body collapse in">
+      <div class="accordion-inner">
+        <div id="tree1">
+          <ul>
+            {% for patient in patients %}
+            <li>
+            <a href="{% url 'patients.views.patient_summary' patient.id %}">{{ patient }}</a>
+            <input type="checkbox" id="patient_{{ patient.id }}">
+            <ul>
+              {% for sample in patient.sample_set.all %}
+              <li><a href="{% url 'samples.views.summary' sample.id %} ">{{ sample }}</a>
+              <input type="checkbox" id="sample_{{ sample.id }}">
+              </li>
+              {% endfor %}
+            </ul>
+            </li>
 
-<ul>
-  {% for patient in patients %}
-  <li>
-  <a href="{% url 'patients.views.patient_summary' patient.id %}">{{ patient }}</a>
-  <input type="checkbox" id="patient_{{ patient.id }}">
-  <ul>
-    {% for sample in patient.sample_set.all %}
-    <li><a href="{% url 'samples.views.summary' sample.id %} ">{{ sample }}</a>
-    <input type="checkbox" id="sample_{{ sample.id }}">
-    </li>
-    {% endfor %}
-  </ul>
-  </li>
+            {% endfor %}
+          </ul>
 
-  {% endfor %}
-</ul>
+        </div>
+        <input type="button" value="Add To Comparison">
+        <input type="button" value="Compare">
+      </div>
+    </div>
+  </div>
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
+        Samples in comparison
+      </a>
+    </div>
+    <div id="collapseTwo" class="accordion-body collapse">
+      <div class="accordion-inner">
+        Anim pariatur cliche...
+      </div>
+    </div>
+  </div>
 </div>
-<input type="button" value="Add To Comparison">
-<input type="button" value="Compare">
+
+
+
 
 <div id="main">
 </div>
@@ -42,7 +70,7 @@
     $.getJSON(
     '{% url 'dashboard.views.menu_json' %}',
     function(data) {
-           // Get csrf token
+      // Get csrf token
       var csrftoken = $.cookie('csrftoken');
 
       // set header
@@ -74,7 +102,7 @@
         }
       });
 
- // build jqTree
+      // build jqTree
       var $tree = $('#tree1');
       $tree.tree({
         data: data,
@@ -95,7 +123,7 @@
         });
 
       });
-    
+
       // modify default tree behavior
       $tree.bind('tree.click',
       function(e) {
