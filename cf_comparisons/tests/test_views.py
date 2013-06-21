@@ -76,6 +76,11 @@ class ComparisonsViewUnitTest(TestCase):
         mock_response = compare(self.request, self.comparison.id)
         self.assertEqual('compare.html', mock_response.get('template'))
 
+    def test_compare_returns_ajax_view_if_request_is_ajax(self):
+        self.request.is_ajax = lambda: True
+        mock_response = compare(self.request, self.comparison.id)
+        self.assertEqual('compare_ajax.html', mock_response.get('template'))
+
 
 class ComparisonsViewIntegrationTest(TestCase):
     '''

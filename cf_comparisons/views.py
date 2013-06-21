@@ -64,7 +64,11 @@ def compare(request, comparison_id):
                'samples': samples,
                'shared_amino_acids': shared_amino_acids,
                }
-    return render(request, 'compare.html', context)
+
+    if request.is_ajax():
+        return render(request, 'compare_ajax.html', context)
+    else:
+        return render(request, 'compare.html', context)
 
 def spectratype(request, comparison_id):
     '''
