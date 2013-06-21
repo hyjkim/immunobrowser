@@ -20,6 +20,27 @@ def sample_compare(request):
     context = {'sample_compare_form': sample_compare_form}
     return render(request, 'sample_compare.html', context)
 
+def filter_forms(request, comparison_id):
+    '''
+    Filter forms are served directly from the compare template
+    if the request is not ajax. Ajax requests don't include
+    the filter forms. This view, generates the filter form markup
+    and returns it so that a jquery operation can fill it into the
+    appropriate place
+    '''
+    from django.template import Template, Context
+    comparison = Comparison.objects.get(id=comparison_id)
+    clonofilters = comparison.clonofilters.all()
+    filter_forms = []
+    for index, clonofilter in enumerate(clonofilters):
+        filter_forms.append(ClonoFilterForm(initial=ClonoFilter.objects.filter(
+            id=clonofilter.id).values()[0], prefix=str(index)))
+
+    template = Template('{% load comparison_tags %}{% filter_forms_tag filter_forms %}')
+    context = Context({'filter_forms': filter_forms})
+
+#    return render(request, 'filter_forms.html')
+    return template.render(context)
 
 def compare(request, comparison_id):
     '''
@@ -60,7 +81,6 @@ def compare(request, comparison_id):
     samples = comparison.get_samples()
     context = {'filter_forms': filter_forms,
                'comparison': comparison,
-               'num_forms': len(filter_forms),
                'samples': samples,
                'shared_amino_acids': shared_amino_acids,
                }

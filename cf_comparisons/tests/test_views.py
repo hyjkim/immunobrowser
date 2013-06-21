@@ -81,6 +81,11 @@ class ComparisonsViewUnitTest(TestCase):
         mock_response = compare(self.request, self.comparison.id)
         self.assertEqual('compare_ajax.html', mock_response.get('template'))
 
+    def test_filter_forms_returns_a_rendered_filter_form_template_tag(self):
+        from cf_comparisons.views import filter_forms
+        mock_response = filter_forms(self.request, self.comparison.id)
+        self.assertIn('class="filter_wrapper"', mock_response)
+
 
 class ComparisonsViewIntegrationTest(TestCase):
     '''
@@ -203,6 +208,12 @@ class ComparisonsViewIntegrationTest(TestCase):
         response = self.client.get(reverse('cf_comparisons.views.compare',
                                            args=[self.comparison.id]))
         self.assertIn(str(samples[0]), response.content)
+
+    def test_filter_forms_uses_a_template_tag(self):
+        from django.template import Template, Context
+        t = Template('{% load comparison_tags %}{% filter_forms_tag filter_forms %}')
+        c = Context({'filter_forms': None})
+        self.assertIn('<form action=', t.render(c))
 
 
 class ComparisonImageTests(TestCase):
