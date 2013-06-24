@@ -17,8 +17,8 @@ def add_samples(request):
     samples = Sample.objects.filter(id__in=sample_ids)
     comparison = Comparison.default_from_samples(samples)
 
-#    return HttpResponse("add_samples called\n", mimetype='application/json')
-    return HttpResponseRedirect(reverse('cf_comparisons.views.compare', args=[comparison.id]))
+#    return HttpResponseRedirect(reverse('cf_comparisons.views.compare', args=[comparison.id]))
+    return HttpResponse(comparison.id)
 
 @ensure_csrf_cookie
 def explorer(request):

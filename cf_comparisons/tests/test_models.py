@@ -188,6 +188,12 @@ class ComparsionModelMethodsTest(TestCase):
             for clonotype in shared_amino_acid.related_clonotypes:
                 self.assertNotEqual(c, clonotype)
 
+    def test_filter_forms_list_returns_a_list_of_filter_forms_given_a_comparison_id(self):
+        from clonotypes.forms import ClonoFilterForm
+        comparison = Comparison.objects.get()
+        filter_forms = comparison.filter_forms_list()
+        for filter_form in filter_forms:
+            self.assertIsInstance(filter_form, ClonoFilterForm)
 
 
 class ComparisonModelTest(TestCase):

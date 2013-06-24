@@ -34,7 +34,7 @@ class ComparisonsViewUnitTest(TestCase):
         self.assertEqual(self.comparison.get_samples(
         ), mock_response.get('samples'))
 
-    def test_compare_should_pass_num_forms_to_template_via_context(self):
+    def DONTtest_compare_should_pass_num_forms_to_template_via_context(self):
         mock_response = compare(self.request, self.comparison.id)
         self.assertEqual(2, mock_response.get('num_forms'))
 
@@ -86,6 +86,11 @@ class ComparisonsViewUnitTest(TestCase):
         mock_response = filter_forms(self.request, self.comparison.id)
         self.assertIn('class="filter_wrapper"', mock_response)
 
+    def test_filter_forms_renders_using_filter_form_ajax_template(self):
+        from cf_comparisons.views import filter_forms
+        mock_response = filter_forms(self.request, self.comparison.id)
+        self.assertEqual('', mock_response.get('template'))
+
 
 class ComparisonsViewIntegrationTest(TestCase):
     '''
@@ -111,6 +116,12 @@ class ComparisonsViewIntegrationTest(TestCase):
             reverse('cf_comparisons.views.spectratype', args=[
                     self.comparison.id]),
             response.content)
+
+    def test_filter_forms_renders_forms_for_comparison(self):
+        response = self.client.get(
+                reverse('cf_comparisons.views.filter_forms',
+                    args=[self.comparison.id]))
+        self.assertIn('class="filter_wrapper"', response.content)
 
     def test_comparison_has_links_to_clonofilters_within_comparison(self):
         response = self.client.get(
@@ -212,7 +223,7 @@ class ComparisonsViewIntegrationTest(TestCase):
     def test_filter_forms_uses_a_template_tag(self):
         from django.template import Template, Context
         t = Template('{% load comparison_tags %}{% filter_forms_tag filter_forms %}')
-        c = Context({'filter_forms': None})
+        c = Context({'filter_forms': self.comparison.filter_forms_list()})
         self.assertIn('<form action=', t.render(c))
 
 

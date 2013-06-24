@@ -30,17 +30,11 @@ def filter_forms(request, comparison_id):
     '''
     from django.template import Template, Context
     comparison = Comparison.objects.get(id=comparison_id)
-    clonofilters = comparison.clonofilters.all()
-    filter_forms = []
-    for index, clonofilter in enumerate(clonofilters):
-        filter_forms.append(ClonoFilterForm(initial=ClonoFilter.objects.filter(
-            id=clonofilter.id).values()[0], prefix=str(index)))
-
+    filter_forms = comparison.filter_forms_list()
     template = Template('{% load comparison_tags %}{% filter_forms_tag filter_forms %}')
     context = Context({'filter_forms': filter_forms})
 
-#    return render(request, 'filter_forms.html')
-    return template.render(context)
+    return HttpResponse(template.render(context))
 
 def compare(request, comparison_id):
     '''
@@ -69,11 +63,7 @@ def compare(request, comparison_id):
         return HttpResponseRedirect(reverse('cf_comparisons.views.compare', args=[comparison.id]))
 
     comparison = Comparison.objects.get(id=comparison_id)
-    clonofilters = comparison.clonofilters.all()
-    filter_forms = []
-    for index, clonofilter in enumerate(clonofilters):
-        filter_forms.append(ClonoFilterForm(initial=ClonoFilter.objects.filter(
-            id=clonofilter.id).values()[0], prefix=str(index)))
+    filter_forms = comparison.filter_forms_list()
 
 
     shared_amino_acids = comparison.get_shared_amino_acids_related()

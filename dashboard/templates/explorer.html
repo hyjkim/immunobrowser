@@ -41,13 +41,17 @@
       </div>
       <div class="accordion-group">
         <div class="accordion-heading">
-          <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
+          <a class="accordion-toggle" data-toggle="collapse"
+            data-parent="#accordion2" href="#collapseTwo"
+            id="filter_form_toggle">
             Samples in comparison
           </a>
         </div>
         <div id="collapseTwo" class="accordion-body collapse">
           <div class="accordion-inner">
-            Placeholder
+            <div id="filter_forms_div">
+              Placeholder
+            </div>
           </div>
         </div>
       </div>
@@ -122,8 +126,16 @@
         console.log(JSON.stringify(selectedNodeKeys))
         $.post("{% url 'dashboard.views.add_samples' %}", {
           sample_ids: JSON.stringify(selectedNodeKeys),
-          }, function(data) {
-          $('div#main').html(data);
+          }, function(comparison_id) {
+          $.get("/compare/" + comparison_id, function(comparison) {
+            $('div#main').html(comparison)
+          });
+          $.get("/compare/" + comparison_id + "/filter_forms",
+          function(filter_forms_html) {
+            $('div#filter_forms_div').html(filter_forms_html)
+          });
+          $('a#filter_form_toggle').click()
+
         });
 
       });

@@ -16,12 +16,11 @@ class DashboardViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
-    def test_add_samples_takes_in_string_of_comma_delimited_sample_ids_via_post_and_redirects_to_a_clonofilter_view(self):
+    def test_add_samples_takes_in_string_of_comma_delimited_sample_ids_via_post_and_returns_a_comparison_id(self):
         from django.http import HttpResponseRedirect
         self.request.POST['sample_ids'] = "[1,2,3]"
         response = add_samples(self.request)
-        self.assertIsInstance(response, HttpResponseRedirect)
-        self.assertEqual('/compare/1', response['Location'])
+        self.assertEqual('1', response.content)
 
     def test_menu_json_returns_http_response_json(self):
         from django.http import HttpResponse

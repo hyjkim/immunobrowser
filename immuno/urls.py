@@ -48,6 +48,7 @@ urlpatterns = patterns('',
 
                        url(r'^compare/(\d+)/bubble.png', 'cf_comparisons.views.bubble'),
                        url(r'^compare/(\d+)/spectratype.png', 'cf_comparisons.views.spectratype'),
+                       url(r'^compare/(\d+)/filter_forms', 'cf_comparisons.views.filter_forms'),
                        url(r'^compare/(\d+)', 'cf_comparisons.views.compare'),
                        url(r'^compare/samples', 'cf_comparisons.views.sample_compare'),
 

@@ -6,6 +6,20 @@ from utils.utils import undefaulted
 class Comparison(models.Model):
     clonofilters = models.ManyToManyField(ClonoFilter)
 
+    def filter_forms_list(self):
+        '''
+        Returns a list of filter forms for individual clonofilters
+        '''
+        from clonotypes.forms import ClonoFilterForm
+
+        clonofilters = self.clonofilters.all()
+        filter_forms = []
+        for index, clonofilter in enumerate(clonofilters):
+            filter_forms.append(ClonoFilterForm(initial=ClonoFilter.objects.filter(
+                id=clonofilter.id).values()[0], prefix=str(index)))
+        return filter_forms
+
+
     def colors_list(self):
         '''
         Returns a list of matplotlib color tuples in the ordered
