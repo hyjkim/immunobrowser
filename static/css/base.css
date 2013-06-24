@@ -27,24 +27,58 @@ th {
 
 }
 
-.v_gene {
-  color: DarkBlue
+div.v_gene {
+  background-color: #E6E6F5;
+  border: #000099 1px solid;
 }
 
-.n1_addition {
-  color: DarkOrange
+span.v_gene {
+  color: #000099;
 }
 
-.d_gene {
-  color: DarkOrchid
+div.d_gene {
+  background-color: #EBCCF5;
+  border: #660066 1px solid;
 }
 
-.n2_addition {
-  color: Crimson
+span.d_gene {
+  color: #660066;
 }
 
-.j_gene {
-  color: DarkGreen
+span.j_gene {
+  color: #006600;
+}
+
+div.j_gene {
+  background-color: #E6F0E6;
+  border: #006600 1px solid;
+}
+
+div.n1_additions {
+  background-color: #FFEBCC;
+  border: #FF9900 1px solid;
+}
+
+span.n1_additions {
+  color: #FF9900;
+}
+
+div.n2_additions {
+  background-color: #F5CCCC;
+  border: #CC0000 1px solid;
+}
+
+span.n2_additions {
+  color: #CC0000;
+}
+
+div.recombination {
+  border: 1px solid;
 }
 
 .center { float: none; margin-left: auto; margin-right: auto; }
+
+.no-space [class*="span"]{
+  margin-left: 0 !important;
+  width: 25% !important; // This is for 4 elements ONLY in the row
+}

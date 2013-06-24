@@ -1,5 +1,5 @@
 <div name="counts_table">
-  <table>
+  <table class="table">
     <tr>
       <th>Sample
       </th>
@@ -34,14 +34,17 @@
 </div>
 
 <div class="shared_clonotype_wrapper">
-  <table>
-    <th>
+  <table class="table">
+    <tr>
+      <th>
+        Amino Acid Sequence
+      </th>
       {% for sample in samples %}
-      <td>
+      <th>
         {{ sample }}
-      </td>
+      </th>
       {% endfor %}
-    </th>
+    </tr>
 
     {% for id, aa in shared_amino_acids.items %}
     <tr>

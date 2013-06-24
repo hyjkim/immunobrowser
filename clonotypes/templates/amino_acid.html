@@ -1,7 +1,8 @@
 <div>
-  {{amino_acid.sequence}}
+  <h3>{{amino_acid.sequence}}</h3>
 </div>
-<table>
+<h4>Shared Amino Acids</h4>
+<table class="table">
   <tr>
     <td>Nucleotide Sequence
     </td>
@@ -17,6 +18,7 @@
     </td>
   </tr>
   {% for recombination in amino_acid.recombination_set.all %}
+      {% for clonotype in recombination.clonotype_set.all %}
   <tr>
     <td>
       {{recombination.parsed_nucleotide}}
@@ -28,7 +30,6 @@
       {{recombination.j_gene_name}}
     </td>
     <td>
-      {% for clonotype in recombination.clonotype_set.all %}
       {{clonotype.sample}}</td>
     <td>{{clonotype.copy}}
     </td>

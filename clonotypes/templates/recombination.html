@@ -1,88 +1,41 @@
-  <div id="recombination_div">
-<table>
-  <tr>
-    <td>nucleotide:</td>
-    <td>{{recombination.nucleotide}}</td>
-  </tr>
-  <tr>
-    <td>parsed nucleotide:</td>
-    <td>{{recombination.parsed_nucleotide}}</td>
-  </tr>
-  <tr>
-    <td>cdr3_length:</td>
-    <td>{{recombination.cdr3_length}}</td>
-  </tr>
-  <tr>
-    <td>v_family_name:</td>
-    <td>{{recombination.v_family_name}}</td>
-  </tr>
-  <tr>
-    <td>v_gene_name:</td>
-    <td>{{recombination.v_gene_name}}</td>
-  </tr>
-  <tr>
-    <td>v_ties:</td>
-    <td>{{recombination.v_ties}}</td>
-  </tr>
-  <tr>
-    <td>d_gene_name:</td>
-    <td>{{recombination.d_gene_name}}</td>
-  </tr>
-  <tr>
-    <td>j_gene_name:</td>
-    <td>{{recombination.j_gene_name}}</td>
-  </tr>
-  <tr>
-    <td>j_ties:</td>
-    <td>{{recombination.j_ties}}</td>
-  </tr>
-  <tr>
-    <td>v_deletion:</td>
-    <td>{{recombination.v_deletion}}</td>
-  </tr>
-  <tr>
-    <td>d5_deletion:</td>
-    <td>{{recombination.d5_deletion}}</td>
-  </tr>
-  <tr>
-    <td>d3_deletion:</td>
-    <td>{{recombination.d3_deletion}}</td>
-  </tr>
-  <tr>
-    <td>j_deletion:</td>
-    <td>{{recombination.j_deletion}}</td>
-  </tr>
-  <tr>
-    <td>n2_insertion:</td>
-    <td>{{recombination.n2_insertion}}</td>
-  </tr>
-  <tr>
-    <td>n1_insertion:</td>
-    <td>{{recombination.n1_insertion}}</td>
-  </tr>
-  <tr>
-    <td>sequence_status:</td>
-    <td>{{recombination.sequence_status}}</td>
-  </tr>
-  <tr>
-    <td>v_index:</td>
-    <td>{{recombination.v_index}}</td>
-  </tr>
-  <tr>
-    <td>n1_index:</td>
-    <td>{{recombination.n1_index}}</td>
-  </tr>
-  <tr>
-    <td>n2_index:</td>
-    <td>{{recombination.n2_index}}</td>
-  </tr>
-  <tr>
-    <td>d_index:</td>
-    <td>{{recombination.d_index}}</td>
-  </tr>
-  <tr>
-    <td>j_index:</td>
-    <td>{{recombination.j_index}}</td>
-  </tr>
-</table>
+<div id="recombination_div">
+  <div class="row">
+    <div class="span9">
+      <h3>{{recombination.parsed_nucleotide}}</h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="span3 v_gene">
+      <h4>V Gene: {{recombination.v_gene_name}}</h4>
+      Family: V-{{recombination.v_family_name}}<br />
+      V Ties: {{recombination.v_ties}}<br />
+      3' Deletions: {{recombination.v_deletion}}
+    </div>
+    <div class="span3 d_gene">
+      <h4>D Gene: {{recombination.d_gene_name}}</h4>
+      5' Deletions: {{recombination.d5_deletion}}<br />
+      3' Deletions: {{recombination.d3_deletion}}<br />
+      &nbsp;
+    </div>
+    <div class="span3 j_gene">
+      <h4>J Gene: {{recombination.j_gene_name}}</h4>
+      J Ties: {{recombination.j_ties}}<br />
+      5' Deletions: {{recombination.j_deletion}}<br />
+      &nbsp;
+    </div>
+  </div>
+  <div class="row">
+    <div class="span3 recombination">
+      CDR3 Length: {{recombination.cdr3_length}} <br />
+      Sequence Status: {{recombination.sequence_status}}
+    </div>
+    <div class="span3 n2_additions">
+      N2 Insertions: {{recombination.n2_insertion}}<br />
+      &nbsp;
+    </div>
+    <div class="span3 n1_additions">
+      N1 Insertions: {{recombination.n1_insertion}}<br />
+      &nbsp;
+    </div>
+  </div>
 </div>
