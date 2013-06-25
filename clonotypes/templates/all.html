@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>All clonotypes for {{ sample.patient.name }}</h1>
-<table>
+<table class="table">
   <thead>
     <tr>
       <th>Sequence ID</th>
@@ -9,6 +9,9 @@
       <th>Nucleotide</th>
       <th>Amino Acid</th>
       <th>Normalized Frequency</th>
+      <th>Normalized Count</th>
+      <th>Raw Frequency</th>
+      <th>Count</th>
       <th>V family</th>
       <th>V gene</th>
       <th>D gene</th>
@@ -23,14 +26,17 @@
     <tr>
       <td>{{ clonotype.sequence_id }}</td>
       <td>{{ clonotype.container }}</td>
-      <td>{{ clonotype.recombination.nucleotide }}</td>
+      <td>{{ clonotype.recombination.parsed_nucleotide }}</td>
       <td>{{ clonotype.recombination.amino_acid.sequence}}</td>
       <td>{{ clonotype.normalized_frequency }}</td>
-      <td>{{ clonotype.v_family_name }}</td>
-      <td>{{ clonotype.v_gene_name }}</td>
-      <td>{{ clonotype.d_gene_name }}</td>
-      <td>{{ clonotype.j_gene_name }}</td>
-      <td>{{ clonotype.sequence_status }}</td>
+      <td>{{ clonotype.normalized_copy}}</td>
+      <td>{{ clonotype.raw_frequency}}</td>
+      <td>{{ clonotype.copy}}</td>
+      <td>{{ clonotype.recombination.v_family_name }}</td>
+      <td>{{ clonotype.recombination.v_gene_name }}</td>
+      <td>{{ clonotype.recombination.d_gene_name }}</td>
+      <td>{{ clonotype.recombination.j_gene_name }}</td>
+      <td>{{ clonotype.recombination.sequence_status }}</td>
       <td><a href="{% url 'clonotypes.views.detail' clonotype.id %}">More
           Info</a></td>
     </tr>

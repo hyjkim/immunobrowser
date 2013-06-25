@@ -147,7 +147,7 @@ def amino_acid_detail(request, amino_acid_id):
 
 def all(request, sample_id):
     sample = Sample.objects.get(id=sample_id)
-    clonotypes = Clonotype.objects.filter(sample=sample)
+    clonotypes = Clonotype.objects.filter(sample=sample).order_by('-copy')
     paginator = Paginator(clonotypes, 25)
     page = request.GET.get('page')
     try:
