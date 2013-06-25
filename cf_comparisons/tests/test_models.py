@@ -1,7 +1,6 @@
 from django.test import TestCase
 from cf_comparisons.models import Comparison
 from clonotypes.models import ClonoFilter
-#from mock import patch
 from test_utils.ghetto_factory import make_fake_patient_with_3_clonotypes, make_fake_comparison_with_2_samples
 from samples.models import Sample
 
@@ -187,6 +186,13 @@ class ComparsionModelMethodsTest(TestCase):
         for shared_amino_acid in self.comparison.get_shared_amino_acids_related().values():
             for clonotype in shared_amino_acid.related_clonotypes:
                 self.assertNotEqual(c, clonotype)
+
+    def test_shared_amino_acid_sums_returns_double_dict_indexed_by_amino_acid_and_sample(self):
+        amino_acids_sums = self.comparison.shared_amino_counts()
+        samples = Sample.objects.all()
+        shared_amino_acids = self.comparison.get_shared_amino_acids_related()
+        self.fail('todo')
+
 
     def test_filter_forms_list_returns_a_list_of_filter_forms_given_a_comparison_id(self):
         from clonotypes.forms import ClonoFilterForm

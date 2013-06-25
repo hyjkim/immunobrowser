@@ -84,12 +84,12 @@ class ComparisonsViewUnitTest(TestCase):
     def test_filter_forms_returns_a_rendered_filter_form_template_tag(self):
         from cf_comparisons.views import filter_forms
         mock_response = filter_forms(self.request, self.comparison.id)
-        self.assertIn('class="filter_wrapper"', mock_response)
+        self.assertIn('class="filter_wrapper"', mock_response.content)
 
     def test_filter_forms_renders_using_filter_form_ajax_template(self):
         from cf_comparisons.views import filter_forms
         mock_response = filter_forms(self.request, self.comparison.id)
-        self.assertEqual('', mock_response.get('template'))
+        self.assertEqual('filter_forms_ajax.html', mock_response.get('template'))
 
 
 class ComparisonsViewIntegrationTest(TestCase):

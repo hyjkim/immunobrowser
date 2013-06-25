@@ -45,7 +45,6 @@
       </th>
       {% endfor %}
     </tr>
-
     {% for id, aa in shared_amino_acids.items %}
     <tr>
       <td>
@@ -57,10 +56,8 @@
         <a href="{% url 'clonotypes.views.detail' clonotype.id %}">
           {{ clonotype.sample }}: {{ clonotype.copy }}</a>
       </td>
-
       {% endfor %}
     </tr>
     {% endfor %}
   </table>
-
 </div>

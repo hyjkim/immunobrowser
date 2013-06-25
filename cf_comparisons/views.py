@@ -31,10 +31,11 @@ def filter_forms(request, comparison_id):
     from django.template import Template, Context
     comparison = Comparison.objects.get(id=comparison_id)
     filter_forms = comparison.filter_forms_list()
-    template = Template('{% load comparison_tags %}{% filter_forms_tag filter_forms %}')
+#    template = Template('{% load comparison_tags %}{% filter_forms_tag filter_forms %}')
     context = Context({'filter_forms': filter_forms})
+    return render(request, 'filter_forms.html', context)
 
-    return HttpResponse(template.render(context))
+#    return HttpResponse(template.render(context))
 
 def compare(request, comparison_id):
     '''
@@ -69,7 +70,7 @@ def compare(request, comparison_id):
     shared_amino_acids = comparison.get_shared_amino_acids_related()
 
     samples = comparison.get_samples()
-    context = {'filter_forms': filter_forms,
+    context = {
                'comparison': comparison,
                'samples': samples,
                'shared_amino_acids': shared_amino_acids,
@@ -78,6 +79,7 @@ def compare(request, comparison_id):
     if request.is_ajax():
         return render(request, 'compare_ajax.html', context)
     else:
+        context.update({'filter_forms': filter_forms})
         return render(request, 'compare.html', context)
 
 def spectratype(request, comparison_id):
@@ -118,7 +120,7 @@ def spectratype(request, comparison_id):
 
     # scale the average
     averaged_values = array(average.values()) / len(comp.clonofilters.all())
-    ax.plot(average.keys(), averaged_values, color="black")
+    ax.plot(average.keys(), averaged_values, color="grey")
 
 
 

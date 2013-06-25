@@ -13,10 +13,6 @@ v1_api.register(PatientResource())
 v1_api.register(SampleResource())
 
 urlpatterns = patterns('',
-                       # Examples:
-                       # url(r'^$', 'immuno.views.home', name='home'),
-                       # url(r'^immuno/', include('immuno.foo.urls')),
-
                        # Uncomment the admin/doc line below to enable admin documentation:
                        # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

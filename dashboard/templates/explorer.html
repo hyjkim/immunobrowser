@@ -44,13 +44,13 @@
           <a class="accordion-toggle" data-toggle="collapse"
             data-parent="#accordion2" href="#collapseTwo"
             id="filter_form_toggle">
-            Samples in comparison
+            Samples in Comparison
           </a>
         </div>
         <div id="collapseTwo" class="accordion-body collapse">
           <div class="accordion-inner">
             <div id="filter_forms_div">
-              Placeholder
+              Empty
             </div>
           </div>
         </div>
@@ -123,20 +123,26 @@
         $.each($selectedNodes, function(index, node) {
           selectedNodeKeys.push(node.pk);
         });
-        console.log(JSON.stringify(selectedNodeKeys))
-        $.post("{% url 'dashboard.views.add_samples' %}", {
-          sample_ids: JSON.stringify(selectedNodeKeys),
-          }, function(comparison_id) {
-          $.get("/compare/" + comparison_id, function(comparison) {
-            $('div#main').html(comparison)
-          });
-          $.get("/compare/" + comparison_id + "/filter_forms",
-          function(filter_forms_html) {
-            $('div#filter_forms_div').html(filter_forms_html)
-          });
-          $('a#filter_form_toggle').click()
+        if (selectedNodeKeys.length  > 1) {
+          console.log(JSON.stringify(selectedNodeKeys))
+          $.post("{% url 'dashboard.views.add_samples' %}", {
+            sample_ids: JSON.stringify(selectedNodeKeys),
+            }, function(comparison_id) {
+            $('div#main').html("<img src=/static/img/ajax-loader.gif>");
+            $.get("/compare/" + comparison_id, function(comparison) {
+              $('div#main').html(comparison)
+            });
+            $.get("/compare/" + comparison_id + "/filter_forms",
+            function(filter_forms_html) {
+              $('div#filter_forms_div').html(filter_forms_html)
+            });
+            $('a#filter_form_toggle').click()
 
-        });
+          });
+        }
+        else {
+          alert("Please select more than one sample for comparison");
+        }
 
       });
 
