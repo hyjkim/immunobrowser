@@ -93,7 +93,7 @@ class AminoAcidViewIntegrationTest(TestCase):
             self.assertIn(recombination.nucleotide, strip_tags(response.content))
 
 
-class ClonotypesViewTest(TestCase):
+class ClonotypesViewUnitTest(TestCase):
     ''' ClonotypesViewTest mocks out the Django call stack for faster
     unit tests. This is useful for testing the view and making sure objects
     exist in the context and that the correct templates are being used.
@@ -108,6 +108,84 @@ class ClonotypesViewTest(TestCase):
 
     def tearDown(self):
         self.renderPatch.stop()
+
+    def test_all_clonotypes_passes_page_number_to_template(self):
+        sample = Sample.objects.get()
+        self.request.GET={'page': 1}
+        mock_response = all(self.request, sample.id)
+        self.assertEqual(1, mock_response.get('page'))
+
+    def test_all_clonotypes_passes_valid_sorts_to_template(self):
+        valid_sorts = ['nfreq', 'freqd', 'ncopyd', 'ncopy', 'freq', 'copy', 'copyd', 'nfreqd']
+        sample = Sample.objects.get()
+        mock_response = all(self.request, sample.id)
+        self.assertEqual(valid_sorts, mock_response.get('valid_sorts'))
+
+    def test_all_clonotypes_view_can_be_sorted_by_copy_freq_or_norm_freq_norm_copy(self):
+        sample = Sample.objects.get()
+
+        # sort by copy ascending
+        self.request.GET = {'sort': 'copy'}
+        mock_response = all(self.request, sample.id)
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('copy')
+        self.assertEqual(list(sorted_clonotypes),
+                         list(mock_response.get('clonotypes')))
+
+        # sort by copy descending
+        self.request.GET = {'sort': 'copyd'}
+        mock_response = all(self.request, sample.id)
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-copy')
+        self.assertEqual(list(sorted_clonotypes),
+                         list(mock_response.get('clonotypes')))
+
+        # sort by freq ascending
+        self.request.GET = {'sort': 'freq'}
+        mock_response = all(self.request, sample.id)
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('raw_frequency')
+        self.assertEqual(list(sorted_clonotypes),
+                         list(mock_response.get('clonotypes')))
+
+        # sort by freq descending
+        self.request.GET = {'sort': 'freqd'}
+        mock_response = all(self.request, sample.id)
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-raw_frequency')
+        self.assertEqual(list(sorted_clonotypes),
+                         list(mock_response.get('clonotypes')))
+
+        # sort by norm copy ascending
+        self.request.GET = {'sort': 'ncopy'}
+        mock_response = all(self.request, sample.id)
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('normalized_copy')
+        self.assertEqual(list(sorted_clonotypes),
+                         list(mock_response.get('clonotypes')))
+
+        # sort by norm copy descending
+        self.request.GET = {'sort': 'ncopyd'}
+        mock_response = all(self.request, sample.id)
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-normalized_copy')
+        self.assertEqual(list(sorted_clonotypes),
+                         list(mock_response.get('clonotypes')))
+
+        # sort by norm freq ascending
+        self.request.GET = {'sort': 'nfreq'}
+        mock_response = all(self.request, sample.id)
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('normalized_frequency')
+        self.assertEqual(list(sorted_clonotypes),
+                         list(mock_response.get('clonotypes')))
+
+        # sort by norm freq descending
+        self.request.GET = {'sort': 'nfreqd'}
+        mock_response = all(self.request, sample.id)
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-normalized_frequency')
+        self.assertEqual(list(sorted_clonotypes),
+                         list(mock_response.get('clonotypes')))
+
+    def test_all_clonotypes_view_is_sorted_by_copy_by_default(self):
+        sample = Sample.objects.get()
+        mock_response = all(self.request, sample.id)
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-copy')
+        self.assertEqual(list(sorted_clonotypes),
+                         list(mock_response.get('clonotypes')))
 
     def test_clonotypes_all_view_returns_paginator_object(self):
         fake_sample = Sample.objects.get()
@@ -191,6 +269,22 @@ class ClonotypesAllViewIntegrationTest(TestCase):
         self.fake_sample = Sample.objects.get()
         self.response = self.client.get(
             reverse('clonotypes.views.all', args=[self.fake_sample.id]))
+
+    def test_clonotypes_all_view_has_links_to_sort_methods(self):
+        valid_sorts = ['copy',
+                       'copyd',
+                       'freq',
+                       'freqd',
+                       'ncopy',
+                       'ncopyd',
+                       'nfreq',
+                       'nfreqd',
+                       ]
+
+        for sort in valid_sorts:
+            self.assertIn('%s?sort=%s' %
+                          (reverse('clonotypes.views.all', args=[self.fake_sample.id]), sort),
+                          self.response.content)
 
     def test_clonotypes_all_view_shows_patient_name(self):
         self.assertIn('test patient', self.response.content)
@@ -304,8 +398,8 @@ class ClonotypesImagesTest(TestCase):
     @patch('matplotlib.backends.backend_agg.FigureCanvasAgg')
     def DONTtest_bubble_prints_png_to_reponse(self, mock_canvas, mock_png):
         bubble(self.request, MagicMock())
-#        self.assertTrue(mock_canvas.print_png.called)
-# This is not the right way to test this
+        #        self.assertTrue(mock_canvas.print_png.called)
+        # This is not the right way to test this
         self.assertTrue(mock_canvas.mock_calls[1].called)
 
     @patch('matplotlib.backends.backend_agg.FigureCanvasAgg.print_png')
@@ -376,7 +470,7 @@ class ClonotypesImagesIntegrationTests(TestCase):
         s = Sample.objects.get()
         clonofilter = ClonoFilter(sample=s)
         response = reverse('clonotypes.views.j_usage_graph', args=[s.id])
-    def test_v_usage_has_a_valid_url(self):
-        s = Sample.objects.get()
-        clonofilter = ClonoFilter(sample=s)
-        response = reverse('clonotypes.views.v_usage_graph', args=[s.id])
+        def test_v_usage_has_a_valid_url(self):
+            s = Sample.objects.get()
+            clonofilter = ClonoFilter(sample=s)
+            response = reverse('clonotypes.views.v_usage_graph', args=[s.id])

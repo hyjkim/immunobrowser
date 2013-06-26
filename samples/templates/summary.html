@@ -11,8 +11,8 @@
   </div>
 </form>
 
+<a href="{% url 'clonotypes.views.all' sample.id %}">View all Clonotypes</a>
 {% load clonofilter_tags %}
 {% clonofilter_summary_tag clonofilter %}
 
-<a href="{% url 'clonotypes.views.all' sample.id %}">View all Clonotypes</a>
 {% endblock %}

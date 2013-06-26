@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>All clonotypes for {{ sample.patient.name }}</h1>
+
+sort by
+{% for sort in valid_sorts %}
+<a href="{% url 'clonotypes.views.all' sample.id %}?sort={{ sort }}&page={{ page }}">{{sort}}</a>
+{% endfor %}
+
 <table class="table">
   <thead>
     <tr>

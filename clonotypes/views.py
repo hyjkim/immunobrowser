@@ -146,17 +146,40 @@ def amino_acid_detail(request, amino_acid_id):
 
 
 def all(request, sample_id):
+    VALID_SORTS = {
+            'copy': 'copy',
+            'copyd': '-copy',
+            'freq': 'raw_frequency',
+            'freqd': '-raw_frequency',
+            'ncopy': 'normalized_copy',
+            'ncopyd': '-normalized_copy',
+            'nfreq': 'normalized_frequency',
+            'nfreqd': '-normalized_frequency',
+            }
+    try:
+        sort_by = VALID_SORTS[request.GET.get('sort')]
+    except:
+        sort_by = VALID_SORTS['copyd']
+
     sample = Sample.objects.get(id=sample_id)
-    clonotypes = Clonotype.objects.filter(sample=sample).order_by('-copy')
+    clonotypes = Clonotype.objects.filter(sample=sample).order_by(sort_by)
     paginator = Paginator(clonotypes, 25)
     page = request.GET.get('page')
+
     try:
         clonotypes = paginator.page(page)
     except PageNotAnInteger:
         clonotypes = paginator.page(1)
+        page = 1
     except EmptyPage:
         clonotypes = paginator.page(paginator.num_pages)
-    context = {'sample': sample, 'clonotypes': clonotypes}
+        page = paginator.num_pages
+
+    context = {'sample': sample,
+               'clonotypes': clonotypes,
+               'valid_sorts': VALID_SORTS.keys(),
+               'page': page,
+              }
     return render(request, 'all.html', context)
 
 
