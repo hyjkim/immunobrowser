@@ -81,15 +81,10 @@ class ComparisonsViewUnitTest(TestCase):
         mock_response = compare(self.request, self.comparison.id)
         self.assertEqual('compare_ajax.html', mock_response.get('template'))
 
-    def test_filter_forms_returns_a_rendered_filter_form_template_tag(self):
+    def test_filter_forms_renders_using_filter_form_template(self):
         from cf_comparisons.views import filter_forms
         mock_response = filter_forms(self.request, self.comparison.id)
-        self.assertIn('class="filter_wrapper"', mock_response.content)
-
-    def test_filter_forms_renders_using_filter_form_ajax_template(self):
-        from cf_comparisons.views import filter_forms
-        mock_response = filter_forms(self.request, self.comparison.id)
-        self.assertEqual('filter_forms_ajax.html', mock_response.get('template'))
+        self.assertEqual('filter_forms.html', mock_response.get('template'))
 
 
 class ComparisonsViewIntegrationTest(TestCase):
@@ -180,11 +175,19 @@ class ComparisonsViewIntegrationTest(TestCase):
             'cf_comparisons.views.compare', args=[self.comparison.id]), {})
         self.assertRedirects(response, '/compare/1')
 
-    def test_sample_compare_uses_a_template_tag(self):
+    def test_sample_compare_form_uses_a_template_tag(self):
         from django.template import Template, Context
         t = Template('{% load comparison_tags %}{% sample_compare_tag sample_compare_form %}')
         c = Context({'sample_compare_form': None})
         self.assertIn('<form action=', t.render(c))
+
+    def test_compare_view_uses_a_template_tag(self):
+        from django.template import Template, Context
+        t = Template('{% load comparison_tags %}{% comparison_tag comparison %}')
+        c = Context({'comparison': self.comparison})
+        response = self.client.get(reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
+        self.assertTemplateUsed(response.content,
+                t.render(c))
 
     def test_sample_compare_redirects_to_compare_view_after_post(self):
         sample_ids = [sample.id for sample in Sample.objects.all()]

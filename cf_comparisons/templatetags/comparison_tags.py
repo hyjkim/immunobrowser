@@ -13,3 +13,15 @@ def filter_forms_tag(filter_forms):
     num_forms = len(filter_forms)
     return {'filter_forms': filter_forms,
             'num_forms': num_forms}
+
+@register.inclusion_tag('compare_ajax.html')
+def comparison_tag(comparison):
+    samples = comparison.get_samples()
+    shared_amino_acids = comparison.get_shared_amino_acids_related()
+    context = {
+               'comparison': comparison,
+               'samples': samples,
+               'shared_amino_acids': shared_amino_acids,
+               }
+
+    return context

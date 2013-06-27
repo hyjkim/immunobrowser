@@ -1,7 +1,7 @@
 from django.test import TestCase
 from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory, SampleFactory
 from mock import patch
-from dashboard.views import explorer, menu_json, add_samples
+from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison
 from django.core.urlresolvers import reverse
 import simplejson as json
 
@@ -15,6 +15,7 @@ class DashboardViewUnitTest(TestCase):
 
     def tearDown(self):
         self.renderPatch.stop()
+
 
     def test_add_samples_takes_in_string_of_comma_delimited_sample_ids_via_post_and_returns_a_comparison_id(self):
         from django.http import HttpResponseRedirect
@@ -67,6 +68,14 @@ class DashboardViewIntegrationTest(TestCase):
     def DONTtest_explorer_url_is_valid(self):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
+
+    def test_comparison_view_renders_comparison_template(self):
+        from test_utils.ghetto_factory import make_fake_comparison_with_2_samples
+        from cf_comparisons.models import Comparison
+        make_fake_comparison_with_2_samples()
+        comparison = Comparison.objects.get()
+        response = self.client.get(reverse('dashboard.views.dashboard_comparison', args=[comparison.id]))
+        self.assertTemplateUsed(response, 'dashboard_comparison.html')
 
     def test_explorer_should_pass_patients_to_template_via_context(self):
         from patients.models import Patient

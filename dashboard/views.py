@@ -20,6 +20,13 @@ def add_samples(request):
 #    return HttpResponseRedirect(reverse('cf_comparisons.views.compare', args=[comparison.id]))
     return HttpResponse(comparison.id)
 
+def dashboard_comparison(request, comparison_id):
+    comparison = Comparison.objects.get(id=comparison_id)
+    context = {
+               'comparison': comparison
+              }
+    return render(request, 'dashboard_comparison.html', context)
+
 @ensure_csrf_cookie
 def explorer(request):
     '''
