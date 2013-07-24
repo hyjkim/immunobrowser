@@ -434,3 +434,24 @@ class ClonoFilter(models.Model):
                                    sum_counts['copy__sum']])
 
         return returnable
+
+class ClonoFilter2(models.Model):
+    '''
+    ClonoFilter2 should store filters as a serialized dictionary. This
+    has a distinct advantage over the original ClonoFilter in that the model
+    does not need to be updated for every existing class
+    '''
+
+    sample = models.ForeignKey(Sample)
+    valid_filter = {
+                    'min copy':'copy',
+    }
+
+    def get_clonotypes(self):
+        from django.db.models import Q
+        query = Q(sample=self.sample)
+        clonotype_queryset = Clonotype.objects.filter(query)
+        return clonotype_queryset
+
+    def __init__(self, *args, **kwargs):
+        pass

@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<script type='text/javascript' src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+<style type="text/css">
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+  }
+  .axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+  }
+  .tooltip {
+    position: absolute;
+    z-index: 10;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<script type='text/javascript'>
+  var w = 600;
+  var h = 400;
+  var radius = w * h / 10000;
+  var padding = 50;
+  var active_opacity = 0.75;
+  var inactive_opacity = 0.3;
+{% autoescape off %}
+  var data = {{ data }};
+  var v_list = {{ v_list }};
+  var j_list = {{ j_list }};
+  var sample_names = {{ sample_names }};
+  var sample_colors = {{ sample_colors}};
+
+console.log(sample_colors);
+{% endautoescape %}
+
+// Set up scales
+var xScale = d3.scale
+.ordinal()
+.domain(v_list)
+.rangePoints([padding, w-padding]);
+
+var yScale = d3.scale
+.ordinal()
+  .domain(j_list)
+  .rangePoints([padding, h - padding]);
+
+var radiusScale = d3.scale.linear()
+  .domain([0, d3.max(data, function(d) {
+        return d[2];
+        })
+      ])
+  .range([0, radius]);
+
+  var xAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient("bottom")
+    .ticks(v_list.length);
+
+  var yAxis = d3.svg.axis()
+    .scale(yScale)
+  .orient("left")
+  .ticks(j_list.length);
+
+
+
+  //Create SVG element
+  var svg = d3.select("body")
+  .append("svg")
+  .attr("width", w)
+  .attr("height", h);
+
+  // Tooltips from https://gist.github.com/biovisualize/1016860
+  var tooltip = d3.select("body")
+  .append("div")
+  .style("visibility", "hidden")
+  .style("z-index", "10")
+  .style("position", "absolute")
+  .style("background", "white")
+  .text("test")
+  ;
+
+  // Generate circles
+  svg.selectAll("circle")
+  .data(data)
+.enter()
+  .append("circle")
+  .attr("cx", function(d) {
+      return xScale(d[0]);
+      })
+.attr("cy", function(d) {
+    return yScale(d[1]);
+    })
+.attr("r", function(d) {
+    if (d[2] > 0) {
+    return radiusScale(d[2]);
+    }
+    else {
+    return 0;
+    }
+    })
+.attr("fill", function(d) {return sample_colors[d[3]];})
+.style("opacity", inactive_opacity)
+.on("mouseover", function(d) {
+    tooltip.style("visibility", "visible")
+    .html(
+      "Sample: " + sample_names[d[3]] + "<br/>" + 
+      "<span width=50>&nbsp;</span>area: " + d[2] + "<br/>" +
+      "<span width=50>&nbsp;</span>V Family: " + d[0] + "<br/>" +
+      "<span width=50>&nbsp;</span>J Gene: " + d[1] + "<br/>"
+      );
+    d3.select(this).style('opacity', active_opacity);
+    })
+.on("mousemove", function(){
+    return tooltip.style("top",
+      (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");
+    })
+.on("mouseout", function(){
+    d3.select(this).style('opacity', inactive_opacity);
+    return tooltip.style("visibility", "hidden");
+    })
+.on("click", function() {alert("click detected")});
+
+// Create axes
+
+  svg.append("g")
+  .attr("class", "axis xAxis")
+  .attr("transform", "translate(0," + (h - padding + ")"))
+  .call(xAxis);
+
+  svg.append("g")
+  .attr("class", "axis yAxis")
+  .attr("transform", "translate(" + padding + ",0)")
+.call(yAxis);
+
+// highlight circles when an axis tick label is highlighted
+
+// for the x axis
+var xAxis = d3.select("svg g.xAxis");
+xAxis.selectAll("g.tick")
+.on("mouseover", function() {
+    var xCoord = d3.select(this).text();
+    d3.select(this).style("opacity", "0.25");
+    var selectedCircles = d3.selectAll("svg circle").filter(function(d) {
+      return d[0] == xCoord;
+      }).style("opacity", active_opacity);
+    })
+.on("mouseout", function() {
+    d3.select(this).style("opacity", "1");
+    d3.selectAll("svg circle").style("opacity", inactive_opacity);
+    })
+.on("click", function() {
+    alert("Axis tick label clicked. Return comparison with only this v or j gene segment");
+
+    })
+;
+
+// for the y axis
+var yAxis = d3.select("svg g.yAxis");
+yAxis.selectAll("g.tick")
+.on("mouseover", function() {
+    var yCoord = d3.select(this).text();
+    d3.select(this).style("opacity", "0.25");
+    var selectedCircles = d3.selectAll("svg circle").filter(function(d) {
+      return d[1] == yCoord;
+      }).style("opacity", active_opacity);
+    })
+.on("mouseout", function() {
+    d3.select(this).style("opacity", "1");
+    d3.selectAll("svg circle").style("opacity", inactive_opacity);
+    })
+.on("click", function() {
+    alert("Axis tick label clicked. Return comparison with only this v or j gene segment");
+
+    })
+;
+
+// This code was modified from http://vudlab.com/fat-tails.html
+// Setup the slider that controls bubble size
+(function setupSlider() {
+// generate the slider scale
+var sliderY = d3.scale.linear().domain([0,10]).range([padding,h-padding]);
+// slider config
+var sliderAxis = d3.svg.axis()
+.scale(sliderY)
+.orient("right")
+.ticks(10);
+// draw the slider
+var slider = svg.append('g')
+.attr('class', 'axis scale_slider')
+.attr('transform', 'translate('+ (w - padding + 10)+',0)')
+.call(sliderAxis);
+// define dragging behavior
+var drag = d3.behavior.drag()
+.on('drag', function(d) {
+  var sliderHandle = d3.select(this);
+  var scale = Number(sliderHandle.attr('d')) + sliderY.invert(d3.event.dy + padding);
+
+  if (scale < sliderY.domain()[0] ) scale = sliderY.domain()[0];
+  if (scale > sliderY.domain()[1] ) scale = sliderY.domain()[1];
+  sliderHandle.attr('d', scale);
+  sliderHandle.attr('y', function () {
+    return sliderY(scale);
+    })
+  // here call a redraw function to scale the circles
+  svg.selectAll("circle").attr('r', function (d) {
+    console.log(d);
+    return radiusScale((d[2] * scale));
+    });
+  })
+.on('dragend', function() {
+    console.log("drag end");
+
+    });
+// draw the slider handle
+var dragger = slider.append('rect')
+.attr('width', 25)
+.attr('height', 15)
+.attr('opacity', .5)
+.style('fill', '#CCCCCC')
+.style('stroke', '#000000')
+//.attr('d', (sliderY.domain()[0] + sliderY.domain()[1]) / 2)
+.attr('d', 1)
+.attr('y', function() {
+  return sliderY(Number(d3.select(this).attr('d')))
+  })
+.call(drag)
+;
+
+
+}) ();
+</script>
+
+{% endblock %}

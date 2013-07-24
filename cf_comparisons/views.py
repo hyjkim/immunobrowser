@@ -6,6 +6,49 @@ from clonotypes.forms import ClonoFilterForm
 from clonotypes.models import ClonoFilter
 
 
+def d3_test(request, comparison_id):
+    '''
+    This is a test of the d3 library.
+    '''
+    from clonotypes.models import Recombination
+    from django.utils import simplejson as json
+    from matplotlib.colors import rgb2hex
+    comparison = Comparison.objects.get(id=comparison_id)
+    clonofilters = sorted(comparison.clonofilters.all())
+    sample_names = [str(clonofilter.sample) for clonofilter in clonofilters]
+    vj_counts_dict_list = [clonofilter.vj_counts_dict()
+                      for clonofilter in clonofilters]
+    clonofilter_colors= [rgb2hex(clonofilter_color) for clonofilter_color in comparison.colors_list()]
+
+    v_list = sorted(Recombination.v_family_names())
+    j_list = sorted(Recombination.j_gene_names())
+
+    data = []
+
+    for clonofilter_index, vj_counts_dict in enumerate(vj_counts_dict_list):
+        for v_index, v_family in enumerate(v_list):
+            for j_index, j_gene in enumerate(j_list):
+                data_point = []
+                data_point.append(v_list[v_index])
+                data_point.append(j_list[j_index])
+                if vj_counts_dict[v_family][j_gene]:
+                    data_point.append(vj_counts_dict[v_family][j_gene])
+                else:
+                    data_point.append(0)
+                # Append sample id
+                data_point.append(clonofilter_index);
+                if data_point[2] > 0:
+                    data.append(data_point)
+
+    context = {'data': json.dumps(data),
+               'v_list': json.dumps(v_list),
+               'j_list': json.dumps(j_list),
+               'sample_names': json.dumps(sample_names),
+               'sample_colors': json.dumps(clonofilter_colors),
+               }
+
+    return render(request, 'd3_test.html', context)
+
 def sample_compare(request):
     from cf_comparisons.forms import SampleCompareForm
 

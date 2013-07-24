@@ -1,7 +1,7 @@
 from django.test import TestCase
 from patients.models import Patient
 from samples.models import Sample
-from clonotypes.models import Clonotype, AminoAcid, Recombination, ClonoFilter
+from clonotypes.models import Clonotype, AminoAcid, Recombination, ClonoFilter, ClonoFilter2
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
 import re
 from test_utils.factories import AminoAcidFactory, SampleFactory, ClonotypeFactory, RecombinationFactory
@@ -470,3 +470,24 @@ class ClonoFilterModelTest(TestCase):
 
         self.assertEqual(
             [[10, 2.5], [36, 0.25], [39, 0.25], [42, .5]], self.f.cdr3_length_sum())
+
+
+class ClonoFilter2ModelTest(TestCase):
+    def setUp(self):
+        make_fake_patient_with_3_clonotypes()
+        self.s = Sample.objects.get()
+
+    def test_clonofilter2_has_sample(self):
+        f = ClonoFilter2(sample=self.s)
+        f.save()
+        cf2 = ClonoFilter2.objects.get()
+        self.assertEqual(self.s, cf2.sample)
+
+    def test_clonofilter_filters_on_min_copy(self):
+        min_clonotypes = Clonotype.objects.filter(copy__gte=2)
+        f = ClonoFilter2(sample=self.s, min_copy=2)
+        self.assertQuerysetEqual(min_clonotypes,
+                                 map(repr, self.f.get_clonotypes()))
+
+    def test_can_filter_based_on_v_and_j_gene_segment(self):
+        self.fail('todo')
