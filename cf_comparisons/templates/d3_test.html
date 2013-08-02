@@ -17,354 +17,80 @@
     position: absolute;
     z-index: 10;
   }
+  .active {
+    opacity: 0.75
+  }
+  .inactive {
+    opacity: 0.3
+  }
+
 </style>
 {% endblock %}
 
 {% block content %}
 
+<div id="scatter-main"></div>
+
+<script type='text/javascript' src="/static/libs/compare.js"></script>
 <script type='text/javascript'>
-  var w = 600;
-  var h = 400;
-  var radius = w * h / 10000;
-  var padding = 50;
-  var active_opacity = 0.75;
-  var inactive_opacity = 0.3;
+
+// Modify the django source to produce a single
+// object according to these specifications
 {% autoescape off %}
-  var data = {{ data }};
-  var v_list = {{ v_list }};
-  var j_list = {{ j_list }};
-  var sample_names = {{ sample_names }};
-  var sample_colors = {{ sample_colors}};
+var frequencies = {{ data }};
+var vList = {{ v_list }};
+var jList = {{ j_list }};
+var sampleNames = {{ sample_names }};
+var sampleColors = {{ sample_colors}};
 
 {% endautoescape %}
 
-// Set up scales
-var xScale = d3.scale
-.ordinal()
-.domain(v_list)
-.rangePoints([padding, w-padding]);
+// functions for mapping colors to sample id
+function colormap (c) {
+  var colors = c;
+  return function (d) {
+    return colors[d];
+  }
+};
 
-var yScale = d3.scale
-.ordinal()
-  .domain(j_list)
-  .rangePoints([padding, h - padding]);
+function namemap (n) {
+  var names = n;
+  return function(d) {
+    return names[d];
+  }
+};
 
-var radiusScale = d3.scale.linear()
-  .domain([0, d3.max(data, function(d) {
+
+  var my_xScale = d3.scale
+.ordinal()
+  .domain(vList);
+
+  var my_yScale = d3.scale
+.ordinal()
+  .domain(jList);
+
+var my_rScale = d3.scale.linear()
+  .domain([0, d3.max(frequencies, function(d) {
         return d[2];
         })
       ])
-  .range([0, radius]);
+  .range([0, 24]);
 
-  var xAxis = d3.svg.axis()
-    .scale(xScale)
-    .orient("bottom")
-    .ticks(v_list.length);
+  var my_colors = colormap(sampleColors);
+  var my_names = namemap(sampleNames);
 
-  var yAxis = d3.svg.axis()
-    .scale(yScale)
-  .orient("left")
-  .ticks(j_list.length);
+  var my_nav = scatterNav()
+  .x(my_xScale)
+  .y(my_yScale)
+  .r(my_rScale)
+.color(my_colors)
+  .sampleName(my_names);
 
-  //Create SVG element
-  var svg = d3.select("body")
-  .append("svg")
-  .attr("width", w)
-  .attr("height", h);
-  // Generate circles
-
-  var circle_g = svg.append("g")
-  .attr("class", "sample_freq");
-
-
-  circle_g.selectAll("circle")
-  .data(data)
-.enter()
-  .append("circle")
-  .attr("cx", function(d) {
-      return xScale(d[0]);
-      })
-.attr("cy", function(d) {
-    return yScale(d[1]);
-    })
-.attr("r", function(d) {
-    if (d[2] > 0) {
-    return radiusScale(d[2]);
-    }
-    else {
-    return 0;
-    }
-    })
-.attr("fill", function(d) {return sample_colors[d[3]];})
-.style("opacity", inactive_opacity)
-
-// Better tooltips
-  // Tooltips modified from https://gist.github.com/biovisualize/1016860
-  var tooltip = d3.select("body")
-  .append("div")
-  .style("visibility", "hidden")
-  .style("z-index", "10")
-  .style("position", "absolute")
-  .style("background", "white")
+  var navDiv = d3.select("#scatter-main")
+  .datum(frequencies)
+.call(my_nav)
   ;
 
-
-
- var nest = d3.nest()
-.key(function(d) {return [d[0], d[1]]})
-   .sortKeys(d3.ascending)
- .entries(data);
-
- // get height of tooltip rect
- var tooltip_height = (h - 2 * padding) / j_list.length;
- // get width of tooltip rect
- var tooltip_width= (w - 2 * padding) / v_list.length;
-
- var g_tooltips = svg.append("g").attr("class", "tooltips");
-
-  g_tooltips.selectAll("g")
- .data(nest)
-  .enter()
-  .append("rect")
-  .attr("class", function(d) {
-      return "v:" +  d.key;
-      })
-  .attr("x", function(d) {
-      return xScale(d.key.split(",")[0]) - tooltip_width / 2;
-      })
-.attr("y", function(d) {
-    return yScale(d.key.split(",")[1]) - tooltip_height / 2;
-    })
-.attr("width", 20)
-.attr("height", 20)
-.style("opacity", 0)
-.on("mouseover", function(d) {
-    var sample_divs = tooltip.selectAll("div")
-    .data(d.values)
-    .enter()
-    .append("div")
-    .style("border-color", function (d) {
-      return sample_colors[d[3]]
-      })
-    .style("border-width", 3)
-    .style("border-style", "solid")
-    .text(function (d) {
-      return sample_names[d[3]];
-      })
-    ;
-
-    // append a list for each sample to the tooltip
-    tooltip.style("visibility", "visible")
-/*
-    .html(
-      "Sample: " + sample_names[d[3]] + "<br/>" + 
-      "<span width=50>&nbsp;</span>area: " + d[2] + "<br/>" +
-      "<span width=50>&nbsp;</span>V Family: " + d[0] + "<br/>" +
-      "<span width=50>&nbsp;</span>J Gene: " + d[1] + "<br/>"
-      );
-      */
-// highlight the circle underneath
-  var selectedCircles = d3.selectAll("svg circle")
-  .filter(function(cd) {
-      return cd[0] == d.key.split(",")[0]
-      })
-  .filter(function(cd) {
-      return cd[1] == d.key.split(",")[1]
-      })
-.style("opacity", active_opacity);
-
-    })
-.on("mousemove", function(){
-    return tooltip.style("top",
-      (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
-    })
-.on("mouseout", function () {
-    d3.selectAll("svg circle").style("opacity", inactive_opacity);
-    tooltip.html("");
-    return tooltip.style("visibility", "hidden");
-    })
-.on("click", function() {alert("click detected")});
-
-
-// width minus padding
-
-
-// Create axes
-
-  svg.append("g")
-  .attr("class", "axis xAxis")
-  .attr("transform", "translate(0," + (h - padding + ")"))
-  .call(xAxis);
-
-  svg.append("g")
-  .attr("class", "axis yAxis")
-  .attr("transform", "translate(" + padding + ",0)")
-.call(yAxis);
-
-// highlight circles when an axis tick label is highlighted
-
-// for the x axis
-var xAxis = d3.select("svg g.xAxis");
-xAxis.selectAll("g.tick")
-.on("mouseover", function() {
-    var xCoord = d3.select(this).text();
-    d3.select(this).style("opacity", "0.25");
-    var selectedCircles = d3.selectAll("svg circle").filter(function(d) {
-      return d[0] == xCoord;
-      }).style("opacity", active_opacity);
-    })
-.on("mouseout", function() {
-    d3.select(this).style("opacity", "1");
-    d3.selectAll("svg circle").style("opacity", inactive_opacity);
-    })
-.on("click", function() {
-    alert("Axis tick label clicked. Return comparison with only this v or j gene segment");
-
-    // do aggregate sum of frequencies for this thing
-    })
-;
-
-// for the y axis
-var yAxis = d3.select("svg g.yAxis");
-yAxis.selectAll("g.tick")
-.on("mouseover", function() {
-    var yCoord = d3.select(this).text();
-    d3.select(this).style("opacity", "0.25");
-    var selectedCircles = d3.selectAll("svg circle").filter(function(d) {
-      return d[1] == yCoord;
-      }).style("opacity", active_opacity);
-    })
-.on("mouseout", function() {
-    d3.select(this).style("opacity", "1");
-    d3.selectAll("svg circle").style("opacity", inactive_opacity);
-    })
-.on("click", function() {
-    alert("Axis tick label clicked. Return comparison with only this v or j gene segment");
-
-    })
-;
-// This code was modified from http://vudlab.com/fat-tails.html
-// Setup the slider that controls bubble size
-(function setupSlider() {
-// generate the slider scale
-var sliderY = d3.scale.linear().domain([0,10]).range([padding,h-padding]);
-// slider config
-var sliderAxis = d3.svg.axis()
-.scale(sliderY)
-.orient("right")
-.ticks(10);
-// draw the slider
-var slider = svg.append('g')
-.attr('class', 'axis scale_slider')
-.attr('transform', 'translate('+ (w - padding + 10)+',0)')
-.call(sliderAxis);
-// define dragging behavior
-var drag = d3.behavior.drag()
-.on('drag', function(d) {
-  var sliderHandle = d3.select(this);
-  var scale = Number(sliderHandle.attr('d')) + sliderY.invert(d3.event.dy + padding);
-
-  if (scale < sliderY.domain()[0] ) scale = sliderY.domain()[0];
-  if (scale > sliderY.domain()[1] ) scale = sliderY.domain()[1];
-  sliderHandle.attr('d', scale);
-  sliderHandle.attr('y', function () {
-    return sliderY(scale);
-    })
-  // here call a redraw function to scale the circles
-  svg.selectAll("circle").attr('r', function (d) {
-    console.log(d);
-    return radiusScale((d[2] * scale));
-    });
-  })
-.on('dragend', function() {
-    console.log("drag end");
-
-    });
-// draw the slider handle
-var dragger = slider.append('rect')
-.attr('width', 25)
-.attr('height', 15)
-.attr('opacity', .5)
-.style('fill', '#CCCCCC')
-.style('stroke', '#000000')
-//.attr('d', (sliderY.domain()[0] + sliderY.domain()[1]) / 2)
-.attr('d', 1)
-.attr('y', function() {
-  return sliderY(Number(d3.select(this).attr('d')))
-  })
-.call(drag)
-;
-
-
-}) ();
-// V usage hist
-// First use nest roll up to get sums of frequencies over all the v's
-  var v_nest = d3.nest()
-.key(function(d) { return d[3] })
-.key(function(d) { return d[0] })
-  .rollup(function(leaves) {
-      return d3.sum(leaves, function (d){
-        return d[2]
-      })
-  })
-.entries(data);
-
-// Make the svg the lines go into
-var v_hist_h = 100;
-var v_hist_svg = d3.select("body")
-.append("svg")
-.attr("class", "v_hist")
-.attr("height", v_hist_h)
-.attr("width", w);
-
-// make the linear scale for the sum of frequencies
-var v_hist_yScale = d3.scale
-.linear()
-.domain([0, d3.max(v_nest, function(sample) {
-      return d3.max(sample.values, function (d) {
-        return d.values;
-        })
-      })
-    ])
-  .range([0, v_hist_h]);
-
-// make the line plotting function
-var v_series =  v_nest.map(function(d) {
-      return d.values;
-      });
-
-var v_line = d3.svg.line()
-  .x(function(d) { return xScale(d.key) })
-  .y(function(d) { return v_hist_yScale(d.values) });
-
-v_hist_svg.selectAll(".line")
-.data(v_series)
-.enter()
-  .append("path")
-  .attr("class", "line")
-  .attr("stroke-width", 1)
-  .attr("stroke", function(d,i) {
-      return sample_colors[i];
-      })
-  .attr("fill", "none")
-  .attr("d", v_line);
-
-  var v_points = v_hist_svg.selectAll("g")
-.data(v_series)
-.enter()
-  .append("g")
-  .attr("class", function(d,i) {
-      return "sample_" + i + " points";
-      })
-  .attr("fill", function(d,i) {return sample_colors[i];});
-
-v_points.selectAll("circle")
-.data(function(d) {return d})
-.enter()
-  .append("circle")
-  .attr("cx", function(d) { return xScale(d.key) })
-  .attr("cy", function(d) { return v_hist_yScale(d.values) })
-  .attr("r", 5);
 
 </script>
 

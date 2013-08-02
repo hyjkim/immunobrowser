@@ -363,8 +363,18 @@ class ClonoFilterModelTest(TestCase):
         self.assertQuerysetEqual(filtered_clonotypes,
                                  map(repr, self.f.get_clonotypes()))
 
-        def test_clonofilter_has_normalization_factor_as_a_float(self):
-            self.f.norm_factor = 1
+    def test_clonofilter_filters_on_v_family(self):
+        filtered_clonotypes = Clonotype.objects.filter(
+            recombination__v_family_name=9)
+        self.assertQuerysetEqual(filtered_clonotypes,
+                                 map(repr, self.f.get_clonotypes()))
+        self.fail('todo')
+
+    def test_clonofilter_filters_on_j_gene(self):
+        self.fail('todo')
+
+    def test_clonofilter_has_normalization_factor_as_a_float(self):
+        self.f.norm_factor = 1
         self.f.save()
         f = ClonoFilter.objects.get()
         self.assertEqual(f.norm_factor, self.f.norm_factor)
