@@ -25,3 +25,8 @@ def comparison_tag(comparison):
                }
 
     return context
+
+@register.inclusion_tag('scatter_nav.html')
+def scatter_nav_tag(comparison):
+    pass
+

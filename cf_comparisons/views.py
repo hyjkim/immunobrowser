@@ -15,17 +15,17 @@ def d3_test(request, comparison_id):
     from matplotlib.colors import rgb2hex
     comparison = Comparison.objects.get(id=comparison_id)
     clonofilters = sorted(comparison.clonofilters.all())
-    sample_names = [str(clonofilter.sample) for clonofilter in clonofilters]
-    vj_counts_dict_list = [clonofilter.vj_counts_dict()
-                      for clonofilter in clonofilters]
-    clonofilter_colors= [rgb2hex(clonofilter_color) for clonofilter_color in comparison.colors_list()]
+    sample_names = dict([(clonofilter.id,str(clonofilter.sample)) for clonofilter in clonofilters])
+    vj_counts_dict_dict= dict([(clonofilter.id, clonofilter.vj_counts_dict())
+                      for clonofilter in clonofilters])
+    clonofilter_colors = comparison.colors()
 
     v_list = sorted(Recombination.v_family_names())
     j_list = sorted(Recombination.j_gene_names())
 
     data = []
 
-    for clonofilter_index, vj_counts_dict in enumerate(vj_counts_dict_list):
+    for clonofilter_id, vj_counts_dict in vj_counts_dict_dict.iteritems():
         for v_index, v_family in enumerate(v_list):
             for j_index, j_gene in enumerate(j_list):
                 data_point = []
@@ -36,7 +36,7 @@ def d3_test(request, comparison_id):
                 else:
                     data_point.append(0)
                 # Append sample id
-                data_point.append(clonofilter_index);
+                data_point.append(clonofilter_id);
                 if data_point[2] > 0:
                     data.append(data_point)
 

@@ -24,6 +24,13 @@ class ComparisonsViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_scatter_nav_uses_a_template_tag(self):
+        from django.template import Template, Context
+        t = Template('{% load comparison_tags %}{% scatter_nav_tag comparison %}')
+        c = Context({'comparison': self.comparison})
+        self.assertIn('<form action=', t.render(c))
+
+
     def test_compare_sends_shared_amino_acids_and_related_clonotypes(self):
         mock_response = compare(self.request, self.comparison.id)
         shared_amino_acids = self.comparison.get_shared_amino_acids_related()

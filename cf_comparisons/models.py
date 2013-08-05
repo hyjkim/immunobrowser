@@ -6,6 +6,47 @@ from utils.utils import undefaulted
 class Comparison(models.Model):
     clonofilters = models.ManyToManyField(ClonoFilter)
 
+    def colors(self):
+        '''
+        Returns a dict where keys are clonofilter ids and colors are hex strings.
+        If a clonofilter does not have a color, one is assigned automagically
+        '''
+        from matplotlib import cm
+        from matplotlib.colors import rgb2hex
+        returnable = {}
+        cfs = self.clonofilters.all()
+        cf_colors = ComparisonColor.objects.filter(comparison=self, clonofilter__in=cfs).all()
+        for cf_color in cf_colors:
+            try:
+                returnable[cf_color.clonofilter.id] = cf_color.color
+            except:
+                returnable[cf_color.clonofilter.id] = None
+
+        # color logic
+        need_color = list(set([cf.id for cf in cfs]) - set(returnable.keys()))
+
+        if len(need_color):
+            colormap = cm.get_cmap('gist_rainbow')
+            colors = [rgb2hex(colormap(1. * i / len(need_color)))
+                        for i in range(len(need_color))]
+            new_colors = dict(zip(need_color,colors))
+            self.set_colors(new_colors)
+            returnable.update(new_colors)
+
+        return returnable
+
+    def set_colors(self, color_dict):
+        '''
+        Given a dictionary where key: clonofilter id and value: color represented in hex
+        prefixed by # (ie #000000), update all values in the database.
+        '''
+        for clonofilter_id, color in color_dict.iteritems():
+            clonofilter = ClonoFilter.objects.get(id=clonofilter_id)
+            cc, created = ComparisonColor.objects.get_or_create(
+                comparison=self, clonofilter=clonofilter)
+            cc.color = color
+            cc.save()
+
     def filter_forms_list(self):
         '''
         Returns a list of filter forms for individual clonofilters
@@ -18,7 +59,6 @@ class Comparison(models.Model):
             filter_forms.append(ClonoFilterForm(initial=ClonoFilter.objects.filter(
                 id=clonofilter.id).values()[0], prefix=str(index)))
         return filter_forms
-
 
     def colors_list(self):
         '''
@@ -126,7 +166,8 @@ class Comparison(models.Model):
         clonotype_dict = {}
 
         for clonotype in clonotypes:
-            clonotype_dict.setdefault(clonotype.recombination.amino_acid_id, []).append(clonotype)
+            clonotype_dict.setdefault(
+                clonotype.recombination.amino_acid_id, []).append(clonotype)
         for id, related_clonotype in clonotype_dict.items():
             amino_acid_dict[id].related_clonotypes = related_clonotype
 
@@ -331,3 +372,16 @@ class Comparison(models.Model):
             comparison.save()
 
         return comparison
+
+
+class ComparisonColor(models.Model):
+    ''' stores clonofilter colors for a comparison
+    so they can be changed without generating a new clonofilter
+    '''
+    comparison = models.ForeignKey(Comparison)
+    clonofilter = models.ForeignKey(ClonoFilter)
+    color = models.CharField(max_length=9)
+    #color = models.CharField(max_length=9, required=False)
+
+    class Meta:
+        unique_together = ("comparison", "clonofilter")

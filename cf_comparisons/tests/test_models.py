@@ -1,5 +1,5 @@
 from django.test import TestCase
-from cf_comparisons.models import Comparison
+from cf_comparisons.models import Comparison, ComparisonColor
 from clonotypes.models import ClonoFilter
 from test_utils.ghetto_factory import make_fake_patient_with_3_clonotypes, make_fake_comparison_with_2_samples
 from samples.models import Sample
@@ -262,3 +262,36 @@ class ComparisonModelTest(TestCase):
         comp.clonofilters.add(cf_2)
 
         self.assertEqual(set([cf_1, cf_2]), set(comp.clonofilters.all()))
+
+
+class ComparisonColorModelTest(TestCase):
+    '''
+    Tests colors
+    '''
+
+    def setUp(self):
+        make_fake_comparison_with_2_samples()
+        self.s = Sample.objects.all()[0]
+        self.cf = list(ClonoFilter.objects.all())
+        self.comp = Comparison.objects.get()
+
+    def test_colors_automagically_assigns_colors_if_they_dont_exist(self):
+        color_dict = self.comp.colors()
+        cfs = self.comp.clonofilters.all()
+        for cf in cfs:
+            self.assertNotEqual(color_dict[cf.id], None)
+
+    def test_colors_object_stores_clonofilter_colors(self):
+        # given a comparison you can add a color for a specific clonofilter in that
+        # comparison
+        color = "#000000"
+        color_dict = dict(zip([self.cf[0].id], [color]))
+        self.comp.set_colors(color_dict)
+        self.assertEqual(self.comp.colors()[self.cf[0].id], color)
+
+    def test_given_a_comparison_and_a_clonofilter_you_can_set_a_color(self):
+        cf1 = self.cf[0]
+        cc = ComparisonColor(comparison=self.comp, clonofilter=cf1, color="#000000")
+        cc.save()
+        comp_color = ComparisonColor.objects.get()
+        self.assertEqual(comp_color.color, "#000000")
