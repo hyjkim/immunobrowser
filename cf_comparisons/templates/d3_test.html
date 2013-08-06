@@ -24,6 +24,16 @@
     opacity: 0.3
   }
 
+  .grid .tick {
+    stroke: lightgrey;
+    opacity: 0.7;
+  }
+
+  .grid .path {
+    stroke-width: 0;
+  }
+
+
 </style>
 {% endblock %}
 
@@ -83,7 +93,7 @@ var my_rScale = d3.scale.linear()
   .x(my_xScale)
   .y(my_yScale)
   .r(my_rScale)
-.color(my_colors)
+  .color(my_colors)
   .sampleName(my_names);
 
   var navDiv = d3.select("#scatter-main")
