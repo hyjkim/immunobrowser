@@ -212,6 +212,8 @@ class ClonoFilter(models.Model):
     min_length = models.IntegerField(null=True)
     max_length = models.IntegerField(null=True)
     norm_factor = models.FloatField(null=True)
+    v_family_name = models.CharField(max_length=100, null=True)
+    j_gene_name = models.CharField(max_length=100, null=True)
 #    functionality = MultiSelectField(max_length=250, blank=True, choices=TYPES)
 
     def save(self, *args, **kwargs):
@@ -239,6 +241,20 @@ class ClonoFilter(models.Model):
 
         return cf
 
+    def update(self, filter_dict):
+        '''
+        Given a dictionary of filter conditions, get current conditions
+        of current filter, merge with new conditions and return
+        a new clonofilter.
+        '''
+        from django.forms.models import model_to_dict
+        this_dict = model_to_dict(self)
+        this_dict.update(filter_dict)
+        this_dict['sample'] = self.sample
+        this_dict.pop("id", None)
+        cf, created = ClonoFilter.objects.get_or_create(**this_dict)
+        return cf, created
+
     def get_clonotypes(self):
         ''' Takes in a clonofilter object and returns a queryset '''
         from django.db.models import Q
@@ -253,6 +269,10 @@ class ClonoFilter(models.Model):
             queries.append(Q(recombination__cdr3_length__gte=self.min_length))
         if self.max_length > 0:
             queries.append(Q(recombination__cdr3_length__lte=self.max_length))
+        if self.v_family_name:
+            queries.append(Q(recombination__v_family_name=self.v_family_name))
+        if self.j_gene_name:
+            queries.append(Q(recombination__j_gene_name=self.j_gene_name))
 
         for item in queries:
             query.add(item, Q.AND)
@@ -293,6 +313,7 @@ class ClonoFilter(models.Model):
         '''
         from django.db.models import Sum
         returnable = {}
+        total = 0
         filtered_query_set = self.get_clonotypes()
         functionality_counts = filtered_query_set.values(
             'recombination__sequence_status').annotate(Sum('copy'))
@@ -300,9 +321,13 @@ class ClonoFilter(models.Model):
 #            if state in functionality_counts:
 #                pass
         for functionality_count in functionality_counts:
+            subtotal = functionality_count['copy__sum']
             returnable[functionality_count['recombination__sequence_status']
-                       ] = functionality_count['copy__sum']
+                       ] = subtotal
+            total += subtotal
 
+        for key, value in returnable.iteritems():
+            returnable[key] = 1.0 * value / total
         return returnable
 
     def j_usage_dict(self):

@@ -119,6 +119,35 @@ class ComparisonsViewIntegrationTest(TestCase):
                     self.comparison.id]),
             response.content)
 
+    def test_update_view_takes_in_a_dict_with_string_ids_from_post_and_returns_a_new_comparison_id(self):
+        import json
+        url = reverse('cf_comparisons.views.update', args=[self.comparison.id])
+        cfs = self.comparison.clonofilters.all()
+
+        update_dict = {}
+        for cf in cfs:
+            update_dict[str(cf.id)] ={'j_gene_name': 'TRBJ2-1'}
+
+        response = self.client.post(url, {'update':json.dumps(update_dict)})
+        self.assertNotEqual(str(self.comparison.id), response)
+        self.assertEqual(response.content, '2')
+
+
+
+    def test_update_view_takes_in_a_request_from_post_and_returns_json_with_comparison_id(self):
+        import json
+        url = reverse('cf_comparisons.views.update', args=[self.comparison.id])
+        cfs = self.comparison.clonofilters.all()
+
+        update_dict = {}
+        for cf in cfs:
+            update_dict[cf.id] ={'j_gene_name': 'TRBJ2-1'}
+
+        response = self.client.post(url, {'update':json.dumps(update_dict)})
+        self.assertNotEqual(str(self.comparison.id), response)
+        self.assertEqual(response.content, '2')
+
+
     def test_filter_forms_renders_forms_for_comparison(self):
         response = self.client.get(
                 reverse('cf_comparisons.views.filter_forms',

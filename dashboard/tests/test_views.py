@@ -1,8 +1,9 @@
 from django.test import TestCase
-from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory, SampleFactory
+from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory, SampleFactory, ComparisonFactory
 from mock import patch
-from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison
+from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, dashboard_v2
 from django.core.urlresolvers import reverse
+from cf_comparisons.models import Comparison
 import simplejson as json
 
 class DashboardViewUnitTest(TestCase):
@@ -16,6 +17,17 @@ class DashboardViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_dashboard_v2_passes_sample_compare_form_to_view(self):
+        from cf_comparisons.forms import SampleCompareForm
+        response = dashboard_v2(self.request)
+        self.assertIsInstance(
+                response['sample_compare_form'],
+                SampleCompareForm
+                )
+
+    def test_dashboard_v2_view_renders_dashbaord_v2_template(self):
+        response = dashboard_v2(self.request)
+        self.assertEqual(response['template'], "dashboard_v2.html")
 
     def test_add_samples_takes_in_string_of_comma_delimited_sample_ids_via_post_and_returns_a_comparison_id(self):
         from django.http import HttpResponseRedirect
@@ -68,6 +80,13 @@ class DashboardViewIntegrationTest(TestCase):
     def DONTtest_explorer_url_is_valid(self):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
+
+    def test_dashboard_v2_shows_sample_select_template_tag(self):
+        url = reverse('dashboard.views.dashboard_v2')
+        response = self.client.get(url)
+        ComparisonFactory()
+        comp = Comparison.objects.get()
+        self.assertIn('<select multiple="multiple" id="id_samples"', response.content)
 
     def test_comparison_view_renders_comparison_template(self):
         from test_utils.ghetto_factory import make_fake_comparison_with_2_samples

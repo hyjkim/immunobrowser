@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+{% load comparison_tags %}
+
+<div class="menu sample">
+  <div id="add_sample">
+    <a href="#add_sample">
+      <h1>+</h1><br />
+      Add sample
+    </a>
+  </div>
+  <div id="sample_compare">
+    {% sample_compare_tag sample_compare_form%}
+  </div>
+</div>
+
+
+<script>
+  // Make sure the sample compare div is hidden
+  var sampleCompareDiv = $('div#sample_compare');
+  sampleCompareDiv.hide();
+
+
+  var addSampleDiv = $('div#add_sample');
+  addSampleDiv.click(function () {
+    sampleCompareDiv.show();
+    addSampleDiv.hide();
+  });
+
+
+</script>
+
+{% endblock %}

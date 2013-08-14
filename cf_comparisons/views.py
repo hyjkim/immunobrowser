@@ -6,6 +6,22 @@ from clonotypes.forms import ClonoFilterForm
 from clonotypes.models import ClonoFilter
 
 
+def update(request, comparison_id):
+    '''
+    Given a comparison id parsed from the url and an
+    update dict via post, returns the id of a new
+    comparison for JSON requests
+    '''
+    import json
+    comparison = Comparison.objects.get(id=comparison_id)
+    if request.method == "POST":
+        print request.POST['update']
+        update_dict = json.loads(request.POST['update'])
+        update_dict = dict((int(k), v) for (k,v) in update_dict.iteritems())
+        new_comp = comparison.update(update_dict)
+    return HttpResponse(new_comp.id, content_type="application/json")
+
+
 def d3_test(request, comparison_id):
     '''
     This is a test of the d3 library.
@@ -25,6 +41,7 @@ def d3_test(request, comparison_id):
 
     data = []
 
+    # Counts for the scatter plot
     for clonofilter_id, vj_counts_dict in vj_counts_dict_dict.iteritems():
         for v_index, v_family in enumerate(v_list):
             for j_index, j_gene in enumerate(j_list):
@@ -40,11 +57,24 @@ def d3_test(request, comparison_id):
                 if data_point[2] > 0:
                     data.append(data_point)
 
+    # Functionality stats
+    comp_functionality = []
+    for cf in clonofilters:
+        cf_functionality = {}
+        values = {}
+        for key, value in cf.functionality_dict().iteritems():
+            values[key] = value
+        cf_functionality['key'] = cf.id
+        cf_functionality['values'] = values
+        comp_functionality.append(cf_functionality)
+
     context = {'data': json.dumps(data),
                'v_list': json.dumps(v_list),
                'j_list': json.dumps(j_list),
                'sample_names': json.dumps(sample_names),
                'sample_colors': json.dumps(clonofilter_colors),
+               'comparison_id': comparison_id,
+               'functionality': json.dumps(comp_functionality),
                }
 
     return render(request, 'd3_test.html', context)
@@ -97,7 +127,7 @@ def compare(request, comparison_id):
                 cf, created = ClonoFilter.objects.get_or_create(
                     **cf_form.cleaned_data)
                 clonofilters.append(cf)
-            comparison = Comparison.get_or_create_from_clonofilters(clonofilters)
+            comparison, created = Comparison.get_or_create_from_clonofilters(clonofilters)
         else:
             comparison = Comparison.objects.get(id=comparison_id)
 

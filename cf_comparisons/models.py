@@ -6,6 +6,34 @@ from utils.utils import undefaulted
 class Comparison(models.Model):
     clonofilters = models.ManyToManyField(ClonoFilter)
 
+    def update(self, cf_params):
+        '''
+        Given an array update dicts returns a new comparison.
+        Each member of the array is a dict with two keys: 'key' and 'values'
+        'key' contains the clonofilter id and 'values' stores a dictionary
+        with filter parameters.
+        '''
+        cfs = self.clonofilters.all()
+        colors = self.colors()
+        new_colors = {}
+        new_cfs = []
+
+        for cf in cfs:
+            if(cf.id in cf_params):
+                new_cf, created = cf.update(cf_params[cf.id])
+                new_cfs.append(new_cf)
+                new_colors[new_cf.id] = colors[cf.id]
+            else:
+                new_cfs.append(cf)
+                new_colors[cf.id] = colors[cf.id]
+        comp, created = Comparison.get_or_create_from_clonofilters(new_cfs)
+
+        if created:
+            comp.set_colors(new_colors)
+
+        return comp
+
+
     def colors(self):
         '''
         Returns a dict where keys are clonofilter ids and colors are hex strings.
@@ -343,7 +371,7 @@ class Comparison(models.Model):
         default_clonofilters = [ClonoFilter.default_from_sample(sample)
                                 for sample in samples]
 
-        comparison = Comparison.get_or_create_from_clonofilters(
+        comparison, created = Comparison.get_or_create_from_clonofilters(
             default_clonofilters)
 
         return comparison
@@ -357,6 +385,7 @@ class Comparison(models.Model):
         '''
         from django.db.models import Count
         # Try to find a comparison with these particular clonofilters
+        created = False
         try:
             # Works with sqlite3 but not with mysql
 #            comparison = Comparison.objects.filter(clonofilters__in=clonofilters).annotate(num_filters=Count('clonofilters')).filter(num_filters=len(clonofilters)).exclude(id__in=Comparison.objects.annotate(all_filters=Count('clonofilters')).filter(all_filters__gt=len(clonofilters))).get()
@@ -370,8 +399,10 @@ class Comparison(models.Model):
             comparison.save()
             comparison.clonofilters.add(*clonofilters)
             comparison.save()
+            created = True
 
-        return comparison
+        return comparison, created
+        #return comparison
 
 
 class ComparisonColor(models.Model):

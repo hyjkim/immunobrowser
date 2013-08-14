@@ -21,6 +21,43 @@ class ComparsionModelMethodsTest(TestCase):
         '''todo: call on two datasets, one with norm factors, one without and make sure values are expected'''
         self.fail('todo: call on two datasets, one with norm factors, one without and make sure values are expected')
 
+    def test_update_comparison_preserves_colors(self):
+        from django.forms import model_to_dict
+        comp = Comparison.objects.get()
+        cfs = ClonoFilter.objects.all()
+        cfd0 = model_to_dict(cfs[0])
+        cfd1 = model_to_dict(cfs[1])
+        old_colors = comp.colors()
+        comp.set_colors({cfd0['id']: "#000000"})
+        self.assertNotEqual(old_colors, comp.colors())
+
+        new_cfd0 = {'min_copy': 1}
+        new_cfd1 = {'min_length': 1}
+        new_comp = comp.update({cfd0['id']: new_cfd0,
+                                cfd1['id']: new_cfd1})
+
+        self.assertEqual(set(comp.colors().values()),
+                set(new_comp.colors().values()))
+
+    def test_update_comparison_given_a_set_of_update_dicts(self):
+        from django.forms import model_to_dict
+        comp = Comparison.objects.get()
+        cfs = ClonoFilter.objects.all()
+        cfd0 = model_to_dict(cfs[0])
+        cfd1 = model_to_dict(cfs[1])
+
+        new_cfd0 = {'min_copy': 1}
+        new_cfd1 = {'min_length': 1}
+
+        new_comp = comp.update({cfd0['id']: new_cfd0,
+                                cfd1['id']: new_cfd1})
+#        new_comp = comp.update([{'key': cfd0['id'],
+#                                'values': new_cfd0},
+#                                {'key':cfd1['id'],
+#                                 'values': new_cfd1}])
+        self.assertEqual(len(Comparison.objects.all()), 2)
+        self.assertNotEqual(comp.id, new_comp.id)
+
     def test_get_samples_returns_list_of_samples_only_in_comparison(self):
         samples = Sample.objects.all()
         self.assertEqual(map(repr, samples),
@@ -141,7 +178,7 @@ class ComparsionModelMethodsTest(TestCase):
 
     def test_get_shared_clonotypes_returns_empty_dict_if_only_one_clonofilter_is_provided(self):
         cf = ClonoFilter.objects.all()[0]
-        comparison = Comparison.get_or_create_from_clonofilters([cf])
+        comparison, created = Comparison.get_or_create_from_clonofilters([cf])
         self.assertEqual({}, comparison.get_shared_clonotypes())
 
     def test_nonempty_shared_clonotype_set_returns_clonotypes(self):
@@ -179,20 +216,18 @@ class ComparsionModelMethodsTest(TestCase):
         r = aa.recombination_set.all()[0]
 
         c = ClonotypeFactory(
-            sample=s3,
-            recombination = r
-        )
+                sample=s3,
+                recombination = r)
 
         for shared_amino_acid in self.comparison.get_shared_amino_acids_related().values():
             for clonotype in shared_amino_acid.related_clonotypes:
                 self.assertNotEqual(c, clonotype)
 
-    def test_shared_amino_acid_sums_returns_double_dict_indexed_by_amino_acid_and_sample(self):
+    def DONTtest_shared_amino_acid_sums_returns_double_dict_indexed_by_amino_acid_and_sample(self):
         amino_acids_sums = self.comparison.shared_amino_counts()
         samples = Sample.objects.all()
         shared_amino_acids = self.comparison.get_shared_amino_acids_related()
         self.fail('todo')
-
 
     def test_filter_forms_list_returns_a_list_of_filter_forms_given_a_comparison_id(self):
         from clonotypes.forms import ClonoFilterForm
@@ -210,7 +245,6 @@ class ComparisonModelTest(TestCase):
     def test_get_or_create_from_clonofilters_does_not_create_a_new_comparison_if_one_already_exists_for_the_set_of_clonofilters(self):
         cf_1 = ClonoFilter(sample=self.s)
         cf_1.save()
-
         cf_2 = ClonoFilter(sample=self.s)
         cf_2.save()
 

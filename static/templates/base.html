@@ -7,7 +7,7 @@
     {% block site_css %}
     <link href="{{ STATIC_URL }}css/base.css" rel="stylesheet"
     type="text/css" media="screen"/>
-    <link href="{{ STATIC_URL }}css/bootstrap.css" rel="stylesheet"
+    <link href="{{ STATIC_URL }}css/bootstrap-3rc1.css" rel="stylesheet"
     type="text/css" media="screen"/>
 
     {% endblock %}
@@ -15,7 +15,9 @@
 
     {% block js_head %}
     <script type='text/javascript' src="{{ STATIC_URL }}libs/jquery-1.10.2.js"></script>
-    <script type='text/javascript' src="{{ STATIC_URL }}libs/bootstrap.js"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/jquery.cookie.js"></script>
+    <script type='text/javascript' src="{{ STATIC_URL }}libs/bootstrap-3rc1.js"></script>
+    <script type='text/javascript' src="{{ STATIC_URL }}libs/site.js"></script>
     {% endblock %}
 
 

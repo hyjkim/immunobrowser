@@ -1,5 +1,150 @@
+function functionality() {
+  var margin = {top: 10, right: 10, bottom: 10, left: 100},
+      width = 600,
+      height = 200,
+      heightScale = 40,
+      //      xScale = d3.scale.linear().domain([0,1]),
+      colorScale = d3.scale.ordinal(),
+      nameMap = function(d) {return d};
+
+  function plot (selection) {
+    selection.each (function (data) {
+//      xScale
+//      .range([0, width - margin.left - margin.right]);
+//
+   // Get sample IDs
+    var sampleIds = data.map(function (d) {return d.key});
+
+    // Scale height 
+    height = sampleIds.length * heightScale;
+
+    // Make svg and set some attributes
+
+    var svg = d3.select(this).selectAll("svg").data(d3.select(this).data());
+
+    svg.enter().append("svg");
+    svg.attr("width", width)
+      .attr("height", height);
+
+    var gInner = svg.append('g')
+      .attr("class", "inner")
+      .attr("transform", 'translate(' + margin.left + ',' + (height - margin.top ) +') rotate(-90)');
+
+    console.log(data);
+
+     // get set of productivity statuses
+    var prodStatuses = d3.set([].concat.apply([],data.map(function (d) {
+      return d3.map(d.values).keys();
+    }))).values();
+
+    // map data such that each productivity status has a sample id and a
+    // percentage
+    var dataMap = prodStatuses.map(
+      function(prodStatus) {
+        return {
+          'key': prodStatus,
+          'values': data.map(
+            function (d) {
+              var y;
+              (prodStatus in d.values) ? y = d.values[prodStatus]: y = 0;
+
+              return {
+                'x': d.key,
+                'y': y
+              };
+            })
+          };
+        });
+
+    console.log(dataMap);
+
+
+    var x = d3.scale.ordinal()
+      .domain(sampleIds)
+      .rangeRoundBands([0, height - margin.top - margin.bottom], 0.1);
+      //.rangeRoundBands([0, width - margin.left - margin.right]);
+
+    var y = d3.scale.linear()
+      .domain([0,1])
+      .range([width - margin.left - margin.right, 0]);
+      //.range([height - margin.top - margin.bottom, 0], 0.1);
+
+    var color = d3.scale.category10();
+
+    var stackMax = 1;
+    var stack = d3.layout.stack()
+      .values(function (d) { return d.values });
+
+    console.log(stack(dataMap));
+
+
+    var layers = gInner.selectAll('.layer')
+      .data(stack(dataMap))
+        .enter()
+        .append('g')
+        .attr('class', function (d) {return 'layer ' + d.key})
+        .style("fill", function(d, i) { return color(i); });
+
+    var rects = layers.selectAll('rect')
+      .data(function (d) {return d.values})
+      .enter()
+      .append('rect')
+      .attr('x', function(d) {return x(d.x)})
+      //.attr('y', function(d) {return y(d.y)})
+      .attr("y", function(d) { return y(d.y0 + d.y); })
+      .attr('width', x.rangeBand())
+      .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); });
+      //.attr("height", function(d) { return y(d.y); });
+
+
+    // draw an x axis
+    var xAxis = d3.svg.axis()
+      .scale(x)
+      .tickSize(0)
+      .tickPadding(0)
+      .orient('top');
+
+    gInner.append('g')
+      .attr('class', 'x axis')
+//      .attr('transform', 'rotate(90)')
+      .call(xAxis);
+
+    // Convert the sample id to sample names
+    gInner.selectAll('g .axis .tick text')
+      .text(function (d) {
+        return nameMap(d);
+      })
+      .attr('transform', 'rotate(90)')
+    ;
+
+    });
+  }
+
+  // public accessors
+  plot.x = function(value) {
+    if (!arguments.length) return xScale;
+    xScale = value;
+    return plot;
+  }
+
+  plot.colors = function(value) {
+    if (!arguments.length) return colorScale;
+    colorScale = value;
+    return plot;
+  }
+
+  plot.sampleName = function(value) {
+    if(!arguments.length) return nameMap;
+    nameMap = value;
+    return plot;
+  }
+
+
+  return plot;
+}
+
 function scatterNav() {
-  var margin = {top: 50, right: 10, bottom: 50, left: 60},
+  var margin = {top: 50, right: 30, bottom: 30, left: 60},
       width=600,
       height = 400,
       xValue = function(d) {return d[0]},
@@ -31,9 +176,9 @@ function scatterNav() {
       .key(function(d) {return d[0]})
       .sortKeys(d3.ascending)
       .entries(data);
-    
+
     // set the sample Ids
-     sampleIds = nestedData.map(function(d) {return d.key});
+    sampleIds = nestedData.map(function(d) {return d.key});
 
     var svg = d3.select(this).selectAll("svg").data([nestedData]);
 
@@ -104,8 +249,8 @@ function scatterNav() {
       .call(yAxis);
 
     // draw a grid
-    
-    
+
+
 
     // set up tooltips
     // generate the tooltip div
@@ -255,15 +400,15 @@ function scatterNav() {
         d3.select(this).attr("fill", "blue");
         d3.selectAll("g.v-" +vGene+ " circle").attr("class", "active");
 
-      var filteredTestData = data.filter(function (d) {
-        return d[0] == vGene
-      });
-      jHistInner.datum(filteredTestData).call(jHist);
+        var filteredTestData = data.filter(function (d) {
+          return d[0] == vGene
+        });
+        jHistInner.datum(filteredTestData).call(jHist);
       })
     .on("mouseout", function () {
       xLabels.attr("fill", null);
       sampleCircles.attr("class", "inactive");
-//      jHistInner.datum(data).call(jHist);
+      //      jHistInner.datum(data).call(jHist);
     });
 
     // highlight circles when y-axis tick labels are highlighted
@@ -287,8 +432,8 @@ function scatterNav() {
       xLabels.attr("fill", null);
       sampleCircles.attr("class", "inactive");
       yLabels.attr("fill", null);
-//      vHistInner.datum(data).call(vHist);
-    });
+      //      vHistInner.datum(data).call(vHist);
+    })
 
     jHistInner.call(jHist);
     vHistInner.call(vHist);
@@ -325,9 +470,9 @@ function scatterNav() {
           function(d) {return d.key} 
           );
 
-      jPath.exit().remove();
+    jPath.exit().remove();
 
-      jPath
+    jPath
       .enter()
       .append("path")
       .attr("class", "line")
@@ -375,7 +520,7 @@ function scatterNav() {
     var xAxis = d3.svg.axis()
       .scale(jHistScale)
       .orient("bottom")
-      .ticks(3);
+      .ticks(2);
 
     var gAxis = selection.select("g.xAxis");
     if (gAxis.empty()) {
@@ -387,8 +532,8 @@ function scatterNav() {
 
     gAxis  .attr("transform", "translate(0," + (d3.max(yScale.range()) + ")"))
 
-    // Add some tooltips
-    jPoints
+      // Add some tooltips
+      jPoints
       .on("mouseover", function()  {
         d3.select(this).attr("class", "active");
         //        tooltip.style("visibility", "visibile");
@@ -424,7 +569,6 @@ function scatterNav() {
       })
     .entries(selection.datum());
     var vSeries = makeSeries(vNest, xScale);
-    console.log(vSeries);
 
     // calculate the scale
     var vHistScale = histScale(vNest)
@@ -441,7 +585,7 @@ function scatterNav() {
 
     vPath.exit().remove();
 
-      vPath.enter()
+    vPath.enter()
       .append("path")
       .attr("class", "line")
       .attr("stroke-width", 1)

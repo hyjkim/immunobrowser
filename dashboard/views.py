@@ -27,6 +27,17 @@ def dashboard_comparison(request, comparison_id):
               }
     return render(request, 'dashboard_comparison.html', context)
 
+def dashboard_v2(request):
+    '''
+    version 2 of the explorer
+    '''
+    from cf_comparisons.forms import SampleCompareForm
+
+    sample_compare_form = SampleCompareForm()
+    context = {'sample_compare_form': sample_compare_form}
+
+    return render(request, 'dashboard_v2.html', context)
+
 @ensure_csrf_cookie
 def explorer(request):
     '''
@@ -60,22 +71,3 @@ def menu_json(request):
         data.append(patient_dict)
 
     return HttpResponse(json.dumps(data), mimetype='application/json')
-
-#    dummy_data = [{'label': 'patient1',
-#                  'children': [{'label':'child1',
-#                                 'id':'s1',
-#                               },
-#                               {'label':'child2',
-#                                'id': 's2',
-#                                }
-#                              ],
-#                  'id': 'p1',
-#                  },
-#                  {'label': 'patient2',
-#                   'id': 'p2',
-#                  }
-#                  ]
-#
-#    data = serializers.serialize('json', dummy_data)
-#    data = json.dumps(dummy_data)
-#    return HttpResponse(data, mimetype='application/json')

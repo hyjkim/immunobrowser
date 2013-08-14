@@ -40,6 +40,7 @@
 {% block content %}
 
 <div id="scatter-main"></div>
+<div id="functionality"></div>
 
 <script type='text/javascript' src="/static/libs/compare.js"></script>
 <script type='text/javascript'>
@@ -52,6 +53,7 @@ var vList = {{ v_list }};
 var jList = {{ j_list }};
 var sampleNames = {{ sample_names }};
 var sampleColors = {{ sample_colors}};
+var functData = {{functionality}};
 
 {% endautoescape %}
 
@@ -99,6 +101,37 @@ var my_rScale = d3.scale.linear()
   var navDiv = d3.select("#scatter-main")
   .datum(frequencies)
 .call(my_nav)
+  ;
+
+
+  // Add interactivity
+  // yAxis clicking should load a new page
+
+  d3.selectAll("g.yAxis g.tick")
+  .on("click", function () {
+      var jGene = d3.select(this).datum();
+      var updateDict = {};
+      for (var sampleId in sampleNames) {
+      updateDict[sampleId] = {'j_gene_name': jGene};
+      }
+      console.log(updateDict)
+      // use jQuery to post with the csrf token header
+      //$.post("{% url 'cf_comparisons.views.update' comparison_id %}")
+      $.post("{% url 'cf_comparisons.views.update' comparison_id %}",
+        {'update': JSON.stringify(updateDict)}, 
+        function(comparison_id) {
+        window.location.href="/compare/"+comparison_id+"/d3_test"
+        });
+      });
+
+
+// Make functionality plot
+var functPlot = functionality()
+  .sampleName(my_names);
+
+  d3.select("#functionality")
+  .datum(functData)
+  .call(functPlot)
   ;
 
 

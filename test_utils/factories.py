@@ -9,9 +9,10 @@ from django.http import HttpRequest
 from django.contrib.auth.models import User
 #from django.http import Http404
 #from django.template import RequestContext
-from clonotypes.models import AminoAcid, Recombination, Clonotype
+from clonotypes.models import AminoAcid, Recombination, Clonotype, ClonoFilter
 from patients.models import Patient
 from samples.models import Sample
+from cf_comparisons.models import Comparison
 
 
 class FakeMessages:
@@ -139,3 +140,22 @@ class ClonotypeFactory(factory.Factory):
     raw_frequency = 1.6548345E-5
     copy = 2
     recombination = factory.SubFactory(RecombinationFactory)
+
+
+class ClonoFilterFactory(factory.Factory):
+    FACTORY_FOR = ClonoFilter
+    sample = factory.SubFactory(SampleFactory)
+
+
+class ComparisonFactory(factory.Factory):
+    FACTORY_FOR = Comparison
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        comp = super(ComparisonFactory, cls)._prepare(create, **kwargs)
+        comp.clonofilters = [
+                ClonoFilterFactory().id,
+                ClonoFilterFactory().id
+                ]
+        return comp
+
+
