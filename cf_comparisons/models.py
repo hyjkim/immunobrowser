@@ -6,6 +6,22 @@ from utils.utils import undefaulted
 class Comparison(models.Model):
     clonofilters = models.ManyToManyField(ClonoFilter)
 
+    def add_samples(self, samples):
+        '''
+        Given an array of sample ids, add them to the current comparison
+        and then return a new comparison
+        '''
+        cfs = list(self.clonofilters.all())
+
+        new_cfs = [ClonoFilter.default_from_sample(sample)
+                                for sample in samples]
+
+        comparison, created = Comparison.get_or_create_from_clonofilters(
+            cfs+new_cfs)
+
+        return comparison
+
+
     def update(self, cf_params):
         '''
         Given an array update dicts returns a new comparison.

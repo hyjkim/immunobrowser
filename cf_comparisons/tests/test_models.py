@@ -21,6 +21,13 @@ class ComparsionModelMethodsTest(TestCase):
         '''todo: call on two datasets, one with norm factors, one without and make sure values are expected'''
         self.fail('todo: call on two datasets, one with norm factors, one without and make sure values are expected')
 
+    def test_add_samples_add_samples_to_comparison(self):
+        from test_utils.factories import SampleFactory
+        sample = SampleFactory()
+        comp = self.comparison.add_samples([sample])
+        self.assertEqual(len(Comparison.objects.all()), 2)
+        self.assertTrue(sample in set([cf.sample for cf in comp.clonofilters.all()]))
+
     def test_update_comparison_preserves_colors(self):
         from django.forms import model_to_dict
         comp = Comparison.objects.get()
@@ -228,6 +235,13 @@ class ComparsionModelMethodsTest(TestCase):
         samples = Sample.objects.all()
         shared_amino_acids = self.comparison.get_shared_amino_acids_related()
         self.fail('todo')
+
+    def test_filter_forms_dict_returns_a_dict_of_filter_forms_indexed_by_clonofilter_given_a_comparison_id(self):
+        from clonotypes.forms import ClonoFilterForm
+        comparison = Comparison.objects.get()
+        filter_forms = comparison.filter_forms_dict()
+        for filter_form in filter_forms.values:
+            self.assertIsInstance(filter_form, ClonoFilterForm)
 
     def test_filter_forms_list_returns_a_list_of_filter_forms_given_a_comparison_id(self):
         from clonotypes.forms import ClonoFilterForm

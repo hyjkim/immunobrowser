@@ -1,31 +1,81 @@
 {% extends "base.html" %}
+
+
 {% block content %}
 {% load comparison_tags %}
 
 <div class="menu sample">
-  <div id="add_sample">
-    <a href="#add_sample">
+  <div id="filter-forms">
+    {% filter_forms_tag comparison %}
+  </div>
+  <div id="add-sample">
+    <a>
       <h1>+</h1><br />
       Add sample
     </a>
   </div>
-  <div id="sample_compare">
+  <div id="sample-compare">
     {% sample_compare_tag sample_compare_form%}
   </div>
 </div>
 
 
 <script>
+  // specific code
+  {% autoescape off %}
+  var comparisonId = '{{comparison.id}}';
+  {% endautoescape %}
+
+  // dashboard universal code
+
+  var sampleCompareDiv = $('div#sample-compare');
+  var addSampleDiv = $('div#add-sample');
+  var sampleSubmit = $('div#sample-compare :submit');
+  var sampleForm = $('div#sample-compare form');
+
   // Make sure the sample compare div is hidden
-  var sampleCompareDiv = $('div#sample_compare');
   sampleCompareDiv.hide();
 
-
-  var addSampleDiv = $('div#add_sample');
   addSampleDiv.click(function () {
     sampleCompareDiv.show();
     addSampleDiv.hide();
   });
+
+  sampleSubmit.click(function () {
+    event.preventDefault();
+    var postData = sampleForm.serializeArray();
+    if (comparisonId) {
+      postData.push({'name':'comparison', 'value': comparisonId});
+    }
+
+    sampleCompareDiv.hide();
+    addSampleDiv.show();
+
+    console.log(postData);
+
+    $.post('{% url 'dashboard.views.add_samples_v2' %}',
+    postData, function (compId) {
+
+      // Load filter forms
+      $.get("/compare/" + compId + "/filter_forms",
+      function(filterForms) {
+        $('div#filter-forms').html(filterForms)
+      });
+
+      // Update global comparisonId variable
+      comparisonId = compId
+
+      // Modify url bar
+      // Should modify this javascript to use 
+      // a django template tag for 'dashboard.views.dashboard_v2'
+      window.history.pushState(null, '', '/dashboard_v2/' + compId);
+    });
+  });
+
+
+
+
+
 
 
 </script>

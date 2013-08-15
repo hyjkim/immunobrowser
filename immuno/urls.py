@@ -23,10 +23,12 @@ urlpatterns = patterns('',
                        url(r'^patients/(\d+)/$', 'patients.views.patient_summary'),
 
                        url(r'^dashboard$', 'dashboard.views.explorer'),
-                       url(r'^dashboard_v2$', 'dashboard.views.dashboard_v2'),
                        url(r'^dashboard/compare/(\d+)?$', 'dashboard.views.dashboard_comparison'),
                        url(r'^dashboard/menu.json$', 'dashboard.views.menu_json'),
                        url(r'^dashboard/add_samples$', 'dashboard.views.add_samples'),
+                       url(r'^dashboard/add_samples_v2$', 'dashboard.views.add_samples_v2'),
+                       url(r'^dashboard_v2/?(\d+)?$', 'dashboard.views.dashboard_v2'),
+#                       url(r'^dashboard_v2', 'dashboard.views.dashboard_v2'),
 
                        url(r'^amino_acid/(\d+)?$', 'clonotypes.views.amino_acid_detail'),
 

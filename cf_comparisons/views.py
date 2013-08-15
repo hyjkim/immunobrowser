@@ -15,7 +15,6 @@ def update(request, comparison_id):
     import json
     comparison = Comparison.objects.get(id=comparison_id)
     if request.method == "POST":
-        print request.POST['update']
         update_dict = json.loads(request.POST['update'])
         update_dict = dict((int(k), v) for (k,v) in update_dict.iteritems())
         new_comp = comparison.update(update_dict)
@@ -103,9 +102,8 @@ def filter_forms(request, comparison_id):
     '''
     from django.template import Template, Context
     comparison = Comparison.objects.get(id=comparison_id)
-    filter_forms = comparison.filter_forms_list()
 #    template = Template('{% load comparison_tags %}{% filter_forms_tag filter_forms %}')
-    context = Context({'filter_forms': filter_forms})
+    context = Context({'comparison': comparison})
     return render(request, 'filter_forms.html', context)
 
 #    return HttpResponse(template.render(context))

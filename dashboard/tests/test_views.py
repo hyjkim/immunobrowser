@@ -1,7 +1,7 @@
 from django.test import TestCase
 from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory, SampleFactory, ComparisonFactory
 from mock import patch
-from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, dashboard_v2
+from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, dashboard_v2, add_samples_v2
 from django.core.urlresolvers import reverse
 from cf_comparisons.models import Comparison
 import simplejson as json
@@ -17,20 +17,24 @@ class DashboardViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_dashboard_v2_passes_given_comparison_to_template(self):
+        comp = ComparisonFactory()
+        response = dashboard_v2(self.request, comp.id)
+        self.assertEqual(response['comparison'], comp)
+
     def test_dashboard_v2_passes_sample_compare_form_to_view(self):
         from cf_comparisons.forms import SampleCompareForm
-        response = dashboard_v2(self.request)
+        response = dashboard_v2(self.request, None)
         self.assertIsInstance(
                 response['sample_compare_form'],
                 SampleCompareForm
                 )
 
     def test_dashboard_v2_view_renders_dashbaord_v2_template(self):
-        response = dashboard_v2(self.request)
+        response = dashboard_v2(self.request, None)
         self.assertEqual(response['template'], "dashboard_v2.html")
 
     def test_add_samples_takes_in_string_of_comma_delimited_sample_ids_via_post_and_returns_a_comparison_id(self):
-        from django.http import HttpResponseRedirect
         self.request.POST['sample_ids'] = "[1,2,3]"
         response = add_samples(self.request)
         self.assertEqual('1', response.content)
@@ -80,6 +84,29 @@ class DashboardViewIntegrationTest(TestCase):
     def DONTtest_explorer_url_is_valid(self):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
+
+    def DONTtest_dashboard_add_samples_v2_adds_new_samples_to_existing_in_comparison_and_returns_new_comp_id(self):
+        from test_utils.factories import SampleFactory
+        comp = ComparisonFactory()
+        sample = SampleFactory()
+
+        old_cfs = comp.clonofilters.all()
+        old_sample_set = set([cf.sample for cf in comp.clonofilters.all()])
+
+        self.request.method = "POST"
+        self.request.POST = {
+                'comparison':comp.id}
+        # Need a mock to do this I believe... fix this later
+#        self.request.POST.getlist('samples')=[sample.id]
+
+        new_comp_id = add_samples_v2(self.request)
+        print new_comp_id
+        new_comp = Comparison.objects.get(id=new_comp_id)
+        new_sample_set = set([cf.sample for cf in new_comp.clonofilters.all()])
+        self.assertTrue(sample in new_sample_set)
+        self.assertTrue(old_sample_set.issubset(new_sample_set))
+
+
 
     def test_dashboard_v2_shows_sample_select_template_tag(self):
         url = reverse('dashboard.views.dashboard_v2')

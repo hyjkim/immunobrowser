@@ -1,12 +1,2 @@
-<div class="filter_wrapper" style="float:left">
-  <form action="#" method="post">
-    {% csrf_token %}
-    <input type="hidden" name="num_forms" value="{{ num_forms }}">
-    {% for filter_form in filter_forms %}
-    <div class="filter_form" style="float:left">
-      {{ filter_form.as_p }}
-    </div>
-    {% endfor %}
-    <input type="submit" />
-  </form>
-</div>
+{% load comparison_tags %}
+{% filter_forms_tag comparison%}
