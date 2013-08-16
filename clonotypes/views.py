@@ -36,7 +36,6 @@ def functionality_graph(request, clonofilter_id):
     values = functionality_dict.values()
     labels = functionality_dict.keys()
     ax.pie(values, labels=labels)
-    print functionality_dict
 
 
     canvas.print_png(response)

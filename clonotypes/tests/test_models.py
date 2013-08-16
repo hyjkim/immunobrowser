@@ -294,8 +294,8 @@ class ClonoFilterModelTest(TestCase):
         self.assertEqual(new_cf.id, 2)
         self.assertEqual(self.f.id, 1)
 
-    def test_functionality_dict_contains_all_functional_groups(self):
-        self.assertEqual({u'Out of frame': 2, u'Productive': 2},
+    def test_functionality_dict_contains_all_functional_groups_as_ratios(self):
+        self.assertEqual({u'Out of frame': 0.5, u'Productive': 0.5},
                          self.f.functionality_dict())
 
     def test_functionality_dict_returns_dict(self):

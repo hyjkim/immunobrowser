@@ -150,7 +150,7 @@ def compare(request, comparison_id):
     if request.is_ajax():
         return render(request, 'compare_ajax.html', context)
     else:
-        context.update({'filter_forms': filter_forms})
+#        context.update({'comparison': comparison})
         return render(request, 'compare.html', context)
 
 def spectratype(request, comparison_id):

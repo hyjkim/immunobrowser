@@ -88,3 +88,13 @@ div.recombination {
   padding: 15px 15px 15px 15px;
   border: 1px solid
 }
+
+  .active {
+    opacity: 0.75
+  }
+
+  .inactive {
+    opacity: 0.3
+  }
+
+

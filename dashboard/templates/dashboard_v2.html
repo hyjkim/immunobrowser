@@ -1,11 +1,21 @@
 {% extends "base.html" %}
+
+{% block css %}
+<style type="text/css">
+
+</style>
+{% endblock %}
+
 {% block content %}
+
 {% load comparison_tags %}
 
 <div class="menu sample row">
   <div id="filter-forms">
     {% if comparison %}
     {% filter_forms_tag comparison %}
+    {% else %}
+    No comparison
     {% endif %}
   </div>
   <div id="add-sample" class="col-md-2 text-center nav">
@@ -34,6 +44,7 @@
   var sampleCancel = $('div#sample-compare :button');
   var sampleForm = $('div#sample-compare form');
   var sampleRemoveGlyphs = $('.glyphicon-remove');
+  var filterForms = $('.filter-form');
 
   // Make sure the sample compare div is hidden
   sampleCompareDiv.hide();
@@ -108,11 +119,38 @@
 
   setup();
 
+
+  // Change opacity of filter form on mouse over
+  filterForms
+  .on("mouseover", function () {
+    $(this).removeClass("inactive").addClass("active");
+  })
+  .on("mouseleave", function () {
+    $(this).removeClass("active").addClass("inactive");
+  })
+  .click(function () {
+    var body = $(this).find('.accordion-body')
+    if (body.length) {
+      body.collapse('show')
+      body.removeClass('accordion-body').addClass('accordion-body-disabled');
+    }
+    else {
+      body = $(this).find('.accordion-body-disabled');
+      body.removeClass('accordion-body-disabled').addClass('accordion-body');
+      body.collapse('hide');
+    }
+
+  })
+  ;
+
+
+
   // Hide filters after some predetermined amount of time
   setTimeout(function() {
-    $('.accordion-body').collapse();
-    },
-    1000);
+    $('.accordion-body').collapse('hide');
+  },
+  1000);
+
 
 
 </script>

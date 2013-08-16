@@ -57,7 +57,7 @@ def dashboard_v2(request, comparison_id):
         comparison=None
 
     context = {'sample_compare_form': sample_compare_form,
-            'comparison': comparison
+            'comparison': comparison,
             }
 
     return render(request, 'dashboard_v2.html', context)
