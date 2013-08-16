@@ -91,6 +91,20 @@ class Comparison(models.Model):
             cc.color = color
             cc.save()
 
+    def filter_forms_dict(self):
+        '''
+        Returns a dict of filter forms indexed by clonofilters
+        in a comparison
+        '''
+        from clonotypes.forms import ClonoFilterForm
+
+        clonofilters = self.clonofilters.all()
+        filter_forms = {}
+        for clonofilter in clonofilters:
+            filter_forms[clonofilter] = ClonoFilterForm(initial=ClonoFilter.objects.filter(
+                id=clonofilter.id).values()[0], prefix=str(clonofilter.id))
+        return filter_forms
+
     def filter_forms_list(self):
         '''
         Returns a list of filter forms for individual clonofilters

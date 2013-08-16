@@ -14,10 +14,6 @@ th {
   font-weight: 500;
 }
 
-.filter_form {
-  border: 1px solid black;
-}
-
 #content {
   float: clear;
 }
@@ -81,4 +77,14 @@ div.recombination {
 .no-space [class*="span"]{
   margin-left: 0 !important;
   width: 25% !important; // This is for 4 elements ONLY in the row
+}
+
+.filter-form {
+  padding: 15px 15px 15px 15px;
+  border: 1px solid
+}
+
+.nav {
+  padding: 15px 15px 15px 15px;
+  border: 1px solid
 }

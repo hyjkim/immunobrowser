@@ -11,8 +11,8 @@ def sample_compare_tag(sample_compare_form):
 @register.inclusion_tag('filter_forms_tag.html')
 def filter_forms_tag(comparison):
     try:
-        filter_forms = comparison.filter_forms_list()
-        num_forms = len(filter_forms)
+        filter_forms = comparison.filter_forms_dict()
+        num_forms = len(filter_forms.values())
         return {'filter_forms': filter_forms,
                 'num_forms': num_forms}
     except:

@@ -7,7 +7,9 @@
     {% block site_css %}
     <link href="{{ STATIC_URL }}css/base.css" rel="stylesheet"
     type="text/css" media="screen"/>
-    <link href="{{ STATIC_URL }}css/bootstrap-3rc1.css" rel="stylesheet"
+    <link href="{{ STATIC_URL }}css/bootstrap-3rc2.css" rel="stylesheet"
+    type="text/css" media="screen"/>
+    <link href="{{ STATIC_URL }}css/bootstrap-glyphicons.css" rel="stylesheet"
     type="text/css" media="screen"/>
 
     {% endblock %}
@@ -16,7 +18,7 @@
     {% block js_head %}
     <script type='text/javascript' src="{{ STATIC_URL }}libs/jquery-1.10.2.js"></script>
 <script type='text/javascript' src="{{ STATIC_URL }}libs/jquery.cookie.js"></script>
-    <script type='text/javascript' src="{{ STATIC_URL }}libs/bootstrap-3rc1.js"></script>
+    <script type='text/javascript' src="{{ STATIC_URL }}libs/bootstrap-3rc2.js"></script>
     <script type='text/javascript' src="{{ STATIC_URL }}libs/site.js"></script>
     {% endblock %}
 
@@ -26,21 +28,19 @@
   </head>
 
   <body>
-    <div id="header">
+    <div id="header" class="row">
       {% block header %}
-      <div class="row">
         <div class="span12">
           <h1><a href="{% url 'dashboard.views.explorer' %}">UCSC Immunobrowser</a></h1>
         </div>
-      </div>
       {% endblock %}
     </div>
 
-    <div id="content">
+    <div id="content" class="row">
       {% block content %}{% endblock %}
     </div>
 
-    <div id="footer">
+    <div id="footer" class="row">
       {% block footer %}
       <div class="center span12">
         footer information goes here

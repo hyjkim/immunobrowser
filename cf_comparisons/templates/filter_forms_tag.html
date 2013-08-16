@@ -2,11 +2,49 @@
   <form action="#" method="post">
     {% csrf_token %}
     <input type="hidden" name="num_forms" value="{{ num_forms }}">
-    {% for filter_form in filter_forms %}
-    <div class="filter_form" style="float:left">
-      {{ filter_form.as_p }}
+    {% for clonofilter, filter_form in filter_forms.iteritems %}
+    <div class="filter-form accordian" id="filter-cf-{{clonofilter.id}}"style="float:left">
+      <a class="accordion-toggle" data-toggle="collapse"
+        data-parent="filter-cf-{{clonofilter.id}}" href="#collapse-cf-{{clonofilter.id}}">
+        <h4>{{clonofilter.sample}}</h4>
+      </a>
+      <div class="filter-form-inner accordion-body in" id="collapse-cf-{{clonofilter.id}}">
+        <span id="remove-{{clonofilter.id}}"class="glyphicon glyphicon-remove pull-right"></span>
+        {{ filter_form.non_field_errors }}
+        <div class="fieldWrapper">
+          {{ filter_form.min_copy.errors }}
+          <label for="id_sample">Min Copy:</label>
+          {{ filter_form.min_copy }}
+        </div>
+        <div class="fieldWrapper">
+          {{ filter_form.min_length.errors }}
+          <label for="id_sample">Min Length:</label>
+          {{ filter_form.min_length }}
+        </div>
+        <div class="fieldWrapper">
+          {{ filter_form.max_length.errors }}
+          <label for="id_sample">Max Length:</label>
+          {{ filter_form.max_length}}
+        </div>
+        <div class="fieldWrapper">
+          {{ filter_form.norm_factor.errors }}
+          <label for="id_sample">Normalization Factor:</label>
+          {{ filter_form.norm_factor }}
+        </div>
+        <div class="fieldWrapper">
+          {{ filter_form.v_family_name.errors }}
+          <label for="id_sample">V Family Name:</label>
+          {{ filter_form.v_family_name}}
+        </div>
+        <div class="fieldWrapper">
+          {{ filter_form.j_gene_name.errors }}
+          <label for="id_sample">J Gene Name:</label>
+          {{ filter_form.j_gene_name }}
+        </div>
+      </div>
+
     </div>
     {% endfor %}
-    <input type="submit" />
+    <input type="submit" value="Update" />
   </form>
 </div>

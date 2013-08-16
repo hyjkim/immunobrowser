@@ -240,7 +240,7 @@ class ComparsionModelMethodsTest(TestCase):
         from clonotypes.forms import ClonoFilterForm
         comparison = Comparison.objects.get()
         filter_forms = comparison.filter_forms_dict()
-        for filter_form in filter_forms.values:
+        for filter_form in filter_forms.values():
             self.assertIsInstance(filter_form, ClonoFilterForm)
 
     def test_filter_forms_list_returns_a_list_of_filter_forms_given_a_comparison_id(self):

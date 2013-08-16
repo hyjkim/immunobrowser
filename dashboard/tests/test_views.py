@@ -85,7 +85,19 @@ class DashboardViewIntegrationTest(TestCase):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
 
-    def DONTtest_dashboard_add_samples_v2_adds_new_samples_to_existing_in_comparison_and_returns_new_comp_id(self):
+    def test_remove_clonofilter_removes_a_clonofilter_from_a_comparison(self):
+        comp = ComparisonFactory()
+        cfs = list(comp.clonofilters.all())
+        del_cf = cfs.pop()
+
+        url = reverse('dashboard.views.remove_clonofilter')
+        post_data = {'comparison': comp.id, 'clonofilter': del_cf.id}
+        response = self.client.post(url, data=post_data)
+        self.assertNotEqual(comp.id, response.content)
+        new_comp = Comparison.objects.get(id=response.content)
+        self.assertEqual([cf.id for cf in cfs], [cf.id for cf in new_comp.clonofilters.all()])
+
+    def test_add_samples_v2_adds_new_samples_to_existing_in_comparison_and_returns_new_comp_id(self):
         from test_utils.factories import SampleFactory
         comp = ComparisonFactory()
         sample = SampleFactory()
@@ -93,20 +105,16 @@ class DashboardViewIntegrationTest(TestCase):
         old_cfs = comp.clonofilters.all()
         old_sample_set = set([cf.sample for cf in comp.clonofilters.all()])
 
-        self.request.method = "POST"
-        self.request.POST = {
-                'comparison':comp.id}
-        # Need a mock to do this I believe... fix this later
-#        self.request.POST.getlist('samples')=[sample.id]
+        url = reverse('dashboard.views.add_samples_v2')
+        post_data = {'comparison': comp.id, 'samples': [sample.id]}
+        response = self.client.post(url,
+                                    data=post_data)
 
-        new_comp_id = add_samples_v2(self.request)
-        print new_comp_id
+        new_comp_id = response.content
         new_comp = Comparison.objects.get(id=new_comp_id)
         new_sample_set = set([cf.sample for cf in new_comp.clonofilters.all()])
         self.assertTrue(sample in new_sample_set)
         self.assertTrue(old_sample_set.issubset(new_sample_set))
-
-
 
     def test_dashboard_v2_shows_sample_select_template_tag(self):
         url = reverse('dashboard.views.dashboard_v2')

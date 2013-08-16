@@ -1,5 +1,13 @@
 <form action="#" method="post">
   {% csrf_token %}
-  {{sample_compare_form.as_p}}
-  <input type="submit" />
+  <div class="row">
+  {{sample_compare_form.non_field_errors}}
+  {{sample_compare_form.samples.errors}}
+  {{sample_compare_form.samples}}
+  </div>
+
+  <div class="row">
+  <input type="button" value="Cancel">
+  <input type="submit" value="Add Sample(s)"/>
+</div>
 </form>

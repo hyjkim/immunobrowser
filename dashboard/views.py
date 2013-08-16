@@ -8,6 +8,20 @@ from patients.models import Patient
 from samples.models import Sample
 from cf_comparisons.models import Comparison
 
+def remove_clonofilter(request):
+    '''
+    Given a comparison id and a clonofilter id from post
+    get or create a comparison without the specified clonofilter.
+    Returns updated comparison id via http response.
+    '''
+    if request.method == "POST":
+        comp = Comparison.objects.get(id=request.POST['comparison'])
+        cfs = [cf.id for cf in comp.clonofilters.all() if cf.id != int(request.POST['clonofilter'])]
+        new_comp, created = Comparison.get_or_create_from_clonofilters(cfs)
+        return HttpResponse(new_comp.id)
+    else:
+        return HttpResponseRedirect(reverse('dashboard.views.dashboard_v2'))
+
 def add_samples_v2(request):
     '''
     Processes an ajax request.

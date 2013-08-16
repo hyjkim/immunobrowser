@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-
-
 {% block content %}
 {% load comparison_tags %}
 
-<div class="menu sample">
+<div class="menu sample row">
   <div id="filter-forms">
+    {% if comparison %}
     {% filter_forms_tag comparison %}
+    {% endif %}
   </div>
-  <div id="add-sample">
+  <div id="add-sample" class="col-md-2 text-center nav">
     <a>
       <h1>+</h1><br />
       Add sample
     </a>
   </div>
-  <div id="sample-compare">
+  <div id="sample-compare" class="col-md-3 nav text-right">
     {% sample_compare_tag sample_compare_form%}
   </div>
 </div>
@@ -31,7 +31,9 @@
   var sampleCompareDiv = $('div#sample-compare');
   var addSampleDiv = $('div#add-sample');
   var sampleSubmit = $('div#sample-compare :submit');
+  var sampleCancel = $('div#sample-compare :button');
   var sampleForm = $('div#sample-compare form');
+  var sampleRemoveGlyphs = $('.glyphicon-remove');
 
   // Make sure the sample compare div is hidden
   sampleCompareDiv.hide();
@@ -60,6 +62,7 @@
       $.get("/compare/" + compId + "/filter_forms",
       function(filterForms) {
         $('div#filter-forms').html(filterForms)
+        setup();
       });
 
       // Update global comparisonId variable
@@ -70,14 +73,47 @@
       // a django template tag for 'dashboard.views.dashboard_v2'
       window.history.pushState(null, '', '/dashboard_v2/' + compId);
     });
+
+
+  });
+
+  sampleCancel.click(function () {
+    sampleCompareDiv.hide();
+    addSampleDiv.show();
   });
 
 
+  var setup = function () {
+    sampleRemoveGlyphs = $('.glyphicon-remove');
+    sampleRemoveGlyphs.click(closeFunction);
+  };
 
+  var closeFunction = function() {
+    cfId = $(this).attr('id').match(/\d+/)[0];
+    postData = [{'name':'comparison', 'value': comparisonId},
+    {'name':'clonofilter', 'value': cfId}];
+    $.post('{% url 'dashboard.views.remove_clonofilter' %}',
+    postData, function (compId) {
+      comparisonId = compId;
+      window.history.pushState(null, '', '/dashboard_v2/' + compId);
+      // Load filter forms
+      $.get("/compare/" + compId + "/filter_forms",
+      function(filterForms) {
+        $('div#filter-forms').html(filterForms)
+        setup();
+      });
+    });
 
+  };
 
+  setup();
+
+  // Hide filters after some predetermined amount of time
+  setTimeout(function() {
+    $('.accordion-body').collapse();
+    },
+    1000);
 
 
 </script>
-
 {% endblock %}
