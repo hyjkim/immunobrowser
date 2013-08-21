@@ -13,13 +13,12 @@ class ComparsionModelMethodsTest(TestCase):
         make_fake_comparison_with_2_samples()
         self.comparison = Comparison.objects.get()
 
-    def DONTtest_get_shared_amino_acids_counts_reports_a_sum_of_normalized_counts_as_nested_dict_value(self):
-        '''todo: call on two datasets, one with norm factors, one without and make sure values are expected'''
-        self.fail('todo: call on two datasets, one with norm factors, one without and make sure values are expected')
-
     def DONTtest_get_shared_recombinations_counts_reports_a_sum_of_normalized_counts_as_nested_dict_value(self):
         '''todo: call on two datasets, one with norm factors, one without and make sure values are expected'''
         self.fail('todo: call on two datasets, one with norm factors, one without and make sure values are expected')
+
+    def test_comparison_sample_names_returns_dictionary_of_sample_names_indexed_by_cfid(self):
+        self.assertEqual({1: 'test patient 2012-12-12 cd4+', 2: 'test patient 2012-12-13 cd4+'} , self.comparison.sample_names())
 
     def test_add_samples_add_samples_to_comparison(self):
         from test_utils.factories import SampleFactory
@@ -100,14 +99,24 @@ class ComparsionModelMethodsTest(TestCase):
             for clonotype in nested.values():
                 self.assertIsInstance(clonotype, Clonotype)
 
-    def test_get_shared_amino_acids_counts_returns_a_nested_dict_of_floats(self):
+    def test_get_shared_amino_acids_counts_returns_a_d3_compatible_dict_of_amino_acid_counts(self):
+        '''
+        Tests that get_shared_amino_acids_counts returns a dict in the format
+            {aa1_id: {'sequence': aa.sequence, 'clonofiters':{ cf_id1: float,
+                              cf_id2: float,}}
+        '''
+        from clonotypes.models import AminoAcid, ClonoFilter
+
         shared_amino_acids = self.comparison.get_shared_amino_acids_counts()
         self.assertIsInstance(shared_amino_acids, dict)
+        self.assertNotEqual(shared_amino_acids, {})
+        for aa_id, values in shared_amino_acids.iteritems():
+            self.assertIsInstance(values['sequence'], unicode)
+            for cf_id, value in values['clonofilters'].iteritems():
+                self.assertTrue(len(ClonoFilter.objects.get(cf_id)))
+                self.assertIsInstance(value, float)
 
-        for nested in shared_amino_acids.values():
-            self.assertIsInstance(nested, dict)
-            for count_sum in nested.values():
-                self.assertIsInstance(count_sum, float)
+        self.fail('todo')
 
     def test_get_shared_recombinations_counts_returns_a_nested_dict_of_floats(self):
         '''
@@ -215,7 +224,7 @@ class ComparsionModelMethodsTest(TestCase):
         clonotypes = self.comparison.get_shared_clonotypes()
         self.assertEqual(clonotypes.values().sort(), shared_amino_acid.related_clonotypes.sort())
 
-    def test_get_shared_amino_acids_related_returns_only_clonotypes_belonging_two_shared_clonotypes(self):
+    def test_get_shared_amino_acids_related_returns_only_clonotypes_belonging_to_shared_clonofilters(self):
         from test_utils.factories import SampleFactory, ClonotypeFactory
         from clonotypes.models import AminoAcid
         s3 = SampleFactory()
@@ -310,6 +319,7 @@ class ComparisonModelTest(TestCase):
         comp.clonofilters.add(cf_2)
 
         self.assertEqual(set([cf_1, cf_2]), set(comp.clonofilters.all()))
+
 
 
 class ComparisonColorModelTest(TestCase):

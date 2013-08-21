@@ -1,3 +1,67 @@
+function sharedClones() {
+  var margin = {top: 20, right: 20, bottom: 20, left: 20},
+  width = 600,
+  height = 400,
+  xScale = d3.scale.ordinal(),
+  yScale = d3.scale.linear().domain([0,1]);
+
+  function plot(selection) {
+    selection.each(function (data) {
+      // set scales
+
+      var svg= selection.selectAll('svg').data([data]);
+      svg.enter().insert("svg");
+      svg.attr("width", width)
+      .attr("height", height);
+
+      var gInner = svg.selectAll('g.Inner')
+        .data(function(d) {return d});
+        gInner.enter().append('g').attr("class",function(d) {return d.key});
+
+      var circles = gInner.selectAll('circle').data(function(d) {console.log(d3.map(d.value['clonofilters']).entries());return d3.map(d.value['clonofilters']).entries()});
+      circles.enter().append('circle')
+      .attr('x',function(d) {return d.key})
+      .attr('y', function(d) {return d.value});
+
+/*
+      var gAminoAcid = gInner.selectAll('g.amino-acid').data(function(d){console.log(d); return d });
+      gAminoAcid.enter().append('g').attr('class', 'amino-acid');
+
+*/
+    });
+  }
+
+  function aaTable(selection){
+
+  }
+
+  plot.width = function(value) {
+    if(!arguments.length) return width;
+    width = value;
+    return plot;
+  }
+
+  plot.height = function(value) {
+    if(!arguments.length) return height;
+    height = value;
+    return plot;
+  }
+
+  plot.x = function(value) {
+    if(!arguments.length) return xScale;
+    xScale = value;
+    return plot;
+  }
+  plot.y = function(value) {
+    if(!arguments.length) return yScale;
+    yScale = value;
+    return plot;
+  }
+
+
+  return plot;
+}
+
 function functionality() {
   var margin = {top: 10, right: 10, bottom: 10, left: 100},
       width = 600,

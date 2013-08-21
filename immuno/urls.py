@@ -47,6 +47,8 @@ urlpatterns = patterns('',
 
                        url(r'^clonotype/(\d+)$', 'clonotypes.views.detail'),
 
+                       url(r'^compare/?(\d+)?/scatter_nav', 'cf_comparisons.views.scatter_nav'),
+                       url(r'^compare/(\d+)?/shared_clones', 'cf_comparisons.views.shared_clones'),
                        url(r'^compare/(\d+)/bubble.png', 'cf_comparisons.views.bubble'),
                        url(r'^compare/(\d+)/spectratype.png', 'cf_comparisons.views.spectratype'),
                        url(r'^compare/(\d+)/filter_forms', 'cf_comparisons.views.filter_forms'),

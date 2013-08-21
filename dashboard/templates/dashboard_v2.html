@@ -14,8 +14,6 @@
   <div id="filter-forms">
     {% if comparison %}
     {% filter_forms_tag comparison %}
-    {% else %}
-    No comparison
     {% endif %}
   </div>
   <div id="add-sample" class="col-md-2 text-center nav">
@@ -29,7 +27,11 @@
   </div>
 </div>
 
+{% if comparison %}
+{% scatter_nav_tag comparison %}
+{% shared_clones_tag comparison %}
 
+{% endif %}
 <script>
   // specific code
   {% autoescape off %}
@@ -43,16 +45,61 @@
   var sampleSubmit = $('div#sample-compare :submit');
   var sampleCancel = $('div#sample-compare :button');
   var sampleForm = $('div#sample-compare form');
-  var sampleRemoveGlyphs = $('.glyphicon-remove');
-  var filterForms = $('.filter-form');
+  var sampleRemoveGlyphs;
+  var filterForms;
 
-  // Make sure the sample compare div is hidden
-  sampleCompareDiv.hide();
+  // In here, things that don't change upon interacting with the sample form
+  var init = function () {
+    // Make sure the sample compare div is hidden
+    sampleCompareDiv.hide();
+    // Shows add sample form when add sample is clicked
+    addSampleDiv.click(function () {
+      sampleCompareDiv.show();
+      addSampleDiv.hide();
+    });
+    // Hides add sample form when cancel button is clicked
+    sampleCancel.click(function () {
+      sampleCompareDiv.hide();
+      addSampleDiv.show();
+    });
 
-  addSampleDiv.click(function () {
-    sampleCompareDiv.show();
-    addSampleDiv.hide();
-  });
+  }
+
+  var update = function () {
+    // Binds removal of clonofilter from comparison to glyphicon-remove
+    sampleRemoveGlyphs = $('.glyphicon-remove');
+    sampleRemoveGlyphs.click(closeFunction);
+
+    // Hide filters after some predetermined amount of time
+    setTimeout(function() {
+      $('.accordion-body').collapse('hide');
+    },
+    1000);
+
+
+    // Change opacity of filter form on mouse over
+    filterForms = $('.filter-form');
+    filterForms
+    .on("mouseover", function () {
+      $(this).removeClass("inactive").addClass("active");
+    })
+    .on("mouseleave", function () {
+      $(this).removeClass("active").addClass("inactive");
+    })
+    .click(function () {
+      var body = $(this).find('.accordion-body')
+      if (body.length) {
+        body.collapse('show')
+        body.removeClass('accordion-body').addClass('accordion-body-disabled');
+      }
+      else {
+        body = $(this).find('.accordion-body-disabled');
+        body.removeClass('accordion-body-disabled').addClass('accordion-body');
+        body.collapse('hide');
+      }
+    })
+    ;
+  };
 
   sampleSubmit.click(function () {
     event.preventDefault();
@@ -73,7 +120,7 @@
       $.get("/compare/" + compId + "/filter_forms",
       function(filterForms) {
         $('div#filter-forms').html(filterForms)
-        setup();
+        update();
       });
 
       // Update global comparisonId variable
@@ -88,16 +135,6 @@
 
   });
 
-  sampleCancel.click(function () {
-    sampleCompareDiv.hide();
-    addSampleDiv.show();
-  });
-
-
-  var setup = function () {
-    sampleRemoveGlyphs = $('.glyphicon-remove');
-    sampleRemoveGlyphs.click(closeFunction);
-  };
 
   var closeFunction = function() {
     cfId = $(this).attr('id').match(/\d+/)[0];
@@ -111,45 +148,19 @@
       $.get("/compare/" + compId + "/filter_forms",
       function(filterForms) {
         $('div#filter-forms').html(filterForms)
-        setup();
+        update();
       });
     });
 
   };
 
-  setup();
-
-
-  // Change opacity of filter form on mouse over
-  filterForms
-  .on("mouseover", function () {
-    $(this).removeClass("inactive").addClass("active");
-  })
-  .on("mouseleave", function () {
-    $(this).removeClass("active").addClass("inactive");
-  })
-  .click(function () {
-    var body = $(this).find('.accordion-body')
-    if (body.length) {
-      body.collapse('show')
-      body.removeClass('accordion-body').addClass('accordion-body-disabled');
-    }
-    else {
-      body = $(this).find('.accordion-body-disabled');
-      body.removeClass('accordion-body-disabled').addClass('accordion-body');
-      body.collapse('hide');
-    }
-
-  })
-  ;
+  init();
+  update();
 
 
 
-  // Hide filters after some predetermined amount of time
-  setTimeout(function() {
-    $('.accordion-body').collapse('hide');
-  },
-  1000);
+
+
 
 
 

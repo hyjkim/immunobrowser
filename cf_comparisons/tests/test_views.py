@@ -5,7 +5,7 @@ from mock import patch
 from test_utils.ghetto_factory import make_fake_comparison_with_2_samples
 from cf_comparisons.models import Comparison
 from samples.models import Sample
-from cf_comparisons.views import compare, bubble, sample_compare
+from cf_comparisons.views import compare, bubble, sample_compare, scatter_nav, shared_clones
 from cf_comparisons.forms import SampleCompareForm
 
 
@@ -24,12 +24,13 @@ class ComparisonsViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
-    def test_scatter_nav_uses_a_template_tag(self):
-        from django.template import Template, Context
-        t = Template('{% load comparison_tags %}{% scatter_nav_tag comparison %}')
-        c = Context({'comparison': self.comparison})
-        self.assertIn('<form action=', t.render(c))
+    def test_shared_clones_takes_in_comparison_id(self):
+        shared_clones(self.request, self.comparison.id)
 
+    def test_scatter_nav_renders_scatter_nav_template(self):
+        from django.template import Template, Context
+        response = scatter_nav(self.request, None);
+        self.assertEqual(response['template'], 'scatter_nav.html')
 
     def test_compare_sends_shared_amino_acids_and_related_clonotypes(self):
         mock_response = compare(self.request, self.comparison.id)
@@ -40,19 +41,6 @@ class ComparisonsViewUnitTest(TestCase):
         mock_response = compare(self.request, self.comparison.id)
         self.assertEqual(self.comparison.get_samples(
         ), mock_response.get('samples'))
-
-    def DONTtest_compare_should_pass_num_forms_to_template_via_context(self):
-        mock_response = compare(self.request, self.comparison.id)
-        self.assertEqual(2, mock_response.get('num_forms'))
-
-    def DONTtest_clonofilter_forms_in_compare_should_have_prefixes(self):
-        '''
-        When I modified the filter_form template tag, this test became deprecated.
-        Not really sure how to test the context of a template tag at this point,
-        doesn't seem to be a common practice.
-        '''
-        mock_response = compare(self.request, self.comparison.id)
-        self.assertEqual('0', mock_response.get('filter_forms')[0].prefix)
 
     def test_sample_compare_view_passes_sample_compare_form_to_template_via_context(self):
         '''
@@ -69,30 +57,6 @@ class ComparisonsViewUnitTest(TestCase):
     def test_compare_view_passes_comparison_instance_to_template_via_context(self):
         mock_response = compare(self.request, self.comparison.id)
         self.assertEqual(self.comparison, mock_response.get('comparison'))
-
-    def DONTtest_compare_view_passes_list_of_clonofilter_forms_to_template_via_context(self):
-        '''
-        When I modified the filter_form template tag, this test became deprecated.
-        Not really sure how to test the context of a template tag at this point,
-        doesn't seem to be a common practice.
-        '''
-        from clonotypes.forms import ClonoFilterForm
-        mock_response = compare(self.request, self.comparison.id)
-        filter_forms = mock_response.get('filter_forms')
-        self.assertIsInstance(filter_forms, list)
-
-        for form in filter_forms:
-            self.assertIsInstance(form, ClonoFilterForm)
-
-    def DONTtest_compare_view_displays_as_many_forms_as_clonofilters_in_a_comparison_instance(self):
-        '''
-        When I modified the filter_form template tag, this test became deprecated.
-        Not really sure how to test the context of a template tag at this point,
-        doesn't seem to be a common practice.
-        '''
-        mock_response = compare(self.request, self.comparison.id)
-        self.assertEqual(len(self.comparison.clonofilters.all()),
-                         len(mock_response.get('filter_forms')))
 
     def test_compare_renders_compare_html_template(self):
         mock_response = compare(self.request, self.comparison.id)
@@ -134,6 +98,38 @@ class ComparisonsViewIntegrationTest(TestCase):
                     self.comparison.id]),
             response.content)
 
+    def test_shared_clone_view_renders_the_same_as_template_tag(self):
+        from django.template import Template, Context
+        t = Template('{% load comparison_tags %}{% shared_clones_tag comparison %}')
+        c = Context({'comparison': self.comparison})
+        url = reverse('cf_comparisons.views.shared_clones', args=[1])
+        response = self.client.get(url)
+        self.assertIn(t.render(c), response.content)
+
+    def test_shared_clones_uses_a_template_tag(self):
+        from django.template import Template, Context
+        t = Template('{% load comparison_tags %}{% shared_clones_tag comparison %}')
+        c = Context({'comparison': self.comparison})
+        self.assertIn('<div id="shared-clones"', t.render(c))
+
+    def test_scatter_nav_uses_a_template_tag(self):
+        from django.template import Template, Context
+        t = Template('{% load comparison_tags %}{% scatter_nav_tag comparison %}')
+        c = Context({'comparison': self.comparison})
+        self.assertIn('<div id="scatter-main"', t.render(c))
+
+    def test_shared_clone_view_has_a_url(self):
+        url = reverse('cf_comparisons.views.shared_clones', args=[1])
+        self.assertEqual(url, '/compare/1/shared_clones')
+
+    def test_scatter_nav_has_a_url(self):
+        url = reverse('cf_comparisons.views.scatter_nav', args=[1])
+        self.assertEqual(url, '/compare/1/scatter_nav')
+
+    def test_scatter_nav_has_a_url(self):
+        url = reverse('cf_comparisons.views.scatter_nav')
+        self.assertEqual(url, '/compare/scatter_nav')
+
     def test_update_view_takes_in_a_dict_with_string_ids_from_post_and_returns_a_new_comparison_id(self):
         import json
         url = reverse('cf_comparisons.views.update', args=[self.comparison.id])
@@ -146,8 +142,6 @@ class ComparisonsViewIntegrationTest(TestCase):
         response = self.client.post(url, {'update':json.dumps(update_dict)})
         self.assertNotEqual(str(self.comparison.id), response)
         self.assertEqual(response.content, '2')
-
-
 
     def test_update_view_takes_in_a_request_from_post_and_returns_json_with_comparison_id(self):
         import json

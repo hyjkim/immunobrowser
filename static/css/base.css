@@ -88,13 +88,32 @@ div.recombination {
   padding: 15px 15px 15px 15px;
   border: 1px solid
 }
-
+ .axis path,
+  .axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+  }
+  .axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+  }
+  .tooltip {
+    position: absolute;
+    z-index: 10;
+  }
   .active {
     opacity: 0.75
   }
-
   .inactive {
     opacity: 0.3
   }
 
+  .grid .tick {
+    stroke: lightgrey;
+    opacity: 0.7;
+  }
 
+  .grid .path {
+    stroke-width: 0;
+  }

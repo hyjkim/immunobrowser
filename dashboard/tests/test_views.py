@@ -85,6 +85,13 @@ class DashboardViewIntegrationTest(TestCase):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
 
+    def test_dashboard_v2_call_shared_clones_template_tag_if_comparison_is_not_none(self):
+        comp = ComparisonFactory()
+        url = reverse('dashboard.views.dashboard_v2', args=[comp.id])
+        response = self.client.get(url)
+        self.assertIn('<div id="shared-clones"', response.content)
+
+
     def test_remove_clonofilter_removes_a_clonofilter_from_a_comparison(self):
         comp = ComparisonFactory()
         cfs = list(comp.clonofilters.all())

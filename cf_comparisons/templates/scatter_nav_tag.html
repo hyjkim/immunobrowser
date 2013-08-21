@@ -1,0 +1,99 @@
+
+<div id="scatter-main"></div>
+<div id="functionality"></div>
+
+<script type='text/javascript' src="/static/libs/compare.js"></script>
+<script type='text/javascript'>
+
+// Modify the django source to produce a single
+// object according to these specifications
+{% autoescape off %}
+var frequencies = {{ data }};
+var vList = {{ v_list }};
+var jList = {{ j_list }};
+var sampleNames = {{ sample_names }};
+var sampleColors = {{ sample_colors}};
+var functData = {{functionality}};
+
+{% endautoescape %}
+
+// functions for mapping colors to sample id
+function colormap (c) {
+  var colors = c;
+  return function (d) {
+    return colors[d];
+  }
+};
+
+function namemap (n) {
+  var names = n;
+  return function(d) {
+    return names[d];
+  }
+};
+
+
+  var my_xScale = d3.scale
+.ordinal()
+  .domain(vList);
+
+  var my_yScale = d3.scale
+.ordinal()
+  .domain(jList);
+
+var my_rScale = d3.scale.linear()
+  .domain([0, d3.max(frequencies, function(d) {
+        return d[2];
+        })
+      ])
+  .range([0, 24]);
+
+  var my_colors = colormap(sampleColors);
+  var my_names = namemap(sampleNames);
+
+  var my_nav = scatterNav()
+  .x(my_xScale)
+  .y(my_yScale)
+  .r(my_rScale)
+  .color(my_colors)
+  .sampleName(my_names);
+
+  var navDiv = d3.select("#scatter-main")
+  .datum(frequencies)
+.call(my_nav)
+  ;
+
+
+  // Add interactivity
+  // yAxis clicking should load a new page
+
+  d3.selectAll("g.yAxis g.tick")
+  .on("click", function () {
+      var jGene = d3.select(this).datum();
+      var updateDict = {};
+      for (var sampleId in sampleNames) {
+      updateDict[sampleId] = {'j_gene_name': jGene};
+      }
+      console.log(updateDict)
+      // use jQuery to post with the csrf token header
+      //$.post("{% url 'cf_comparisons.views.update' comparison_id %}")
+      $.post("{% url 'cf_comparisons.views.update' comparison_id %}",
+        {'update': JSON.stringify(updateDict)}, 
+        function(comparison_id) {
+        window.location.href="/compare/"+comparison_id+"/d3_test"
+        });
+      });
+
+
+// Make functionality plot
+var functPlot = functionality()
+  .sampleName(my_names);
+
+  d3.select("#functionality")
+  .datum(functData)
+  .call(functPlot)
+  ;
+
+
+</script>
+

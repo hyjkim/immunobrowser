@@ -6,6 +6,32 @@ from clonotypes.forms import ClonoFilterForm
 from clonotypes.models import ClonoFilter
 
 
+def shared_clones(request, comparison_id):
+    '''
+    Given a comparison id, returns a rendered shared_clone template tag
+    that contains a table of top X shared clones and an interactive
+    line plot. Should also return some sort of similarity matrix
+    '''
+    try:
+        comparison = Comparison.objects.get(id=comparison_id)
+    except:
+        comparison = None
+    context = {'comparison': comparison}
+    return render(request, 'shared_clones.html', context)
+
+
+def scatter_nav(request, comparison_id):
+    '''
+    Displays an interactive scatterplot with each clonofilter
+    displaying a different color.
+    '''
+    try:
+        comparison = Comparison.objects.get(id=comparison_id)
+    except:
+        comparison = None
+    context = {'comparison': comparison}
+    return render(request, 'scatter_nav.html', context)
+
 def update(request, comparison_id):
     '''
     Given a comparison id parsed from the url and an
