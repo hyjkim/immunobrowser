@@ -1,40 +1,40 @@
-<div id="shared-clones">
-
-
-<div id="shared-clonotype-wrapper">
-<table>
-<tr>
-<th>
-Amino Acid Sequence
-</th>
-{% for cfid, sample_name in sample_names.items %}
-<th class="cf-{{cfid}}">
-{{sample_name}}
-</th>
-{% endfor %}
-</tr>
-{% for aa_id, values in amino_acids.items %}
-<tr class="aa-{{aa_id}}">
-<td>
-<a href="{% url 'clonotypes.views.amino_acid_detail' aa_id %}">{{values.sequence}}</a>
-</td>
-{% for cfid, sample_name in sample_names.items %}
-<td class="cf-{{cfid}}">
-{{values.clonofilters|lookup:cfid}}
-</td>
-{% endfor %}
-</tr>
-{% endfor %}
-</table>
-</div>
+<div id="shared-clones" class="row">
+  <div id="shared-clones-d3" class="col-md-7">
+  </div>
+  <div class="col-md-5">
+    <table>
+      <tr>
+        <th>
+          Amino Acid Sequence
+        </th>
+        {% for cfid, sample_name in sample_names.items %}
+        <th class="cf-{{cfid}}">
+          {{sample_name}}
+        </th>
+        {% endfor %}
+      </tr>
+      {% for aa_id, values in amino_acids.items %}
+      <tr class="aa-{{aa_id}}">
+        <td>
+          <a href="{% url 'clonotypes.views.amino_acid_detail' aa_id %}">{{values.sequence}}</a>
+        </td>
+        {% for cfid, sample_name in sample_names.items %}
+        <td class="cf-{{cfid}}">
+          {{values.clonofilters|lookup:cfid}}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
 
 </div>
 
 <script type="text/javascript">
 
-{% autoescape off %}
-var aminoAcids = d3.map({{amino_acids|jsonify}});
-var sampleNames = {{ sample_names|jsonify }};
+  {% autoescape off %}
+  var aminoAcids = d3.map({{amino_acids|jsonify}});
+  var sampleNames = {{ sample_names|jsonify }};
 var sampleColors = {{ sample_colors}};
 {% endautoescape %}
 
@@ -42,7 +42,7 @@ var sampleColors = {{ sample_colors}};
 
 var mySharedClones = sharedClones();
 
-var div = d3.select('#shared-clonotype-wrapper').datum(aminoAcids.entries());
+var div = d3.select('#shared-clones-d3').datum(aminoAcids.entries());
 
 div.call(mySharedClones);
 

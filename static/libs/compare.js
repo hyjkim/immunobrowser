@@ -3,25 +3,56 @@ function sharedClones() {
   width = 600,
   height = 400,
   xScale = d3.scale.ordinal(),
-  yScale = d3.scale.linear().domain([0,1]);
+  yScale = d3.scale.linear();
 
   function plot(selection) {
     selection.each(function (data) {
+      // Get max frequency
+      var max_freq = d3.max(data, function(d) {
+        return d3.max(d3.map(d.value.clonofilters).entries(), function (freq) {
+          return freq.value;
+        });
+      });
+      // get x domain
+      var cfids = data.map(function(d) {
+        return d3.map(d.value.clonofilters).keys();
+      });
+      cfids = d3.set([].concat.apply([], cfids)).values();
+      console.log(cfids);
       // set scales
+      xScale.domain(cfids).rangeRoundBands([0, width - margin.left - margin.right]);
+      yScale.domain([0,max_freq]).range([height - margin.top - margin.bottom,0]);
 
-      var svg= selection.selectAll('svg').data([data]);
+
+
+
+      // get the svg and create it if necessary
+      var svg = selection.selectAll('svg').data([data]);
       svg.enter().insert("svg");
       svg.attr("width", width)
       .attr("height", height);
 
-      var gInner = svg.selectAll('g.Inner')
-        .data(function(d) {return d});
-        gInner.enter().append('g').attr("class",function(d) {return d.key});
 
-      var circles = gInner.selectAll('circle').data(function(d) {console.log(d3.map(d.value['clonofilters']).entries());return d3.map(d.value['clonofilters']).entries()});
+      // create a g for amino acid groups
+      var gAmino = svg.selectAll('g.Inner')
+        .data(function(d) {return d});
+        gAmino.enter().append('g').attr("class",function(d) {return d.key});
+        
+      // draw circles
+      var circles = gAmino.selectAll('circle').data(function(d) {return d3.map(d.value['clonofilters']).entries()});
       circles.enter().append('circle')
-      .attr('x',function(d) {return d.key})
-      .attr('y', function(d) {return d.value});
+      .attr('cx',function(d) {return xScale(d.key)})
+      .attr('cy', function(d) {return yScale(d.value)})
+      .attr('r', 10)
+      .attr('class', 'inactive')
+      .on('mouseover', function () {
+        d3.select(this).attr('class', 'active')
+      })
+      .on('mouseoout', function () {
+        circles.attr('class', 'inactive')
+      })
+
+      // draw lines
 
 /*
       var gAminoAcid = gInner.selectAll('g.amino-acid').data(function(d){console.log(d); return d });
