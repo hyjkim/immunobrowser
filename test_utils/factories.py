@@ -15,6 +15,10 @@ from samples.models import Sample
 from cf_comparisons.models import Comparison
 
 
+#class UserFactory(factory.django.DjangoModelFactory):
+#    FACTORY_FOR = models.User
+#    first_name = factory.Sequence(lambda n: "Agent %03d" % n)
+
 class FakeMessages:
     ''' mocks the Django message framework, makes it easier to get
     the messages out '''

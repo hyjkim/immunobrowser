@@ -85,6 +85,12 @@ class DashboardViewIntegrationTest(TestCase):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
 
+    def test_dashboard_v2_has_link_to_login(self):
+        response = self.client.get(reverse('django.contrib.auth.views.login'))
+        self.assertIn(reverse('django.contrib.auth.views.login'), response.content)
+
+
+
     def test_login_page_exists(self):
         response = self.client.get(reverse('django.contrib.auth.views.login'))
         self.assertTrue(response.content)

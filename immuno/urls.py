@@ -18,11 +18,10 @@ urlpatterns = patterns('',
 
                        # Uncomment the next line to enable the admin:
                        url(r'^admin/', include(admin.site.urls)),
+                       url('^accounts/', include('django.contrib.auth.urls')),
 
                        # Dynamic
                        url(r'^patients/(\d+)/$', 'patients.views.patient_summary'),
-
-                       url(r'^dashboard/login', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),
 
                        url(r'^dashboard$', 'dashboard.views.explorer'),
                        url(r'^dashboard/compare/(\d+)?$', 'dashboard.views.dashboard_comparison'),

@@ -31,8 +31,11 @@
   <body>
     <div id="header" class="row">
       {% block header %}
-        <div class="span12">
+        <div class="col-md-11">
           <h1><a href="{% url 'dashboard.views.explorer' %}">UCSC Immunobrowser</a></h1>
+        </div>
+        <div class="col-md-1">
+          <a href="{% url 'django.contrib.auth.views.login' %}">Login</a>
         </div>
       {% endblock %}
     </div>
