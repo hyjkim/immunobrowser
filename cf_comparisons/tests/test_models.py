@@ -113,10 +113,8 @@ class ComparsionModelMethodsTest(TestCase):
         for aa_id, values in shared_amino_acids.iteritems():
             self.assertIsInstance(values['sequence'], unicode)
             for cf_id, value in values['clonofilters'].iteritems():
-                self.assertTrue(len(ClonoFilter.objects.get(cf_id)))
+                self.assertTrue(ClonoFilter.objects.get(id=cf_id))
                 self.assertIsInstance(value, float)
-
-        self.fail('todo')
 
     def test_get_shared_recombinations_counts_returns_a_nested_dict_of_floats(self):
         '''

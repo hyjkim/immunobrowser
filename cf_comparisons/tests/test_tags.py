@@ -25,17 +25,12 @@ class SharedClonotypesTagTests(TestCase):
                       args=[self.shared_aa.id]), self.t.render(self.c))
 
     def test_compare_shared_clonotypes_tag_shows_shared_clonotypes_as_table(self):
-        self.assertIn('td class="clonotype"', self.t.render(self.c))
-
-    def test_compare_shared_clonotypes_returns_shared_amino_acids_in_context(self):
-        shared_amino_acids = self.comparison.get_shared_amino_acids_related()
-        context = shared_clones_tag(self.comparison)
-        self.assertEqual(shared_amino_acids, context['shared_amino_acids'])
+        self.assertIn('td class="cf', self.t.render(self.c))
 
     def test_compare_shared_clonotypes_tag_passes_shared_amino_acid_counts_to_context_as_json(self):
         shared_amino_acids_counts = self.comparison.get_shared_amino_acids_counts()
         context = shared_clones_tag(self.comparison)
-        self.assertEqual(json.dumps(shared_amino_acids_counts), context['amino_acids'])
+        self.assertEqual(shared_amino_acids_counts, context['amino_acids'])
 
 
     def DONTtest_compare_shared_clonotypes_should_link_to_clonotype_detail(self):

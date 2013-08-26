@@ -22,6 +22,8 @@ urlpatterns = patterns('',
                        # Dynamic
                        url(r'^patients/(\d+)/$', 'patients.views.patient_summary'),
 
+                       url(r'^dashboard/login', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),
+
                        url(r'^dashboard$', 'dashboard.views.explorer'),
                        url(r'^dashboard/compare/(\d+)?$', 'dashboard.views.dashboard_comparison'),
                        url(r'^dashboard/menu.json$', 'dashboard.views.menu_json'),

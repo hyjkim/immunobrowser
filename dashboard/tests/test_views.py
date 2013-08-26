@@ -85,6 +85,11 @@ class DashboardViewIntegrationTest(TestCase):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
 
+    def test_login_page_exists(self):
+        response = self.client.get(reverse('django.contrib.auth.views.login'))
+        self.assertTrue(response.content)
+
+
     def test_dashboard_v2_call_shared_clones_template_tag_if_comparison_is_not_none(self):
         comp = ComparisonFactory()
         url = reverse('dashboard.views.dashboard_v2', args=[comp.id])
