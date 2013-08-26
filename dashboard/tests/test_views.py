@@ -1,10 +1,11 @@
 from django.test import TestCase
 from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory, SampleFactory, ComparisonFactory
 from mock import patch
-from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, dashboard_v2, add_samples_v2
+from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, dashboard_v2, add_samples_v2, create_user
 from django.core.urlresolvers import reverse
 from cf_comparisons.models import Comparison
 import simplejson as json
+from test_utils.factories import UserFactory
 
 class DashboardViewUnitTest(TestCase):
     ''' Here, we mock out the rendering stack for fast unit tests of the view'''
@@ -79,21 +80,15 @@ class DashboardViewUnitTest(TestCase):
         pass
 
 
+
+
 class DashboardViewIntegrationTest(TestCase):
     ''' For testing dashboard stuff that requires calling the call stack '''
     def DONTtest_explorer_url_is_valid(self):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
 
-    def test_dashboard_v2_has_link_to_login(self):
-        response = self.client.get(reverse('django.contrib.auth.views.login'))
-        self.assertIn(reverse('django.contrib.auth.views.login'), response.content)
 
-
-
-    def test_login_page_exists(self):
-        response = self.client.get(reverse('django.contrib.auth.views.login'))
-        self.assertTrue(response.content)
 
 
     def test_dashboard_v2_call_shared_clones_template_tag_if_comparison_is_not_none(self):
@@ -196,3 +191,63 @@ class DashboardViewIntegrationTest(TestCase):
                 self.assertIn(str(sample), response.content)
                 self.assertIn(reverse('samples.views.summary',
                               args=[sample.id]), response.content)
+
+
+class UserUnitTest(TestCase):
+    '''
+    Testing mockable portions of the views
+    '''
+
+    def setUp(self):
+        self.renderPatch = patch('dashboard.views.render', render_echo)
+        self.renderPatch.start()
+        self.request = FakeRequestFactory()
+
+    def tearDown(self):
+        self.renderPatch.stop()
+
+    def test_user_registration_view_passes_creation_form_via_context(self):
+        from django.contrib.auth.forms import UserCreationForm
+        response = create_user(self.request)
+        self.assertIsInstance(response.get('user_creation_form'), UserCreationForm)
+
+
+class UserIntegrationTest(TestCase):
+    '''
+    For testing user interaction tests
+    '''
+
+    def test_user_registration_view_url_exists(self):
+        self.assertEqual('/accounts/create_user', reverse('dashboard.views.create_user'))
+
+    def test_dashboard_v2_displays_link_to_logout_if_user_is_logged_in(self):
+        password = 'incrediblysecurepassword'
+        user = UserFactory(password=password)
+        self.client.login(username=user.username, password=password)
+
+        url = reverse('django.contrib.auth.views.logout')
+        response = self.client.get(reverse('dashboard.views.dashboard_v2'))
+        self.assertIn(url, response.content)
+
+    def test_dashboard_v2_does_not_display_link_to_login_if_user_is_logged_in(self):
+        password = 'incrediblysecurepassword'
+        user = UserFactory(password=password)
+        self.client.login(username=user.username, password=password)
+
+        response = self.client.get(reverse('dashboard.views.dashboard_v2'))
+        self.assertNotIn(reverse('django.contrib.auth.views.login'), response.content)
+
+
+    def test_dashboard_v2_has_link_to_create_a_new_user(self):
+        response = self.client.get(reverse('django.contrib.auth.views.login'))
+        self.assertIn(reverse('dashboard.views.create_user'), response.content)
+
+    def test_dashboard_v2_has_link_to_login(self):
+        response = self.client.get(reverse('django.contrib.auth.views.login'))
+        self.assertIn(reverse('django.contrib.auth.views.login'), response.content)
+
+    def test_login_page_exists(self):
+        response = self.client.get(reverse('django.contrib.auth.views.login'))
+        self.assertTrue(response.content)
+
+

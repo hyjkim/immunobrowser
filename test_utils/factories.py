@@ -15,10 +15,6 @@ from samples.models import Sample
 from cf_comparisons.models import Comparison
 
 
-#class UserFactory(factory.django.DjangoModelFactory):
-#    FACTORY_FOR = models.User
-#    first_name = factory.Sequence(lambda n: "Agent %03d" % n)
-
 class FakeMessages:
     ''' mocks the Django message framework, makes it easier to get
     the messages out '''
@@ -59,10 +55,20 @@ def FakeRequestFactory(*args, **kwargs):
 class UserFactory(factory.Factory):
     ''' using the excellent factory_boy library '''
     FACTORY_FOR = User
-    username = factory.Sequence(lambda i: 'blogtest' + i)
-    first_name = 'John'
+    username = factory.Sequence(lambda i: 'username' + i)
+    first_name = factory.Sequence(lambda n: "Agent " + n)
     last_name = 'Doe'
     email = factory.Sequence(lambda i: 'blogtest%s@example.com' % i)
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        password = kwargs.pop('password', None)
+        user = super(UserFactory, cls)._prepare(create, **kwargs)
+        if password:
+            user.set_password(password)
+            if create:
+                user.save()
+        return user
 
 
 def render_to_response_echo(*args, **kwargs):
