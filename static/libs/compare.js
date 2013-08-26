@@ -1,7 +1,8 @@
 function sharedClones() {
-  var margin = {top: 20, right: 20, bottom: 20, left: 20},
-  width = 600,
-  height = 400,
+  var margin = {top: 20, right: 20, bottom: 20, left: 50},
+  width = 500,
+  height = 300,
+  colorScale = d3.scale.category10(),
   xScale = d3.scale.ordinal(),
   yScale = d3.scale.linear();
 
@@ -18,13 +19,10 @@ function sharedClones() {
         return d3.map(d.value.clonofilters).keys();
       });
       cfids = d3.set([].concat.apply([], cfids)).values();
-      console.log(cfids);
       // set scales
-      xScale.domain(cfids).rangeRoundBands([0, width - margin.left - margin.right]);
+      xScale.domain(cfids)
+      .rangePoints([0, width - margin.left - margin.right], 1);
       yScale.domain([0,max_freq]).range([height - margin.top - margin.bottom,0]);
-
-
-
 
       // get the svg and create it if necessary
       var svg = selection.selectAll('svg').data([data]);
@@ -32,38 +30,75 @@ function sharedClones() {
       svg.attr("width", width)
       .attr("height", height);
 
+      var gInner = svg.append("g").data([data])
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 
       // create a g for amino acid groups
-      var gAmino = svg.selectAll('g.Inner')
+      var gAmino = gInner.selectAll('g.Inner')
         .data(function(d) {return d});
-        gAmino.enter().append('g').attr("class",function(d) {return d.key});
+        gAmino.enter().append('g')
+          .attr("class",function(d) {return "aa-"+d.key})
+
+      // draw lines
+      var line = d3.svg.line()
+        .x(function (d) {return xScale(d.key)})
+        .y(function (d) {return yScale(d.value)});
+
+      var path = gAmino.selectAll(".line")
+      .data(function(d) {return [d3.map(d.value['clonofilters']).entries()]});
+
+      path.enter().append("path")
+      .attr("class", "line inactive")
+      .attr("stroke-width", 1)
+      .attr("stroke", "#000000")
+      .attr("fill", "none");
+
+    gAmino.selectAll(".line")
+      .attr("d", function(d) {return line(d)});
         
       // draw circles
-      var circles = gAmino.selectAll('circle').data(function(d) {return d3.map(d.value['clonofilters']).entries()});
+      var circles = gAmino.selectAll('circle')
+      .data(function(d) {return d3.map(d.value['clonofilters']).entries()});
       circles.enter().append('circle')
       .attr('cx',function(d) {return xScale(d.key)})
       .attr('cy', function(d) {return yScale(d.value)})
       .attr('r', 10)
       .attr('class', 'inactive')
+      .attr("fill", function(d) {return colorScale(d.key)})
       .on('mouseover', function () {
         d3.select(this).attr('class', 'active')
       })
-      .on('mouseoout', function () {
+      .on('mouseout', function () {
         circles.attr('class', 'inactive')
       })
+      
+      //amino acid highlighting functionality
+      var amino = d3.select(".amino")
+        .on("mouseover", function() {
+          console.log(d3.select(this));
+        });
 
-      // draw lines
+      // draw x axis
+      var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .orient("bottom");
 
-/*
-      var gAminoAcid = gInner.selectAll('g.amino-acid').data(function(d){console.log(d); return d });
-      gAminoAcid.enter().append('g').attr('class', 'amino-acid');
+      gInner.append("g")
+        .attr("class", "axis xAxis")
+        .attr("transform", "translate(0," + (d3.max(yScale.range()) + ")"))
+        .call(xAxis);
 
-*/
+      // draw y axis
+      var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .orient("left");
+
+      gInner.append("g")
+        .attr("class", "axis yAxis")
+        .call(yAxis);
+
     });
-  }
-
-  function aaTable(selection){
-
   }
 
   plot.width = function(value) {
@@ -88,7 +123,11 @@ function sharedClones() {
     yScale = value;
     return plot;
   }
-
+  plot.color = function(value) {
+    if(!arguments.length) return colorScale;
+    colorScale = value;
+    return plot;
+  }
 
   return plot;
 }
@@ -125,7 +164,6 @@ function functionality() {
       .attr("class", "inner")
       .attr("transform", 'translate(' + margin.left + ',' + (height - margin.top ) +') rotate(-90)');
 
-    console.log(data);
 
      // get set of productivity statuses
     var prodStatuses = d3.set([].concat.apply([],data.map(function (d) {
@@ -151,7 +189,6 @@ function functionality() {
           };
         });
 
-    console.log(dataMap);
 
 
     var x = d3.scale.ordinal()
@@ -170,7 +207,6 @@ function functionality() {
     var stack = d3.layout.stack()
       .values(function (d) { return d.values });
 
-    console.log(stack(dataMap));
 
 
     var layers = gInner.selectAll('.layer')
@@ -565,8 +601,10 @@ function scatterNav() {
           function(d) {return d.key} 
           );
 
+    // remove old lines
     jPath.exit().remove();
 
+    // create new lines
     jPath
       .enter()
       .append("path")
@@ -575,9 +613,11 @@ function scatterNav() {
       .attr("stroke", function(d) {return colorScale(d.key)})
       .attr("fill", "none");
 
+    // draw paths
     selection.selectAll(".line")
       .attr("d", function(d) {return jLine(d.values)});
 
+    // set up groups to hold circles
     var jG = selection.selectAll("g.points")
       .data(jSeries,
           function(d) {return d.key}

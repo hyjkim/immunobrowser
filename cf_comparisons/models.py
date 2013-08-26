@@ -284,7 +284,8 @@ class Comparison(models.Model):
         returnable =  {}
         shared_amino_acids = self.get_shared_amino_acids()
 
-        for amino_acid in shared_amino_acids:
+        #for amino_acid in shared_amino_acids:
+        for amino_acid in shared_amino_acids[:9]:
             amino_acid_dict = {}
             clonofilter_dict = defaultdict(lambda: 0)
             for recombination in amino_acid.recombination_set.all():
@@ -297,22 +298,6 @@ class Comparison(models.Model):
             returnable[amino_acid.id] = amino_acid_dict
 
         return returnable
-
-#        returnable = defaultdict(lambda: defaultdict(lambda: .0))
-#        shared_amino_acid = self.get_shared_amino_acids()
-#        if shared_amino_acid:
-#
-#            # Format the shared clonotypes as a dict of lists:
-#            # {'sequence': [<clonotype 1>, <clonotype2>]}
-#            for amino_acid in shared_amino_acid:
-#                for recombination in amino_acid.recombination_set.all():
-#                    for clonotype in recombination.clonotype_set.all():
-#                        if clonotype.sample in samples:
-#                            returnable[amino_acid][
-#                                clonotype.sample] += clonotype.copy
-#                            #returnable[amino_acid.sequence][clonotype.sample] += clonotype.copy
-#
-#        return undefaulted(returnable)
 
     def get_shared_recombinations_counts(self):
         '''

@@ -1,11 +1,12 @@
 <div id="shared-clones" class="row">
-  <div id="shared-clones-d3" class="col-md-7">
+  <h3>Shared Amino Acids</h3>
+  <div id="shared-clones-d3" class="col-md-6">
   </div>
-  <div class="col-md-5">
-    <table>
+  <div class="col-md-6">
+    <table class="table">
       <tr>
         <th>
-          Amino Acid Sequence
+          Shared Amino Acid Sequence
         </th>
         {% for cfid, sample_name in sample_names.items %}
         <th class="cf-{{cfid}}">
@@ -35,12 +36,22 @@
   {% autoescape off %}
   var aminoAcids = d3.map({{amino_acids|jsonify}});
   var sampleNames = {{ sample_names|jsonify }};
-var sampleColors = {{ sample_colors}};
+  var sampleColors = {{ sample_colors}};
 {% endautoescape %}
 
 // Comparison view
 
+function colormap (c) {
+  var colors = c;
+  return function (d) {
+    return colors[d];
+  }
+};
+
+
 var mySharedClones = sharedClones();
+mySharedClones.color(colormap(sampleColors))
+
 
 var div = d3.select('#shared-clones-d3').datum(aminoAcids.entries());
 

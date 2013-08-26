@@ -1,6 +1,10 @@
 
-<div id="scatter-main"></div>
-<div id="functionality"></div>
+<div id="scatter-main" class="row">
+  <h3>V-J usage</h3>
+</div>
+<div id="functionality">
+  <h3>Functionality</h3>
+</div>
 
 <script type='text/javascript' src="/static/libs/compare.js"></script>
 <script type='text/javascript'>
@@ -80,7 +84,7 @@ var my_rScale = d3.scale.linear()
       $.post("{% url 'cf_comparisons.views.update' comparison_id %}",
         {'update': JSON.stringify(updateDict)}, 
         function(comparison_id) {
-        window.location.href="/compare/"+comparison_id+"/d3_test"
+        window.location.href="/dashboard_v2/"+comparison_id
         });
       });
 
