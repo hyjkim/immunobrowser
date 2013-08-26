@@ -1,7 +1,7 @@
 from django.test import TestCase
 from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory, SampleFactory, ComparisonFactory
 from mock import patch
-from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, dashboard_v2, add_samples_v2, create_user
+from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, dashboard_v2, add_samples_v2
 from django.core.urlresolvers import reverse
 from cf_comparisons.models import Comparison
 import simplejson as json
@@ -206,20 +206,10 @@ class UserUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
-    def test_user_registration_view_passes_creation_form_via_context(self):
-        from django.contrib.auth.forms import UserCreationForm
-        response = create_user(self.request)
-        self.assertIsInstance(response.get('user_creation_form'), UserCreationForm)
-
-
 class UserIntegrationTest(TestCase):
     '''
     For testing user interaction tests
     '''
-
-    def test_user_registration_view_url_exists(self):
-        self.assertEqual('/accounts/create_user', reverse('dashboard.views.create_user'))
-
     def test_dashboard_v2_displays_link_to_logout_if_user_is_logged_in(self):
         password = 'incrediblysecurepassword'
         user = UserFactory(password=password)
@@ -240,7 +230,7 @@ class UserIntegrationTest(TestCase):
 
     def test_dashboard_v2_has_link_to_create_a_new_user(self):
         response = self.client.get(reverse('django.contrib.auth.views.login'))
-        self.assertIn(reverse('dashboard.views.create_user'), response.content)
+        self.assertIn(reverse('registration_register'), response.content)
 
     def test_dashboard_v2_has_link_to_login(self):
         response = self.client.get(reverse('django.contrib.auth.views.login'))

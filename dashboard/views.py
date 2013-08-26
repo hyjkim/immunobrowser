@@ -8,17 +8,6 @@ from patients.models import Patient
 from samples.models import Sample
 from cf_comparisons.models import Comparison
 
-def create_user(request):
-    '''
-    View to create a new user
-    '''
-    from django.contrib.auth.forms import UserCreationForm
-    user_creation_form = UserCreationForm()
-    if request.method == "POST":
-        print request.POST
-
-    context = {'user_creation_form': user_creation_form}
-    return render(request, 'registration/create_user.html', context)
 
 def remove_clonofilter(request):
     '''

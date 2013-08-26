@@ -20,7 +20,6 @@ urlpatterns = patterns('',
                        url(r'^admin/', include(admin.site.urls)),
                        url('^accounts/', include('django.contrib.auth.urls')),
                        url(r'^accounts/', include('registration.backends.default.urls')),
-                       url(r'^accounts/create_user', 'dashboard.views.create_user'),
 
                        # Dynamic
                        url(r'^patients/(\d+)/$', 'patients.views.patient_summary'),

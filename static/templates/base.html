@@ -39,7 +39,7 @@
           <a href="{% url 'django.contrib.auth.views.logout' %}">Sign out</a>
 {% else %}
           <a href="{% url 'django.contrib.auth.views.login' %}">Login</a>
-          <a href="{% url 'dashboard.views.create_user' %}">Register</a>
+          <a href="{% url 'registration_register' %}">Register</a>
 {% endif %}
         </div>
       {% endblock %}
