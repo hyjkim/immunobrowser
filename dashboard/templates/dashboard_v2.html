@@ -16,182 +16,219 @@
     </form>
   </div>
 
-{% endblock %}
+  {% endblock %}
 
-{% block content %}
+  {% block content %}
 
-{% load comparison_tags %}
+  {% load comparison_tags %}
 
-<div class="menu sample row">
-  <div id="filter-forms">
+  <div id="subcontent">
     {% if comparison %}
-    {% filter_forms_tag comparison %}
+    {% scatter_nav_tag comparison %}
+    {% shared_clones_tag comparison %}
+    {% else %}
+
+    <div id="intro" class="row">
+      <div class="col-md-4">
+        Image placeholder
+      </div>
+      <div class="col-md-6">
+        <h1>
+          Track T-cell clonal expansions with Next Generation Sequencing.
+        </h1>
+        <h4>
+          The UCSC T-Cell Receptor Beta Browser makes it
+          simple to explore the results of T-cell receptor sequencing experiments
+          interactively. Discover abnormal expansions, track cancers and share your
+          results with your colleagues easily.
+        </h4>
+      </div>
+    </div>
+
+    <div id="intro-compare" class="row">
+      <div class="col-md-4">
+        Compare the repertoires of multiple samples
+      </div>
+      <div class="col-md-4">
+      </div>
+    </div>
+    <div id="intro-search" class="row">
+      <div class="col-md-4">
+      </div>
+      <div class="col-md-4">
+      Search for previously observed receptors
+      </div>
+    </div>
+    <div id="intro-browse" class="row">
+      <div class="col-md-4">
+      Browse existing samples
+      </div>
+      <div class="col-md-4">
+      </div>
+    </div>
+    <div id="intro-blast" class="row">
+      <div class="col-md-4">
+      </div>
+      <div class="col-md-4">
+      BLAST a sequence against the literature (Coming Soon)
+      </div>
+    </div>
+    <div id="intro-upload" class="row">
+      <div class="col-md-4">
+      Upload your own sample (Coming Soon)
+      </div>
+      <div class="col-md-4">
+      <span class="glyphicon glyphicon-upload"></span>
+      </div>
+    </div>
+
     {% endif %}
   </div>
-  <div id="add-sample" class="col-md-2 text-center nav">
-    <a>
-      <h1>+</h1><br />
-      Add sample
-    </a>
-  </div>
-  <div id="sample-compare" class="col-md-3 nav text-right">
-    {% sample_compare_tag sample_compare_form%}
-  </div>
-</div>
 
-<div id="subcontent">
-{% if comparison %}
-{% scatter_nav_tag comparison %}
-{% shared_clones_tag comparison %}
-{% else %}
-
-<div id="intro">
-<h1>
-  Track T-cell clonal expansions with Next Generation Sequencing.
-</h1>
-<h4>
-The UCSC T-Cell Receptor Beta Browser makes it
-simple to explore the results of T-cell receptor sequencing experiments
-interactively. Discover abnormal expansions, track cancers and share your
-results with your colleagues easily.
-</h4>
-</div>
-
-  <div id="upload col-md-3">
-    <span class="glyphicon glyphicon-upload"></span>
-    Upload
+  <div class="menu sample row">
+    <div id="filter-forms">
+      {% if comparison %}
+      {% filter_forms_tag comparison %}
+      {% endif %}
+    </div>
+    <div id="add-sample" class="col-md-2 text-center nav">
+      <a>
+        <h1>+</h1><br />
+        Add sample
+      </a>
+    </div>
+    <div id="sample-compare" class="col-md-3 nav text-right">
+      {% sample_compare_tag sample_compare_form%}
+    </div>
   </div>
 
-  {% endif %}
-</div>
 
 
 
-<script>
-  // specific code
-  {% autoescape off %}
-  var comparisonId = '{{comparison.id}}';
-  {% endautoescape %}
+  <script>
+    // specific code
+    {% autoescape off %}
+    var comparisonId = '{{comparison.id}}';
+    {% endautoescape %}
 
-  // dashboard universal code
+    // dashboard universal code
 
-  var sampleCompareDiv = $('div#sample-compare');
-  var addSampleDiv = $('div#add-sample');
-  var sampleSubmit = $('div#sample-compare :submit');
-  var sampleCancel = $('div#sample-compare :button');
-  var sampleForm = $('div#sample-compare form');
-  var sampleRemoveGlyphs;
-  var filterForms;
+    var sampleCompareDiv = $('div#sample-compare');
+    var addSampleDiv = $('div#add-sample');
+    var sampleSubmit = $('div#sample-compare :submit');
+    var sampleCancel = $('div#sample-compare :button');
+    var sampleForm = $('div#sample-compare form');
+    var sampleRemoveGlyphs;
+    var filterForms;
 
-  // In here, things that don't change upon interacting with the sample form
-  var init = function () {
-    // Make sure the sample compare div is hidden
-    sampleCompareDiv.hide();
-    // Shows add sample form when add sample is clicked
-    addSampleDiv.click(function () {
-      sampleCompareDiv.show();
-      addSampleDiv.hide();
-    });
-    // Hides add sample form when cancel button is clicked
-    sampleCancel.click(function () {
+    // In here, things that don't change upon interacting with the sample form
+    var init = function () {
+      // Make sure the sample compare div is hidden
       sampleCompareDiv.hide();
-      addSampleDiv.show();
-    });
+      // Shows add sample form when add sample is clicked
+      addSampleDiv.click(function () {
+        sampleCompareDiv.show();
+        addSampleDiv.hide();
+      });
+      // Hides add sample form when cancel button is clicked
+      sampleCancel.click(function () {
+        sampleCompareDiv.hide();
+        addSampleDiv.show();
+      });
 
-  }
-
-  var update = function () {
-    // Binds removal of clonofilter from comparison to glyphicon-remove
-    sampleRemoveGlyphs = $('.glyphicon-remove');
-    sampleRemoveGlyphs.click(closeFunction);
-
-    // Hide filters after some predetermined amount of time
-    setTimeout(function() {
-      $('.accordion-body').collapse('hide');
-    },
-    1000);
-
-
-    // Change opacity of filter form on mouse over
-    filterForms = $('.filter-form');
-    filterForms
-    .on("mouseover", function () {
-      $(this).removeClass("inactive").addClass("active");
-    })
-    .on("mouseleave", function () {
-      $(this).removeClass("active").addClass("inactive");
-    })
-    .click(function () {
-      var body = $(this).find('.accordion-body')
-      if (body.length) {
-        body.collapse('show')
-        body.removeClass('accordion-body').addClass('accordion-body-disabled');
-      }
-      else {
-        body = $(this).find('.accordion-body-disabled');
-        body.removeClass('accordion-body-disabled').addClass('accordion-body');
-        body.collapse('hide');
-      }
-    })
-    ;
-  };
-
-  sampleSubmit.click(function () {
-    event.preventDefault();
-    var postData = sampleForm.serializeArray();
-    if (comparisonId) {
-      postData.push({'name':'comparison', 'value': comparisonId});
     }
 
-    sampleCompareDiv.hide();
-    addSampleDiv.show();
+    var update = function () {
+      // Binds removal of clonofilter from comparison to glyphicon-remove
+      sampleRemoveGlyphs = $('.glyphicon-remove');
+      sampleRemoveGlyphs.click(closeFunction);
 
-    console.log(postData);
+      // Hide filters after some predetermined amount of time
+      setTimeout(function() {
+        $('.accordion-body').collapse('hide');
+      },
+      1000);
 
-    $.post('{% url 'dashboard.views.add_samples_v2' %}',
-    postData, function (compId) {
 
-      // Load filter forms
-      $.get("/compare/" + compId + "/filter_forms",
-      function(filterForms) {
-        $('div#filter-forms').html(filterForms)
-        update();
+      // Change opacity of filter form on mouse over
+      filterForms = $('.filter-form');
+      filterForms
+      .on("mouseover", function () {
+        $(this).removeClass("inactive").addClass("active");
+      })
+      .on("mouseleave", function () {
+        $(this).removeClass("active").addClass("inactive");
+      })
+      .click(function () {
+        var body = $(this).find('.accordion-body')
+        if (body.length) {
+          body.collapse('show')
+          body.removeClass('accordion-body').addClass('accordion-body-disabled');
+        }
+        else {
+          body = $(this).find('.accordion-body-disabled');
+          body.removeClass('accordion-body-disabled').addClass('accordion-body');
+          body.collapse('hide');
+        }
+      })
+      ;
+    };
+
+    sampleSubmit.click(function () {
+      event.preventDefault();
+      var postData = sampleForm.serializeArray();
+      if (comparisonId) {
+        postData.push({'name':'comparison', 'value': comparisonId});
+      }
+
+      sampleCompareDiv.hide();
+      addSampleDiv.show();
+
+      console.log(postData);
+
+      $.post('{% url 'dashboard.views.add_samples_v2' %}',
+      postData, function (compId) {
+
+        // Load filter forms
+        $.get("/compare/" + compId + "/filter_forms",
+        function(filterForms) {
+          $('div#filter-forms').html(filterForms)
+          update();
+        });
+
+        // Update global comparisonId variable
+        comparisonId = compId
+
+        // Modify url bar
+        // Should modify this javascript to use 
+        // a django template tag for 'dashboard.views.dashboard_v2'
+        window.history.pushState(null, '', '/dashboard_v2/' + compId);
       });
 
-      // Update global comparisonId variable
-      comparisonId = compId
 
-      // Modify url bar
-      // Should modify this javascript to use 
-      // a django template tag for 'dashboard.views.dashboard_v2'
-      window.history.pushState(null, '', '/dashboard_v2/' + compId);
     });
 
 
-  });
-
-
-  var closeFunction = function() {
-    cfId = $(this).attr('id').match(/\d+/)[0];
-    postData = [{'name':'comparison', 'value': comparisonId},
-    {'name':'clonofilter', 'value': cfId}];
-    $.post('{% url 'dashboard.views.remove_clonofilter' %}',
-    postData, function (compId) {
-      comparisonId = compId;
-      window.history.pushState(null, '', '/dashboard_v2/' + compId);
-      // Load filter forms
-      $.get("/compare/" + compId + "/filter_forms",
-      function(filterForms) {
-        $('div#filter-forms').html(filterForms)
-        update();
+    var closeFunction = function() {
+      cfId = $(this).attr('id').match(/\d+/)[0];
+      postData = [{'name':'comparison', 'value': comparisonId},
+      {'name':'clonofilter', 'value': cfId}];
+      $.post('{% url 'dashboard.views.remove_clonofilter' %}',
+      postData, function (compId) {
+        comparisonId = compId;
+        window.history.pushState(null, '', '/dashboard_v2/' + compId);
+        // Load filter forms
+        $.get("/compare/" + compId + "/filter_forms",
+        function(filterForms) {
+          $('div#filter-forms').html(filterForms)
+          update();
+        });
       });
-    });
 
-  };
+    };
 
-  init();
-  update();
-
+    init();
+    update();
 
 
 
@@ -199,5 +236,6 @@ results with your colleagues easily.
 
 
 
-</script>
-{% endblock %}
+
+  </script>
+  {% endblock %}
