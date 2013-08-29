@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block header_extra %}
+<div id="search col-md-3">
+  <form action='{% url 'dashboard.views.search' %}' method="get">
+    {{ search_form.query }}
+    <button type="submit" class="btn btn-default btn-lg">
+      <span class="glyphicon glyphicon-search"></span>
+      </button >
+    </form>
+  </div>
+
+{% endblock %}
+
+
+{% block content %}
+<h1> Matching Samples:</h1>
+
+{% for sample in samples %}
+<div>
+  {{sample}}
+</div>
+{% endfor %}
+
+<h1> Matching Recombinations:</h1>
+
+{% for recombination in recombinations %}
+<div>
+  {{recombination}}
+</div>
+{% endfor %}
+
+<h1> Matching Amino Acids:</h1>
+
+{% for aa in amino_acids %}
+<div>
+  {{aa}}
+</div>
+{% endfor %}
+
+
+
+{% endblock %}

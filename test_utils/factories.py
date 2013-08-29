@@ -103,6 +103,15 @@ class SampleFactory(factory.Factory):
     draw_date = '2012-12-12'
     cell_type = 'cd4+'
 
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        users = kwargs.pop('users', None)
+        sample = super(SampleFactory, cls)._prepare(create, **kwargs)
+        if users:
+            for user in users:
+                sample.users.add(user)
+        return sample
+
 
 class AminoAcidFactory(factory.Factory):
     '''

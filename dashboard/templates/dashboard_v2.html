@@ -6,6 +6,18 @@
 </style>
 {% endblock %}
 
+{% block header_extra %}
+<div id="search col-md-3">
+  <form action='{% url 'dashboard.views.search' %}' method="get">
+    {{ search_form.query }}
+    <button type="submit" class="btn btn-default btn-lg">
+      <span class="glyphicon glyphicon-search"></span>
+      </button >
+    </form>
+  </div>
+
+{% endblock %}
+
 {% block content %}
 
 {% load comparison_tags %}
@@ -27,11 +39,19 @@
   </div>
 </div>
 
+<div id="subcontent">
 {% if comparison %}
 {% scatter_nav_tag comparison %}
 {% shared_clones_tag comparison %}
+{% else %}
+  <div id="upload col-md-3">
+    <span class="glyphicon glyphicon-upload"></span>
+    Upload
+  </div>
 
-{% endif %}
+  {% endif %}
+</div>
+
 
 
 <script>

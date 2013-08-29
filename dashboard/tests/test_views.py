@@ -1,11 +1,42 @@
 from django.test import TestCase
 from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory, SampleFactory, ComparisonFactory
 from mock import patch
-from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, dashboard_v2, add_samples_v2
+from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, dashboard_v2, add_samples_v2, search
 from django.core.urlresolvers import reverse
 from cf_comparisons.models import Comparison
 import simplejson as json
 from test_utils.factories import UserFactory
+
+
+class SearchUnitTest(TestCase):
+    def setUp(self):
+        self.renderPatch = patch('dashboard.views.render', render_echo)
+        self.renderPatch.start()
+        self.request = FakeRequestFactory()
+
+    def tearDown(self):
+        self.renderPatch.stop()
+
+    def test_search_passes_search_form_to_template_via_context(self):
+        from dashboard.forms import SearchForm
+        response = search(self.request)
+        self.assertIsInstance(response['search_form'], SearchForm)
+
+    def test_search_sends_matching_samples_to_template_via_context(self):
+        from test_utils.factories import SampleFactory
+        from samples.models import Sample
+        SampleFactory()
+        self.request.GET = '/search?query=patient';
+        response = search(self.request)
+        self.assertEqual(Sample.objects.all(), response['samples'])
+
+    def test_search_renders_search_template(self):
+        response = search(self.request)
+        self.assertEqual(response['template'], "search.html")
+
+    def test_search_has_a_valid_url(self):
+        url = reverse('dashboard.views.search')
+        self.assertTrue(url)
 
 class DashboardViewUnitTest(TestCase):
     ''' Here, we mock out the rendering stack for fast unit tests of the view'''
@@ -17,6 +48,12 @@ class DashboardViewUnitTest(TestCase):
 
     def tearDown(self):
         self.renderPatch.stop()
+
+    def test_dashboard_v2_passes_search_form_to_template_via_context(self):
+        from dashboard.forms import SearchForm
+        response = dashboard_v2(self.request, None)
+        self.assertIsInstance(response['search_form'], SearchForm)
+
 
     def test_dashboard_v2_passes_given_comparison_to_template(self):
         comp = ComparisonFactory()
@@ -239,5 +276,3 @@ class UserIntegrationTest(TestCase):
     def test_login_page_exists(self):
         response = self.client.get(reverse('django.contrib.auth.views.login'))
         self.assertTrue(response.content)
-
-

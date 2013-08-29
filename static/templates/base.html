@@ -31,8 +31,12 @@
   <body>
     <div id="header" class="row">
       {% block header %}
-        <div class="col-md-11">
-          <h1><a href="{% url 'dashboard.views.explorer' %}">UCSC Immunobrowser</a></h1>
+        <div class="col-md-7">
+          <h1><a href="{% url 'dashboard.views.dashboard_v2' %}">UCSC Immunobrowser</a></h1>
+        </div>
+        <div class="col-md-3">
+          {% block header_extra %}
+          {% endblock %}
         </div>
         <div class="col-md-1">
 {% if user.is_authenticated %}

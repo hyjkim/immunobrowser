@@ -3,6 +3,7 @@ from samples.models import Sample
 from utils.text_manipulation import convert
 import csv
 from utils.utils import sub_dict_remove_strict
+from django.db.models.query import QuerySet
 
 # Create your models here.
 
@@ -19,10 +20,43 @@ TYPES = ((1, 'Productive'),
         (3, 'Has Stop'),
          )
 
+class AminoAcidQuerySet(QuerySet):
+    def search(self, terms):
+        from django.db.models import Q
+        import operator
+        terms = [term.upper() for term in terms]
+        qgroup = reduce(operator.or_,
+            [Q(**{'sequence__contains': term}) for term in terms])
+        return self.filter(qgroup)
+
+class AminoAcidManager(models.Manager):
+    def get_query_set(self):
+        return AminoAcidQuerySet(self.model)
+    def __getattr__(self, attr, *args):
+        if attr.startswith("_"):
+            raise AttributeError
+        return getattr(self.get_query_set(), attr, *args)
 
 class AminoAcid(models.Model):
     sequence = models.CharField(max_length=300)
+    objects = AminoAcidManager()
 
+class RecombinationQuerySet(QuerySet):
+    def search(self, terms):
+        from django.db.models import Q
+        import operator
+        terms = [term.upper() for term in terms]
+        qgroup = reduce(operator.or_,
+            [Q(**{'nucleotide__contains': term}) for term in terms])
+        return self.filter(qgroup)
+
+class RecombinationManager(models.Manager):
+    def get_query_set(self):
+        return RecombinationQuerySet(self.model)
+    def __getattr__(self, attr, *args):
+        if attr.startswith("_"):
+            raise AttributeError
+        return getattr(self.get_query_set(), attr, *args)
 
 class Recombination(models.Model):
     '''
@@ -49,6 +83,8 @@ class Recombination(models.Model):
     j_index = models.IntegerField()
     cdr3_length = models.IntegerField()
     amino_acid = models.ForeignKey(AminoAcid, blank=True, null=True)
+
+    objects = RecombinationManager()
 
     @staticmethod
     def functionality_states():

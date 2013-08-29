@@ -7,8 +7,11 @@ import re
 from test_utils.factories import AminoAcidFactory, SampleFactory, ClonotypeFactory, RecombinationFactory
 
 
-class ClonotypeRefactorTest(TestCase):
-    def test_refactored_clonotypes_have_these_required_fields(self):
+class ClonotypeTest(TestCase):
+    def test_clonotype_belonging_to_a_private_sample_is_not_viewable(self):
+        self.fail('todo')
+
+    def test_clonotypes_have_these_required_fields(self):
         s = SampleFactory()
         r = RecombinationFactory()
         data = {'sample': s,
@@ -33,6 +36,10 @@ class ClonotypeRefactorTest(TestCase):
 
 
 class RecombinationModelTest(TestCase):
+
+    def test_recombination_belonging_to_only_to_a_private_clonotype_is_not_viewable(self):
+        self.fail('todo')
+
     def test_recombinations_have_an_optional_amino_acid(self):
         aa = AminoAcidFactory()
         r = RecombinationFactory()
@@ -146,7 +153,7 @@ class RecombinationModelTest(TestCase):
         regex = re.compile('.*<span class="j_gene">(.*?)</span>')
         match = regex.match(pr)
         j_length = len(r.nucleotide) - r.j_index
-        self.assertEqual(len(match.groups()[0]), j_length)
+        self.assertEqual(len(match.groups()[-1]), j_length)
 
     def test_parsed_nucleotide_should_return_nucleotide_sequence(self):
         make_fake_patient()
@@ -162,20 +169,16 @@ class RecombinationModelTest(TestCase):
         self.assertIsInstance(pr, str)
 
 
-class AminoAcidModelTest(TestCase):
-    def test_amino_acid_should_have_amino_acid_sequence(self):
-        data = {'sequence': 'CASS'}
-        aa = AminoAcid()
-
-        for key, value in data.items():
-            setattr(aa, key, value)
-        aa.save()
-        aa_in_db = AminoAcid.objects.get()
-        for key, value in data.items():
-            self.assertEqual(value, getattr(aa_in_db, key))
-
 
 class AminoAcidModelTest(TestCase):
+
+    def test_amino_acid_search_converts_lower_case_terms_to_uppercase(self):
+        AminoAcidFactory(sequence="CASSS")
+        self.assertEqual(1, len(AminoAcid.objects.search(['cAS'])))
+
+    def test_amino_acid_belonging_to_only_to_a_private_recombination_is_not_viewable(self):
+        self.fail('todo')
+
     def test_amino_acid_should_have_amino_acid_sequence(self):
         data = {'sequence': 'CASS'}
         aa = AminoAcid()

@@ -7,7 +7,30 @@ import simplejson as json
 from patients.models import Patient
 from samples.models import Sample
 from cf_comparisons.models import Comparison
+from dashboard.forms import SearchForm
 
+
+def search(request):
+    '''
+    Reads a search term in from uri (via get or urlrouter) and returns
+    a rendered page containing search results
+    '''
+    from clonotypes.models import Recombination, AminoAcid
+    context = {}
+    if request.method == 'GET':
+        search_form = SearchForm(request.GET)
+        if search_form.is_valid():
+            terms = search_form.cleaned_data['query'].split(' ')
+            context.update({'samples': Sample.objects.search(terms),
+                'recombinations': Recombination.objects.search(terms)[:10],
+                'amino_acids': AminoAcid.objects.search(terms)[:10],
+                })
+    else:
+        search_form = SearchForm()
+
+    context.update({'search_form': search_form})
+
+    return render(request, 'search.html', context)
 
 def remove_clonofilter(request):
     '''
@@ -52,12 +75,15 @@ def dashboard_v2(request, comparison_id):
     from cf_comparisons.forms import SampleCompareForm
 
     sample_compare_form = SampleCompareForm()
+    search_form = SearchForm()
+
     try:
         comparison = Comparison.objects.get(id=comparison_id)
     except:
         comparison=None
 
     context = {'sample_compare_form': sample_compare_form,
+            'search_form': search_form,
             'comparison': comparison,
             }
 
