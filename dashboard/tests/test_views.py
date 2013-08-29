@@ -17,6 +17,14 @@ class SearchUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_searched_recombinations_and_amino_acids_are_paginated(self):
+        from django.core.paginator import Page
+        SampleFactory()
+        self.request = FakeRequestFactory(GET={'query': 'atc cas'})
+        response = search(self.request)
+        self.assertIsInstance(response['recombinations'], Page)
+        self.assertIsInstance(response['amino_acids'], Page)
+
     def test_search_passes_search_form_to_template_via_context(self):
         from dashboard.forms import SearchForm
         response = search(self.request)
@@ -26,9 +34,10 @@ class SearchUnitTest(TestCase):
         from test_utils.factories import SampleFactory
         from samples.models import Sample
         SampleFactory()
-        self.request.GET = '/search?query=patient';
+        self.request = FakeRequestFactory(GET={'query': 'patient'})
         response = search(self.request)
-        self.assertEqual(Sample.objects.all(), response['samples'])
+        self.assertEqual((map(repr, Sample.objects.all())),
+                map(repr, response['samples']))
 
     def test_search_renders_search_template(self):
         response = search(self.request)

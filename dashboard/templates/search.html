@@ -15,28 +15,101 @@
 
 {% block content %}
 <h1> Matching Samples:</h1>
+<table class="table table-hover">
+   <thead>
+        <tr>
+          <th>Name</th>
+          <th>Gender</th>
+          <th>Age</th>
+          <th>Disease</th>
+          <th>Draw Date</th>
+          <th>Cell Type</th>
+          <th>Summary</th>
+        </tr>
+      </thead>
 
-{% for sample in samples %}
-<div>
-  {{sample}}
-</div>
-{% endfor %}
+  {% for sample in samples %}
+  <tr>
+    <td>{{ sample.patient.name }}</td>
+    <td>{{ sample.patient.gender }}</td>
+    <td>{{ sample.patient.birthday }}</td>
+    <td>{{ sample.patient.disease }}</td>
+    <td>{{ sample.draw_date }}</td>
+    <td>{{ sample.cell_type }}</td>
+    <td><a href="{% url 'samples.views.summary' sample.id %}">Summary</a></td>
+  </tr>
+  {% endfor %}
+</table>
 
 <h1> Matching Recombinations:</h1>
 
+<table class="table table-hover">
+  <thead>
+      <th>Nucleotide</th>
+      <th>Amino Acid</th>
+     <th>V family</th>
+      <th>V gene</th>
+      <th>D gene</th>
+      <th>J gene</th>
+      <th>Sequence Status</th>
+  </thead>
+  <tbody>
 {% for recombination in recombinations %}
-<div>
-  {{recombination}}
-</div>
+<tr>
+      <td>{{ recombination.parsed_nucleotide }}</td>
+      <td>{{ recombination.amino_acid.sequence}}</td>
+      <td>{{ recombination.v_family_name }}</td>
+      <td>{{ recombination.v_gene_name }}</td>
+      <td>{{ recombination.d_gene_name }}</td>
+      <td>{{ recombination.j_gene_name }}</td>
+      <td>{{ recombination.sequence_status }}</td>
+    </tr>
 {% endfor %}
+</tbody>
+</table>
+
+<div class="pagination">
+  <span class="step-links">
+    {% if recombinations.has_previous %}
+    <a href="?page={{ recombinations.previous_page_number }}">previous</a>
+    {% endif %}
+
+    <span class="current">
+      Page {{ recombinations.number }} of {{ recombinations.paginator.num_pages }}.
+    </span>
+
+    {% if recombinations.has_next %}
+    <a href="?page={{ recombinations.next_page_number }}">next</a>
+    {% endif %}
+  </span>
+</div>
+
+
 
 <h1> Matching Amino Acids:</h1>
 
 {% for aa in amino_acids %}
 <div>
-  {{aa}}
+  <a href="{% url 'clonotypes.views.amino_acid_detail'  aa.id %}">{{aa.sequence}}</a>
 </div>
 {% endfor %}
+
+<div class="pagination">
+  <span class="step-links">
+    {% if amino_acids.has_previous %}
+    <a href="?page={{ amino_acids.previous_page_number }}">previous</a>
+    {% endif %}
+
+    <span class="current">
+      Page {{ amino_acids.number }} of {{ amino_acids.paginator.num_pages }}.
+    </span>
+
+    {% if amino_acids.has_next %}
+    <a href="?page={{ amino_acids.next_page_number }}">next</a>
+    {% endif %}
+  </span>
+</div>
+
 
 
 

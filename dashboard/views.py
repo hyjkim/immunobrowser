@@ -16,14 +16,44 @@ def search(request):
     a rendered page containing search results
     '''
     from clonotypes.models import Recombination, AminoAcid
+    from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
     context = {}
     if request.method == 'GET':
         search_form = SearchForm(request.GET)
         if search_form.is_valid():
+            # Get search terms
             terms = search_form.cleaned_data['query'].split(' ')
+
+            # Generate queryset
+            recs = Recombination.objects.search(terms)
+            aas = AminoAcid.objects.search(terms)
+
+            # Paginate the querysets
+            rec_paginator = Paginator(recs, 10)
+            aa_paginator = Paginator(aas, 10)
+
+            # Get page numbers
+            rec_page = request.GET.get('rec_page')
+            aa_page = request.GET.get('aa_page')
+
+            try:
+                recs = rec_paginator.page(aa_page)
+            except PageNotAnInteger:
+                recs = rec_paginator.page(1)
+            except EmptyPage:
+                recs = rec_paginator.page(recs_paginator.num_pages)
+
+            try:
+                aas = aa_paginator.page(aa_page)
+            except PageNotAnInteger:
+                aas = aa_paginator.page(1)
+            except EmptyPage:
+                aas = aa_paginator.page(aas_paginator.num_pages)
+
+
             context.update({'samples': Sample.objects.search(terms),
-                'recombinations': Recombination.objects.search(terms)[:10],
-                'amino_acids': AminoAcid.objects.search(terms)[:10],
+                'recombinations': recs,
+                'amino_acids': aas,
                 })
     else:
         search_form = SearchForm()
