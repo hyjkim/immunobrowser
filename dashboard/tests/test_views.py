@@ -1,7 +1,7 @@
 from django.test import TestCase
 from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory, SampleFactory, ComparisonFactory
 from mock import patch
-from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, dashboard_v2, add_samples_v2, search
+from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, compare_v2, add_samples_v2, search
 from django.core.urlresolvers import reverse
 from cf_comparisons.models import Comparison
 import simplejson as json
@@ -62,27 +62,27 @@ class DashboardViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
-    def test_dashboard_v2_passes_search_form_to_template_via_context(self):
+    def test_compare_v2_passes_search_form_to_template_via_context(self):
         from dashboard.forms import SearchForm
-        response = dashboard_v2(self.request, None)
+        response = compare_v2(self.request, None)
         self.assertIsInstance(response['search_form'], SearchForm)
 
 
-    def test_dashboard_v2_passes_given_comparison_to_template(self):
+    def test_compare_v2_passes_given_comparison_to_template(self):
         comp = ComparisonFactory()
-        response = dashboard_v2(self.request, comp.id)
+        response = compare_v2(self.request, comp.id)
         self.assertEqual(response['comparison'], comp)
 
-    def test_dashboard_v2_passes_sample_compare_form_to_view(self):
+    def test_compare_v2_passes_sample_compare_form_to_view(self):
         from cf_comparisons.forms import SampleCompareForm
-        response = dashboard_v2(self.request, None)
+        response = compare_v2(self.request, None)
         self.assertIsInstance(
                 response['sample_compare_form'],
                 SampleCompareForm
                 )
 
-    def test_dashboard_v2_view_renders_dashbaord_v2_template(self):
-        response = dashboard_v2(self.request, None)
+    def test_compare_v2_view_renders_dashbaord_v2_template(self):
+        response = compare_v2(self.request, None)
         self.assertEqual(response['template'], "compare_v2.html")
 
     def test_add_samples_takes_in_string_of_comma_delimited_sample_ids_via_post_and_returns_a_comparison_id(self):
@@ -141,9 +141,9 @@ class DashboardViewIntegrationTest(TestCase):
 
 
 
-    def test_dashboard_v2_call_shared_clones_template_tag_if_comparison_is_not_none(self):
+    def test_compare_v2_call_shared_clones_template_tag_if_comparison_is_not_none(self):
         comp = ComparisonFactory()
-        url = reverse('dashboard.views.dashboard_v2', args=[comp.id])
+        url = reverse('dashboard.views.compare_v2', args=[comp.id])
         response = self.client.get(url)
         self.assertIn('<div id="shared-clones"', response.content)
 
@@ -179,8 +179,8 @@ class DashboardViewIntegrationTest(TestCase):
         self.assertTrue(sample in new_sample_set)
         self.assertTrue(old_sample_set.issubset(new_sample_set))
 
-    def test_dashboard_v2_shows_sample_select_template_tag(self):
-        url = reverse('dashboard.views.dashboard_v2')
+    def test_compare_v2_shows_sample_select_template_tag(self):
+        url = reverse('dashboard.views.compare_v2')
         response = self.client.get(url)
         ComparisonFactory()
         comp = Comparison.objects.get()
@@ -260,29 +260,29 @@ class UserIntegrationTest(TestCase):
     '''
     For testing user interaction tests
     '''
-    def test_dashboard_v2_displays_link_to_logout_if_user_is_logged_in(self):
+    def test_compare_v2_displays_link_to_logout_if_user_is_logged_in(self):
         password = 'incrediblysecurepassword'
         user = UserFactory(password=password)
         self.client.login(username=user.username, password=password)
 
         url = reverse('django.contrib.auth.views.logout')
-        response = self.client.get(reverse('dashboard.views.dashboard_v2'))
+        response = self.client.get(reverse('dashboard.views.compare_v2'))
         self.assertIn(url, response.content)
 
-    def test_dashboard_v2_does_not_display_link_to_login_if_user_is_logged_in(self):
+    def test_compare_v2_does_not_display_link_to_login_if_user_is_logged_in(self):
         password = 'incrediblysecurepassword'
         user = UserFactory(password=password)
         self.client.login(username=user.username, password=password)
 
-        response = self.client.get(reverse('dashboard.views.dashboard_v2'))
+        response = self.client.get(reverse('dashboard.views.compare_v2'))
         self.assertNotIn(reverse('django.contrib.auth.views.login'), response.content)
 
 
-    def test_dashboard_v2_has_link_to_create_a_new_user(self):
+    def test_compare_v2_has_link_to_create_a_new_user(self):
         response = self.client.get(reverse('django.contrib.auth.views.login'))
         self.assertIn(reverse('registration_register'), response.content)
 
-    def test_dashboard_v2_has_link_to_login(self):
+    def test_compare_v2_has_link_to_login(self):
         response = self.client.get(reverse('django.contrib.auth.views.login'))
         self.assertIn(reverse('django.contrib.auth.views.login'), response.content)
 

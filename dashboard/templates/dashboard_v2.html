@@ -201,8 +201,8 @@
 
         // Modify url bar
         // Should modify this javascript to use 
-        // a django template tag for 'dashboard.views.dashboard_v2'
-        window.history.pushState(null, '', '/dashboard_v2/' + compId);
+        // a django template tag for 'dashboard.views.compare_v2'
+        window.history.pushState(null, '', '/compare_v2/' + compId);
       });
 
 
@@ -216,7 +216,7 @@
       $.post('{% url 'dashboard.views.remove_clonofilter' %}',
       postData, function (compId) {
         comparisonId = compId;
-        window.history.pushState(null, '', '/dashboard_v2/' + compId);
+        window.history.pushState(null, '', '/compare_v2/' + compId);
         // Load filter forms
         $.get("/compare/" + compId + "/filter_forms",
         function(filterForms) {

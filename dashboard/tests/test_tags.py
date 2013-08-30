@@ -8,7 +8,7 @@ class DashboardMenuTagTests(TestCase):
     '''
 
     def test_menu_tag_with_valid_view_argument_the_view_is_active(self):
-        t = Template("{% load dashboard_tags %}{% menu_tag 'dashboard.views.dashboard_v2'%}")
+        t = Template("{% load dashboard_tags %}{% menu_tag 'dashboard.views.compare_v2'%}")
         c = Context({})
         self.assertIn('active', t.render(c))
 
@@ -23,7 +23,7 @@ class DashboardMenuTagTests(TestCase):
         self.assertIn('<nav', t.render(c))
 
     def test_menu_tag_accepts_keywords_to_highlight_a_view(self):
-        view = 'dashboard.views.dashboard_v2'
+        view = 'dashboard.views.compare_v2'
         context = menu_tag(view)
         for item in context['menu']:
             if item['view'] == view:

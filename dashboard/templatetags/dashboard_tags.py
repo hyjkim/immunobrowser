@@ -6,7 +6,7 @@ register = template.Library()
 def menu_tag(*args):
     MENU_FIELDS = [
         {'view': 'samples.views.home', 'name': 'Browse', 'active': False},
-        {'view': 'dashboard.views.dashboard_v2', 'name': 'Compare', 'active': False},
+        {'view': 'dashboard.views.compare_v2', 'name': 'Compare', 'active': False},
         {'view': '', 'name': 'Blast', 'active': False},
         {'view': '', 'name': 'Upload', 'active': False},
     ]

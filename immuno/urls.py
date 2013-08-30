@@ -33,7 +33,7 @@ urlpatterns = patterns('',
                        url(r'^dashboard/add_samples$', 'dashboard.views.add_samples'),
                        url(r'^dashboard/add_samples_v2$', 'dashboard.views.add_samples_v2'),
                        url(r'^dashboard/remove_clonofilter$', 'dashboard.views.remove_clonofilter'),
-#                       url(r'^dashboard_v2', 'dashboard.views.dashboard_v2'),
+#                       url(r'^compare_v2', 'dashboard.views.dashboard_v2'),
 
                        url(r'^amino_acid/(\d+)?$', 'clonotypes.views.amino_acid_detail'),
 
@@ -59,7 +59,7 @@ urlpatterns = patterns('',
                        url(r'^compare/(\d+)/d3_test', 'cf_comparisons.views.d3_test'),
                        url(r'^compare/(\d+)/update', 'cf_comparisons.views.update'),
                        url(r'^compare_old/(\d+)', 'cf_comparisons.views.compare'),
-                       url(r'^compare/?(\d+)?$', 'dashboard.views.dashboard_v2'),
+                       url(r'^compare/?(\d+)?$', 'dashboard.views.compare_v2'),
                        url(r'^compare/samples', 'cf_comparisons.views.sample_compare'),
 
                        # api

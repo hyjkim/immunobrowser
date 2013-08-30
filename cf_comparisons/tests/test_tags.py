@@ -109,7 +109,7 @@ class ComparisonsTagUnitTest(TestCase):
     def DONTtest_compare_should_pass_num_forms_to_template_via_context(self):
         '''
         not sure why this isn't working, but it's not necessary with
-        dashboard_v2.
+        compare_v2.
         '''
         mock_response = compare(self.request, self.comparison.id)
         self.assertEqual(2, mock_response.get('num_forms'))

@@ -74,7 +74,7 @@ def remove_clonofilter(request):
         new_comp, created = Comparison.get_or_create_from_clonofilters(cfs)
         return HttpResponse(new_comp.id)
     else:
-        return HttpResponseRedirect(reverse('dashboard.views.dashboard_v2'))
+        return HttpResponseRedirect(reverse('dashboard.views.compare_v2'))
 
 def add_samples_v2(request):
     '''
@@ -96,13 +96,13 @@ def add_samples_v2(request):
 
         return HttpResponse(comparison.id)
     else:
-        return HttpResponseRedirect(reverse('dashboard.views.dashboard_v2'))
+        return HttpResponseRedirect(reverse('dashboard.views.compare_v2'))
 
 def home(request):
     context = {}
     return render(request, 'home.html', context)
 
-def dashboard_v2(request, comparison_id):
+def compare_v2(request, comparison_id):
     '''
     version 2 of the explorer
     '''

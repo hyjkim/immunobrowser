@@ -84,7 +84,7 @@ var my_rScale = d3.scale.linear()
       $.post("{% url 'cf_comparisons.views.update' comparison_id %}",
         {'update': JSON.stringify(updateDict)}, 
         function(comparison_id) {
-        window.location.href="/dashboard_v2/"+comparison_id
+        window.location.href="/compare_v2/"+comparison_id
         });
       });
 
