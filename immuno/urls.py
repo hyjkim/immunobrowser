@@ -21,6 +21,7 @@ urlpatterns = patterns('',
                        url('^accounts/', include('django.contrib.auth.urls')),
                        url(r'^accounts/', include('registration.backends.default.urls')),
 
+                       url(r'^$/?(\d+)?', 'dashboard.views.dashboard_v2'),
                        # Dynamic
                        url(r'^patients/(\d+)/$', 'patients.views.patient_summary'),
 
