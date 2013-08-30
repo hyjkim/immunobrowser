@@ -203,7 +203,7 @@ class SampleViewIntegrationTest(TestCase):
         response = self.client.get('/samples/')
 
         # Make sure we're using the home view
-        self.assertTemplateUsed(response, 'home.html')
+        self.assertTemplateUsed(response, 'sample_home.html')
 
         # Check we passed the samples to the template
         samples_in_context = response.context['samples']

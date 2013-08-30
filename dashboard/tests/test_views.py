@@ -47,6 +47,10 @@ class SearchUnitTest(TestCase):
         url = reverse('dashboard.views.search')
         self.assertTrue(url)
 
+class HomeViewIntegrationTest(TestCase):
+    def test_home_uri_is_root(self):
+        self.assertEqual(reverse('dashboard.views.home'), '/')
+
 class DashboardViewUnitTest(TestCase):
     ''' Here, we mock out the rendering stack for fast unit tests of the view'''
 
@@ -79,7 +83,7 @@ class DashboardViewUnitTest(TestCase):
 
     def test_dashboard_v2_view_renders_dashbaord_v2_template(self):
         response = dashboard_v2(self.request, None)
-        self.assertEqual(response['template'], "dashboard_v2.html")
+        self.assertEqual(response['template'], "compare_v2.html")
 
     def test_add_samples_takes_in_string_of_comma_delimited_sample_ids_via_post_and_returns_a_comparison_id(self):
         self.request.POST['sample_ids'] = "[1,2,3]"

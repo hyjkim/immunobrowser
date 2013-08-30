@@ -21,7 +21,7 @@ urlpatterns = patterns('',
                        url('^accounts/', include('django.contrib.auth.urls')),
                        url(r'^accounts/', include('registration.backends.default.urls')),
 
-                       url(r'^$/?(\d+)?', 'dashboard.views.dashboard_v2'),
+                       url(r'^/?$', 'dashboard.views.home'),
                        # Dynamic
                        url(r'^patients/(\d+)/$', 'patients.views.patient_summary'),
 
@@ -32,7 +32,6 @@ urlpatterns = patterns('',
                        url(r'^dashboard/menu.json$', 'dashboard.views.menu_json'),
                        url(r'^dashboard/add_samples$', 'dashboard.views.add_samples'),
                        url(r'^dashboard/add_samples_v2$', 'dashboard.views.add_samples_v2'),
-                       url(r'^dashboard_v2/?(\d+)?$', 'dashboard.views.dashboard_v2'),
                        url(r'^dashboard/remove_clonofilter$', 'dashboard.views.remove_clonofilter'),
 #                       url(r'^dashboard_v2', 'dashboard.views.dashboard_v2'),
 
@@ -59,7 +58,8 @@ urlpatterns = patterns('',
                        url(r'^compare/(\d+)/filter_forms', 'cf_comparisons.views.filter_forms'),
                        url(r'^compare/(\d+)/d3_test', 'cf_comparisons.views.d3_test'),
                        url(r'^compare/(\d+)/update', 'cf_comparisons.views.update'),
-                       url(r'^compare/(\d+)', 'cf_comparisons.views.compare'),
+                       url(r'^compare_old/(\d+)', 'cf_comparisons.views.compare'),
+                       url(r'^compare/?(\d+)?$', 'dashboard.views.dashboard_v2'),
                        url(r'^compare/samples', 'cf_comparisons.views.sample_compare'),
 
                        # api

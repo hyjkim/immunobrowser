@@ -41,13 +41,13 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="{% url 'dashboard.views.dashboard_v2' %}">UCSC Immunobrowser</a>
+        <a class="navbar-brand" href="{% url 'dashboard.views.home' %}">UCSC Immunobrowser</a>
       </div>
       <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
           <li class="{% if request.resolver_match.url_name == "samples.views.home" %}active{% endif %}">
           <a href="{% url 'samples.views.home' %}">Browse</a></li>
-          <li><a href="#">Compare</a></li>
+          <li><a href="{% url 'dashboard.views.dashboard_v2' %}">Compare</a></li>
           <li><a href="#">Blast</a></li>
           <li><a href="#">Upload</a></li>
         </ul>

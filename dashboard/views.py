@@ -98,6 +98,10 @@ def add_samples_v2(request):
     else:
         return HttpResponseRedirect(reverse('dashboard.views.dashboard_v2'))
 
+def home(request):
+    context = {}
+    return render(request, 'home.html', context)
+
 def dashboard_v2(request, comparison_id):
     '''
     version 2 of the explorer
@@ -117,7 +121,7 @@ def dashboard_v2(request, comparison_id):
             'comparison': comparison,
             }
 
-    return render(request, 'dashboard_v2.html', context)
+    return render(request, 'compare_v2.html', context)
 
 def add_samples(request):
     '''

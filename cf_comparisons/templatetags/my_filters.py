@@ -1,10 +1,14 @@
 # my_filters.py
 # Some custom filters for dictionary lookup.
-from django.template.defaultfilters import register
+#from django.template.defaultfilters import register
 from django.core.serializers import serialize
 from django.db.models.query import QuerySet
 import json
 from django.utils.safestring import mark_safe
+from django import template
+
+register = template.Library()
+
 
 @register.filter(name='lookup')
 def lookup(dict, index):

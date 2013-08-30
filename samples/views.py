@@ -9,7 +9,7 @@ from django.forms.models import model_to_dict
 
 def home(request):
     context = {'samples': Sample.objects.all()}
-    return render(request, 'home.html', context)
+    return render(request, 'sample_home.html', context)
 
 
 def summary(request, sample_id):
