@@ -260,14 +260,6 @@ class UserIntegrationTest(TestCase):
     '''
     For testing user interaction tests
     '''
-    def test_compare_v2_displays_link_to_logout_if_user_is_logged_in(self):
-        password = 'incrediblysecurepassword'
-        user = UserFactory(password=password)
-        self.client.login(username=user.username, password=password)
-
-        url = reverse('django.contrib.auth.views.logout')
-        response = self.client.get(reverse('dashboard.views.compare_v2'))
-        self.assertIn(url, response.content)
 
     def test_compare_v2_does_not_display_link_to_login_if_user_is_logged_in(self):
         password = 'incrediblysecurepassword'

@@ -5,20 +5,7 @@
 
 </style>
 {% endblock %}
-
-{% block header_extra %}
-<div id="search col-md-3">
-  <form action='{% url 'dashboard.views.search' %}' method="get">
-    {{ search_form.query }}
-    <button type="submit" class="btn btn-default btn-lg">
-      <span class="glyphicon glyphicon-search"></span>
-      </button >
-    </form>
-  </div>
-
-  {% endblock %}
-
-  {% block content %}
+{% block content %}
 
   <div id="subcontent">
     <div id="intro" class="row">

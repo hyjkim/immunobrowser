@@ -12,6 +12,10 @@
 
 {% endblock %}
 
+{% block nav %}
+{% load dashboard_tags %}
+{% menu_tag search_form %}
+{% endblock %}
 
 {% block content %}
 <h1> Matching Samples:</h1>
