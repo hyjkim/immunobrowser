@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style type="text/css">
+
+</style>
+{% endblock %}
+
+{% block header_extra %}
+<div id="search col-md-3">
+  <form action='{% url 'dashboard.views.search' %}' method="get">
+    {{ search_form.query }}
+    <button type="submit" class="btn btn-default btn-lg">
+      <span class="glyphicon glyphicon-search"></span>
+      </button >
+    </form>
+  </div>
+
+  {% endblock %}
+
+  {% block content %}
+
+  {% load comparison_tags %}
+
+  <div id="subcontent">
+    {% if comparison %}
+    {% scatter_nav_tag comparison %}
+    {% shared_clones_tag comparison %}
+       {% endif %}
+  </div>
+
+  <div class="menu sample row">
+    <div id="filter-forms">
+      {% if comparison %}
+      {% filter_forms_tag comparison %}
+      {% endif %}
+    </div>
+    <div id="add-sample" class="col-md-2 text-center nav">
+      <a>
+        <h1>+</h1><br />
+        Add sample
+      </a>
+    </div>
+    <div id="sample-compare" class="col-md-3 nav text-right">
+      {% sample_compare_tag sample_compare_form%}
+    </div>
+  </div>
+
+
+
+
+  <script>
+    // specific code
+    {% autoescape off %}
+    var comparisonId = '{{comparison.id}}';
+    {% endautoescape %}
+
+    // dashboard universal code
+
+    var sampleCompareDiv = $('div#sample-compare');
+    var addSampleDiv = $('div#add-sample');
+    var sampleSubmit = $('div#sample-compare :submit');
+    var sampleCancel = $('div#sample-compare :button');
+    var sampleForm = $('div#sample-compare form');
+    var sampleRemoveGlyphs;
+    var filterForms;
+
+    // In here, things that don't change upon interacting with the sample form
+    var init = function () {
+      // Make sure the sample compare div is hidden
+      sampleCompareDiv.hide();
+      // Shows add sample form when add sample is clicked
+      addSampleDiv.click(function () {
+        sampleCompareDiv.show();
+        addSampleDiv.hide();
+      });
+      // Hides add sample form when cancel button is clicked
+      sampleCancel.click(function () {
+        sampleCompareDiv.hide();
+        addSampleDiv.show();
+      });
+
+    }
+
+    var update = function () {
+      // Binds removal of clonofilter from comparison to glyphicon-remove
+      sampleRemoveGlyphs = $('.glyphicon-remove');
+      sampleRemoveGlyphs.click(closeFunction);
+
+      // Hide filters after some predetermined amount of time
+      setTimeout(function() {
+        $('.accordion-body').collapse('hide');
+      },
+      1000);
+
+
+      // Change opacity of filter form on mouse over
+      filterForms = $('.filter-form');
+      filterForms
+      .on("mouseover", function () {
+        $(this).removeClass("inactive").addClass("active");
+      })
+      .on("mouseleave", function () {
+        $(this).removeClass("active").addClass("inactive");
+      })
+      .click(function () {
+        var body = $(this).find('.accordion-body')
+        if (body.length) {
+          body.collapse('show')
+          body.removeClass('accordion-body').addClass('accordion-body-disabled');
+        }
+        else {
+          body = $(this).find('.accordion-body-disabled');
+          body.removeClass('accordion-body-disabled').addClass('accordion-body');
+          body.collapse('hide');
+        }
+      })
+      ;
+    };
+
+    sampleSubmit.click(function () {
+      event.preventDefault();
+      var postData = sampleForm.serializeArray();
+      if (comparisonId) {
+        postData.push({'name':'comparison', 'value': comparisonId});
+      }
+
+      sampleCompareDiv.hide();
+      addSampleDiv.show();
+
+      console.log(postData);
+
+      $.post('{% url 'dashboard.views.add_samples_v2' %}',
+      postData, function (compId) {
+
+        // Load filter forms
+        $.get("/compare/" + compId + "/filter_forms",
+        function(filterForms) {
+          $('div#filter-forms').html(filterForms)
+          update();
+        });
+
+        // Update global comparisonId variable
+        comparisonId = compId
+
+        // Modify url bar
+        // Should modify this javascript to use 
+        // a django template tag for 'dashboard.views.dashboard_v2'
+        window.history.pushState(null, '', '/compare/' + compId);
+      });
+
+
+    });
+
+
+    var closeFunction = function() {
+      cfId = $(this).attr('id').match(/\d+/)[0];
+      postData = [{'name':'comparison', 'value': comparisonId},
+      {'name':'clonofilter', 'value': cfId}];
+      $.post('{% url 'dashboard.views.remove_clonofilter' %}',
+      postData, function (compId) {
+        comparisonId = compId;
+        window.history.pushState(null, '', '/dashboard_v2/' + compId);
+        // Load filter forms
+        $.get("/compare/" + compId + "/filter_forms",
+        function(filterForms) {
+          $('div#filter-forms').html(filterForms)
+          update();
+        });
+      });
+
+    };
+
+    init();
+    update();
+
+
+
+
+
+
+
+
+  </script>
+  {% endblock %}
