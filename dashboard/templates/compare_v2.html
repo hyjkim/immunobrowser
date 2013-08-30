@@ -18,8 +18,12 @@
 
   {% endblock %}
 
-  {% block content %}
+{% block header %}
+{% load dashboard_tags %}
+{% menu_tag 'dashboard.views.dashboard_v2' %}
+{% endblock %}
 
+  {% block content %}
   {% load comparison_tags %}
 
   <div id="subcontent">
