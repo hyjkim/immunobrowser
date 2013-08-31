@@ -60,12 +60,11 @@ class Comparison(models.Model):
             opacity = args[0]
         except:
             opacity = 1
-        opacity *= 255
 
         cf_colors = self.colors()
         for cf, color in cf_colors.iteritems():
             color = hex_to_rgb(color)
-            color.append(int(opacity))
+            color.append(opacity)
             cf_colors[cf] = 'rgba(' + ', '.join([str(v) for v in color]) + ')'
         return cf_colors
 
