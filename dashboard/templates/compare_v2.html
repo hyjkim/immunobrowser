@@ -90,13 +90,15 @@
 
 
     // Change opacity of filter form on mouse over
-    filterForms = $('.filter-form');
+    filterForms = $('div.filter-form');
     filterForms
     .on("mouseover", function () {
-    $(this).removeClass("inactive").addClass("active");
+      // lower opacity of all elements associated with cf
+//    $(this).removeClass("inactive").addClass("active");
     })
     .on("mouseleave", function () {
-    $(this).removeClass("active").addClass("inactive");
+      // raise opacity of all elements associated with cf
+//    $(this).removeClass("active").addClass("inactive");
     })
     .click(function () {
     var body = $(this).find('.accordion-body')
@@ -155,7 +157,7 @@
     $.post('{% url 'dashboard.views.remove_clonofilter' %}',
     postData, function (compId) {
     comparisonId = compId;
-    window.history.pushState(null, '', '/compare_v2/' + compId);
+    window.history.pushState(null, '', '/compare/' + compId);
     // Load filter forms
     $.get("/compare/" + compId + "/filter_forms",
     function(filterForms) {

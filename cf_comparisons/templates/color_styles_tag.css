@@ -1,10 +1,10 @@
 {% for cfid, rgba in active_colors.iteritems %}
-.cf-{{ cfid }}-active {
+div.cf-{{ cfid }}-active {
   background-color: {{rgba}}
 }
 {% endfor %}
 {% for cfid, rgba in inactive_colors.iteritems %}
-.cf-{{ cfid }}-inactive {
+div.cf-{{ cfid }}-inactive {
   background-color: {{rgba}}
 }
 {% endfor %}
