@@ -276,6 +276,9 @@ class ClonoFilterModelTest(TestCase):
         self.f = ClonoFilter(sample=self.s)
         self.f.save()
 
+    def test_css_class_returns_clonofilter_class_string(self):
+        self.assertEqual(self.f.css_class(), "cf-1")
+
     def test_update_generates_a_new_clonofilter_and_merges_filters_with_existing(self):
         from django.forms.models import model_to_dict
         self.f.min_copy = 1

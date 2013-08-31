@@ -252,6 +252,15 @@ class ClonoFilter(models.Model):
     j_gene_name = models.CharField(max_length=100, null=True)
 #    functionality = MultiSelectField(max_length=250, blank=True, choices=TYPES)
 
+    def css_class(self):
+        '''
+        Returns a string that represents a class to be used in css.
+        Method is used when applicable to encourage consistency in clonofilter
+        identification.
+        '''
+        return "cf-"+str(self.id)
+
+
     def save(self, *args, **kwargs):
         super(ClonoFilter, self).save(*args, **kwargs)
         if self.norm_factor is None:

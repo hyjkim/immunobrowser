@@ -50,6 +50,26 @@ class Comparison(models.Model):
         return comp
 
 
+    def rgba_colors(self, *args):
+        '''
+        Returns colors in rgba format for use in css.
+        Takes in a float as an optional value for opacity.
+        Otherwise opacity defaults to 1
+        '''
+        try:
+            opacity = args[0]
+        except:
+            opacity = 1
+        opacity *= 255
+
+        cf_colors = self.colors()
+        for cf, color in cf_colors.iteritems():
+            color = hex_to_rgb(color)
+            color.append(int(opacity))
+            cf_colors[cf] = 'rgba(' + ', '.join([str(v) for v in color]) + ')'
+        return cf_colors
+
+
     def colors(self):
         '''
         Returns a dict where keys are clonofilter ids and colors are hex strings.
@@ -465,3 +485,11 @@ class ComparisonColor(models.Model):
 
     class Meta:
         unique_together = ("comparison", "clonofilter")
+
+def hex_to_rgb(color):
+    '''
+    Given a hex color, return a list containing rgb ints in range [0,255]
+    '''
+    color = color.lstrip('#')
+    cl = len(color)
+    return [int(color[i:i+cl/3], 16) for i in range(0, cl, cl/3)]

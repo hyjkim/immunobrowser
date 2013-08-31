@@ -19,10 +19,6 @@ th {
   font-weight: 500;
 }
 
-#content {
-  float: clear;
-}
-
 .nucleotide {
   font-family: "Lucida Console", Monaco, monospace
 
@@ -85,6 +81,7 @@ div.recombination {
 }
 
 .filter-form {
+  margin-right: 15px;
   padding: 15px 15px 15px 15px;
   border: 1px solid
 }

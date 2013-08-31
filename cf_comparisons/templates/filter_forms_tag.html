@@ -5,8 +5,9 @@
     {% csrf_token %}
     <input type="hidden" name="num_forms" value="{{ num_forms }}">
     {% for clonofilter, filter_form in filter_forms.iteritems %}
-    <div class="filter-form accordian inactive"
-      id="filter-cf-{{clonofilter.id}}" style="float:left; background-color:{{sample_colors|lookup:clonofilter.id}}">
+    <div class="filter-form accordian col-md-12 {{clonofilter.css_class}}
+      {{clonofilter.css_class}}-inactive"
+      id="filter-cf-{{clonofilter.id}}">
       <!--
       <a class="accordion-toggle" data-toggle="collapse"
         data-parent="filter-cf-{{clonofilter.id}}" href="#collapse-cf-{{clonofilter.id}}">

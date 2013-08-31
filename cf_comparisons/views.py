@@ -6,6 +6,9 @@ from clonotypes.forms import ClonoFilterForm
 from clonotypes.models import ClonoFilter
 
 
+def background_colors(request, comparison_id):
+    pass
+
 def shared_clones(request, comparison_id):
     '''
     Given a comparison id, returns a rendered shared_clone template tag

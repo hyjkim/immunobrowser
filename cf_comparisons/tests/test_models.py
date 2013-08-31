@@ -331,6 +331,14 @@ class ComparisonColorModelTest(TestCase):
         self.cf = list(ClonoFilter.objects.all())
         self.comp = Comparison.objects.get()
 
+    def test_rgba_colors_returns_dict_of_rgba_values(self):
+        import re
+        color_dict = self.comp.rgba_colors()
+        for cf_id, color in color_dict.iteritems():
+            p = re.compile('rgba\( *\d+ *, *\d+ *, *\d+ *, *\d+ *\\)')
+            self.assertTrue(p.match(color_dict[cf_id]))
+
+
     def test_colors_automagically_assigns_colors_if_they_dont_exist(self):
         color_dict = self.comp.colors()
         cfs = self.comp.clonofilters.all()

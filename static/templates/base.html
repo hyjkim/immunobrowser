@@ -20,7 +20,7 @@
 <script type='text/javascript' src="{{ STATIC_URL }}libs/jquery.cookie.js"></script>
     <script type='text/javascript' src="{{ STATIC_URL }}libs/bootstrap-3rc2.js"></script>
     <script type='text/javascript' src="{{ STATIC_URL }}libs/site.js"></script>
-<script type='text/javascript' src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/d3.v3.min.js" charset="utf-8"></script>
     {% endblock %}
 
 
@@ -50,10 +50,7 @@
     </div>
 
     <div id="content" class="row">
-      <div class="col-md-1"></div>
-      <div class="col-md-11">
         {% block content %}{% endblock %}
-      </div>
     </div>
 
     <div id="footer" class="row">

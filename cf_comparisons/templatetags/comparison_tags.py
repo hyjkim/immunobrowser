@@ -4,6 +4,15 @@ import json
 
 register = template.Library()
 
+@register.inclusion_tag('color_styles_tag.css')
+def color_styles_tag(comparison):
+    active_colors = comparison.rgba_colors(0.75)
+    inactive_colors = comparison.rgba_colors(0.3)
+    context = {
+            'active_colors': active_colors,
+            'inactive_colors': inactive_colors,
+            }
+    return context
 
 @register.inclusion_tag('sample_compare_form_tag.html')
 def sample_compare_tag(sample_compare_form):

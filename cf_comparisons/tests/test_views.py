@@ -5,7 +5,7 @@ from mock import patch
 from test_utils.ghetto_factory import make_fake_comparison_with_2_samples
 from cf_comparisons.models import Comparison
 from samples.models import Sample
-from cf_comparisons.views import compare, bubble, sample_compare, scatter_nav, shared_clones
+from cf_comparisons.views import compare, bubble, sample_compare, scatter_nav, shared_clones, background_colors
 from cf_comparisons.forms import SampleCompareForm
 
 
@@ -23,6 +23,9 @@ class ComparisonsViewUnitTest(TestCase):
 
     def tearDown(self):
         self.renderPatch.stop()
+
+    def test_compare_color_styles_returns_stylesheet_containing_active_and_inactive_background_colors(self):
+        self.fail('todo')
 
     def test_shared_clones_takes_in_comparison_id(self):
         shared_clones(self.request, self.comparison.id)
