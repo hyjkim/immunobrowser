@@ -1,3 +1,27 @@
+// Todo: change all events to use an eventBus
+//   subscribe all common events to the same name
+//   see if you need data
+//   call change events on various listeners
+//   call revert events on mouseout
+//     data could be useful for call to
+//     revert changes onto to specific items
+//     and call only a subset of subscriptions
+//     or data could be used as the selector
+//     onto which the activation or deactivation
+//     is applied.
+
+//     now i have nav.activate and nav.inactivate
+//     these take in a selection
+//     and i could pass these data to it in order
+//     for them to be uncalled
+    
+//     or i could just specify the callback to call
+//     on the selection to begin with. still data
+//     might be useful elsewhere.
+
+//     I may remove the data requirement on the call back
+//     for now or make it optional
+
 function sharedClones() {
   var margin = {top: 20, right: 20, bottom: 20, left: 50},
   width = 500,
@@ -5,6 +29,7 @@ function sharedClones() {
   colorScale = d3.scale.category10(),
   xScale = d3.scale.ordinal(),
   yScale = d3.scale.linear();
+//  eventBus = eventBus.new_eventBus();
 
   function plot(selection) {
     selection.each(function (data) {
@@ -56,7 +81,8 @@ function sharedClones() {
 
     gAmino.selectAll(".line")
       .attr("d", function(d) {return line(d)});
-        
+
+       
       // draw circles
       var circles = gAmino.selectAll('circle')
       .data(function(d) {return d3.map(d.value['clonofilters']).entries()});
@@ -64,15 +90,43 @@ function sharedClones() {
       .attr('cx',function(d) {return xScale(d.key)})
       .attr('cy', function(d) {return yScale(d.value)})
       .attr('r', 10)
-      .attr('class', 'inactive')
-      .attr("fill", function(d) {return colorScale(d.key)})
-      .on('mouseover', function () {
-        d3.select(this).attr('class', 'active')
+//      .attr('class', 'inactive')
+//      .attr('class', function(d) {return "cf-" + d.key + "-inactive"})
+      .attr('class', function(d) {return "cf-" + d.key })
+      .attr("fill", function(d) {return colorScale(d.key)});
+
+      // Add interactivity to eventBus
+      var activate = function (selection) {
+        selection.classed('active', true);
+      }
+      var inactivate = function (selection) {
+        selection.classed('active', false);
+      }
+
+      eventBus.subscribe('activate',activate);
+      eventBus.subscribe('inactivate',inactivate);
+
+      // selecting individual circles
+      circles.on('mouseover', function () {
+        eventBus.publish('activate', d3.select(this));
       })
       .on('mouseout', function () {
-        circles.attr('class', 'inactive')
+        eventBus.publish('inactivate', circles);
       })
-      
+
+      // selecting samples
+      cfids.forEach(function (cfid) {
+        //eventBus.subscribe('activate cf-'+cfid, activateSample().selection(circles.selectAll('.cf-'+cfid)));
+        cfcircles = d3.selectAll('circle.cf-'+cfid)
+        eventBus.subscribe('activate cf-'+cfid, function () {
+          cfcircles.classed('active', true);
+        });
+        eventBus.subscribe('inactivate cf-'+cfid, function () {
+          cfcircles.classed('active', false);
+        });
+
+      });
+
       //amino acid highlighting functionality
       var amino = d3.select(".amino")
         .on("mouseover", function() {
@@ -118,14 +172,22 @@ function sharedClones() {
     xScale = value;
     return plot;
   }
+
   plot.y = function(value) {
     if(!arguments.length) return yScale;
     yScale = value;
     return plot;
   }
+
   plot.color = function(value) {
     if(!arguments.length) return colorScale;
     colorScale = value;
+    return plot;
+  }
+
+  plot.eventBus = function(value) {
+    if(!arguments.length) return eventBus;
+    eventBus = value;
     return plot;
   }
 
@@ -143,21 +205,21 @@ function functionality() {
 
   function plot (selection) {
     selection.each (function (data) {
-//      xScale
-//      .range([0, width - margin.left - margin.right]);
-//
-   // Get sample IDs
-    var sampleIds = data.map(function (d) {return d.key});
+      //      xScale
+      //      .range([0, width - margin.left - margin.right]);
+      //
+      // Get sample IDs
+      var sampleIds = data.map(function (d) {return d.key});
 
-    // Scale height 
-    height = sampleIds.length * heightScale;
+      // Scale height 
+      height = sampleIds.length * heightScale;
 
-    // Make svg and set some attributes
+      // Make svg and set some attributes
 
-    var svg = d3.select(this).selectAll("svg").data(d3.select(this).data());
+      var svg = d3.select(this).selectAll("svg").data(d3.select(this).data());
 
-    svg.enter().append("svg");
-    svg.attr("width", width)
+      svg.enter().append("svg");
+      svg.attr("width", width)
       .attr("height", height);
 
     var gInner = svg.append('g')
@@ -165,7 +227,7 @@ function functionality() {
       .attr("transform", 'translate(' + margin.left + ',' + (height - margin.top ) +') rotate(-90)');
 
 
-     // get set of productivity statuses
+    // get set of productivity statuses
     var prodStatuses = d3.set([].concat.apply([],data.map(function (d) {
       return d3.map(d.values).keys();
     }))).values();
@@ -173,19 +235,19 @@ function functionality() {
     // map data such that each productivity status has a sample id and a
     // percentage
     var dataMap = prodStatuses.map(
-      function(prodStatus) {
-        return {
-          'key': prodStatus,
-          'values': data.map(
-            function (d) {
-              var y;
-              (prodStatus in d.values) ? y = d.values[prodStatus]: y = 0;
+        function(prodStatus) {
+          return {
+            'key': prodStatus,
+        'values': data.map(
+          function (d) {
+            var y;
+            (prodStatus in d.values) ? y = d.values[prodStatus]: y = 0;
 
-              return {
-                'x': d.key,
-                'y': y
-              };
-            })
+            return {
+              'x': d.key,
+        'y': y
+            };
+          })
           };
         });
 
@@ -194,12 +256,12 @@ function functionality() {
     var x = d3.scale.ordinal()
       .domain(sampleIds)
       .rangeRoundBands([0, height - margin.top - margin.bottom], 0.1);
-      //.rangeRoundBands([0, width - margin.left - margin.right]);
+    //.rangeRoundBands([0, width - margin.left - margin.right]);
 
     var y = d3.scale.linear()
       .domain([0,1])
       .range([width - margin.left - margin.right, 0]);
-      //.range([height - margin.top - margin.bottom, 0], 0.1);
+    //.range([height - margin.top - margin.bottom, 0], 0.1);
 
     var color = d3.scale.category10();
 
@@ -211,10 +273,10 @@ function functionality() {
 
     var layers = gInner.selectAll('.layer')
       .data(stack(dataMap))
-        .enter()
-        .append('g')
-        .attr('class', function (d) {return 'layer ' + d.key})
-        .style("fill", function(d, i) { return color(i); });
+      .enter()
+      .append('g')
+      .attr('class', function (d) {return 'layer ' + d.key})
+      .style("fill", function(d, i) { return color(i); });
 
     var rects = layers.selectAll('rect')
       .data(function (d) {return d.values})
@@ -225,7 +287,7 @@ function functionality() {
       .attr("y", function(d) { return y(d.y0 + d.y); })
       .attr('width', x.rangeBand())
       .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); });
-      //.attr("height", function(d) { return y(d.y); });
+    //.attr("height", function(d) { return y(d.y); });
 
 
     // draw an x axis
@@ -237,7 +299,7 @@ function functionality() {
 
     gInner.append('g')
       .attr('class', 'x axis')
-//      .attr('transform', 'rotate(90)')
+      //      .attr('transform', 'rotate(90)')
       .call(xAxis);
 
     // Convert the sample id to sample names
@@ -245,8 +307,8 @@ function functionality() {
       .text(function (d) {
         return nameMap(d);
       })
-      .attr('transform', 'rotate(90)')
-    ;
+    .attr('transform', 'rotate(90)')
+      ;
 
     });
   }
@@ -287,7 +349,8 @@ function scatterNav() {
       nameMap = function(d) {return d[3]},
       vHeight = 100,
       jWidth = 100,
-      sampleIds = [];
+      sampleIds = [],
+      sampleCircles;
 
   function nav (selection) {
     selection.each(function(data) {
@@ -345,7 +408,7 @@ function scatterNav() {
       ;
 
     // now actually plot the circles
-    var sampleCircles = vRows.selectAll("circle")
+    sampleCircles = vRows.selectAll("circle")
       .data(function(d) {return d.values}, 
           function(d) {return d[1]})
       .enter()
@@ -492,7 +555,7 @@ function scatterNav() {
       sampleCircles.attr("class", "inactive");
 
       //dev
-      sampleTooltips.attr("class", "inactive");
+      //      sampleTooltips.attr("class", "inactive");
     });
 
 
@@ -926,6 +989,20 @@ function scatterNav() {
     nameMap = value;
     return nav;
   }
+
+  nav.circles = function () {
+    return sampleCircles;
+  }
+
+  // Modifies a subset of elements 
+  // Takes in a d3 selection and changes all elements to active state
+  nav.activate = function (selection) {
+    selection.attr("class", "active")
+  }
+  nav.inactivate = function (selection) {
+    selection.attr("class", "inactive")
+  }
+
 
   return nav;
 }

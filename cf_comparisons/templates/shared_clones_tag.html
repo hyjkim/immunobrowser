@@ -53,8 +53,9 @@ function colormap (c) {
 };
 
 
-var mySharedClones = sharedClones();
-mySharedClones.color(colormap(sampleColors))
+var mySharedClones = sharedClones()
+.color(colormap(sampleColors))
+  .eventBus(window.eventBus);
 
 
 var div = d3.select('#shared-clones-d3').datum(aminoAcids.entries());

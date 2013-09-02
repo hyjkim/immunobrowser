@@ -1,12 +1,20 @@
 {% extends "base.html" %}
 {% load comparison_tags %}
+
 {% block css %}
 <style type="text/css">
 {% if comparison %}
  {% color_styles_tag comparison %}
 {% endif %}
-
 </style>
+{% endblock %}
+
+
+{% block extra_head %}
+<script type='text/javascript' src="{{ STATIC_URL }}libs/eventBus.js" charset="utf-8"></script>
+<script type='text/javascript'>
+window.eventBus = eventBus.new_eventBus()
+</script>
 {% endblock %}
 
 {% block nav %}
@@ -50,7 +58,7 @@
   var comparisonId = '{{comparison.id}}';
   {% endautoescape %}
 
-  // dashboard universal code
+  // comparison universal code
 
   var sampleCompareDiv = $('div#sample-compare');
   var addSampleDiv = $('div#add-sample');

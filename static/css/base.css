@@ -100,11 +100,13 @@ div.recombination {
     position: absolute;
     z-index: 10;
   }
-  .active {
-    opacity: 0.75
-  }
-  .inactive {
+
+circle {
     opacity: 0.3
+  }
+
+circle.active {
+    opacity: 0.75
   }
 
   .grid .tick {
