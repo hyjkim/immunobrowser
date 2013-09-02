@@ -8,7 +8,7 @@ def menu_tag(*args):
     # These menu items are a list of valid menu items
     MENU_FIELDS = [
         {'view': 'samples.views.home', 'name': 'Browse', 'active': False},
-        {'view': 'dashboard.views.compare_v2', 'name': 'Compare', 'active': False},
+        {'view': 'cf_comparisons.views.compare_v3', 'name': 'Compare', 'active': False},
         {'view': '', 'name': 'Blast', 'active': False},
         {'view': '', 'name': 'Upload', 'active': False},
     ]

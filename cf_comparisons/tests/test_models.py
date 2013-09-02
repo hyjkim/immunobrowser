@@ -17,6 +17,10 @@ class ComparsionModelMethodsTest(TestCase):
         '''todo: call on two datasets, one with norm factors, one without and make sure values are expected'''
         self.fail('todo: call on two datasets, one with norm factors, one without and make sure values are expected')
 
+    def test_vdj_freq_returns_vdj_usage_sample_stats(self):
+        self.assertEqual([[u'7', u'TRBJ2-5', 0.6666666666666666, 1], [u'8', u'TRBJ2-4', 0.3333333333333333, 1], [u'7', u'TRBJ2-5', 1.0, 2]],
+                self.comparison.vdj_freq())
+
     def test_comparison_sample_names_returns_dictionary_of_sample_names_indexed_by_cfid(self):
         self.assertEqual({1: 'test patient 2012-12-12 cd4+', 2: 'test patient 2012-12-13 cd4+'} , self.comparison.sample_names())
 

@@ -5,7 +5,7 @@ from mock import patch
 from test_utils.ghetto_factory import make_fake_comparison_with_2_samples
 from cf_comparisons.models import Comparison
 from samples.models import Sample
-from cf_comparisons.views import compare, bubble, sample_compare, scatter_nav, shared_clones, background_colors
+from cf_comparisons.views import compare, bubble, sample_compare, scatter_nav, shared_clones, background_colors, compare_v3
 from cf_comparisons.forms import SampleCompareForm
 
 
@@ -24,6 +24,18 @@ class ComparisonsViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_vdj_freq_ajax_returns_vdj_usage_sample_stats(self):
+        from cf_comparisons.views import vdj_freq_ajax
+        self.assertEqual('[["7", "TRBJ2-5", 0.6666666666666666, 1], ["8", "TRBJ2-4", 0.3333333333333333, 1], ["7", "TRBJ2-5", 1.0, 2]]', vdj_freq_ajax(self.request, self.comparison.id).content)
+
+    def test_compare_v3_renders_compare_v3_html(self):
+        response = compare_v3(self.request, self.comparison.id)
+        self.assertEqual('compare_v3.html', response['template'])
+
+    def test_compare_v3_returns_comparison_to_template(self):
+        response = compare_v3(self.request, self.comparison.id)
+        self.assertEqual(self.comparison, response['comparison'])
+
     def test_compare_color_styles_returns_stylesheet_containing_active_and_inactive_background_colors(self):
         self.fail('todo')
 
@@ -32,13 +44,14 @@ class ComparisonsViewUnitTest(TestCase):
 
     def test_scatter_nav_renders_scatter_nav_template(self):
         from django.template import Template, Context
-        response = scatter_nav(self.request, None);
+        response = scatter_nav(self.request, None)
         self.assertEqual(response['template'], 'scatter_nav.html')
 
     def test_compare_sends_shared_amino_acids_and_related_clonotypes(self):
         mock_response = compare(self.request, self.comparison.id)
         shared_amino_acids = self.comparison.get_shared_amino_acids_related()
-        self.assertEquals(shared_amino_acids, mock_response.get('shared_amino_acids'))
+        self.assertEquals(
+            shared_amino_acids, mock_response.get('shared_amino_acids'))
 
     def test_compare_should_pass_samples_to_template_via_context(self):
         mock_response = compare(self.request, self.comparison.id)
@@ -103,7 +116,8 @@ class ComparisonsViewIntegrationTest(TestCase):
 
     def test_shared_clone_view_renders_the_same_as_template_tag(self):
         from django.template import Template, Context
-        t = Template('{% load comparison_tags %}{% shared_clones_tag comparison %}')
+        t = Template(
+            '{% load comparison_tags %}{% shared_clones_tag comparison %}')
         c = Context({'comparison': self.comparison})
         url = reverse('cf_comparisons.views.shared_clones', args=[1])
         response = self.client.get(url)
@@ -111,13 +125,15 @@ class ComparisonsViewIntegrationTest(TestCase):
 
     def test_shared_clones_uses_a_template_tag(self):
         from django.template import Template, Context
-        t = Template('{% load comparison_tags %}{% shared_clones_tag comparison %}')
+        t = Template(
+            '{% load comparison_tags %}{% shared_clones_tag comparison %}')
         c = Context({'comparison': self.comparison})
         self.assertIn('<div id="shared-clones"', t.render(c))
 
     def test_scatter_nav_uses_a_template_tag(self):
         from django.template import Template, Context
-        t = Template('{% load comparison_tags %}{% scatter_nav_tag comparison %}')
+        t = Template(
+            '{% load comparison_tags %}{% scatter_nav_tag comparison %}')
         c = Context({'comparison': self.comparison})
         self.assertIn('<div id="scatter-main"', t.render(c))
 
@@ -140,9 +156,9 @@ class ComparisonsViewIntegrationTest(TestCase):
 
         update_dict = {}
         for cf in cfs:
-            update_dict[str(cf.id)] ={'j_gene_name': 'TRBJ2-1'}
+            update_dict[str(cf.id)] = {'j_gene_name': 'TRBJ2-1'}
 
-        response = self.client.post(url, {'update':json.dumps(update_dict)})
+        response = self.client.post(url, {'update': json.dumps(update_dict)})
         self.assertNotEqual(str(self.comparison.id), response)
         self.assertEqual(response.content, '2')
 
@@ -153,16 +169,15 @@ class ComparisonsViewIntegrationTest(TestCase):
 
         update_dict = {}
         for cf in cfs:
-            update_dict[cf.id] ={'j_gene_name': 'TRBJ2-1'}
+            update_dict[cf.id] = {'j_gene_name': 'TRBJ2-1'}
 
-        response = self.client.post(url, {'update':json.dumps(update_dict)})
+        response = self.client.post(url, {'update': json.dumps(update_dict)})
         self.assertNotEqual(str(self.comparison.id), response)
         self.assertEqual(response.content, '2')
 
-
     def test_filter_forms_renders_forms_for_comparison(self):
         response = self.client.get(
-                reverse('cf_comparisons.views.filter_forms',
+            reverse('cf_comparisons.views.filter_forms',
                     args=[self.comparison.id]))
         self.assertIn('class="filter_wrapper"', response.content)
 
@@ -187,7 +202,8 @@ class ComparisonsViewIntegrationTest(TestCase):
         response = self.client.get(
             reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
         samples = self.comparison.get_samples()
-        self.assertIn(reverse('clonotypes.views.detail', args=[self.comparison.id]),response.content)
+        self.assertIn(reverse('clonotypes.views.detail', args=[
+                      self.comparison.id]), response.content)
 
     def test_compare_shows_links_to_shared_amino_acid(self):
         from clonotypes.models import AminoAcid
@@ -231,11 +247,13 @@ class ComparisonsViewIntegrationTest(TestCase):
 
     def test_compare_view_uses_a_template_tag(self):
         from django.template import Template, Context
-        t = Template('{% load comparison_tags %}{% comparison_tag comparison %}')
+        t = Template(
+            '{% load comparison_tags %}{% comparison_tag comparison %}')
         c = Context({'comparison': self.comparison})
-        response = self.client.get(reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
+        response = self.client.get(reverse(
+            'cf_comparisons.views.compare', args=[self.comparison.id]))
         self.assertTemplateUsed(response.content,
-                t.render(c))
+                                t.render(c))
 
     def test_sample_compare_redirects_to_compare_view_after_post(self):
         sample_ids = [sample.id for sample in Sample.objects.all()]
@@ -273,7 +291,8 @@ class ComparisonsViewIntegrationTest(TestCase):
 
     def test_filter_forms_uses_a_template_tag(self):
         from django.template import Template, Context
-        t = Template('{% load comparison_tags %}{% filter_forms_tag filter_forms %}')
+        t = Template(
+            '{% load comparison_tags %}{% filter_forms_tag filter_forms %}')
         c = Context({'filter_forms': self.comparison.filter_forms_list()})
         self.assertIn('<form action=', t.render(c))
 

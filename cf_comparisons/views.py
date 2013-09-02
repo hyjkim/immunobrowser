@@ -3,8 +3,21 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from cf_comparisons.models import Comparison
 from clonotypes.forms import ClonoFilterForm
-from clonotypes.models import ClonoFilter
+from clonotypes.models import ClonoFilter, Recombination
+import json
 
+def vdj_freq_ajax(request, comparison_id):
+    comparison = Comparison.objects.get(id=comparison_id)
+    return HttpResponse(json.dumps(comparison.vdj_freq()), mimetype='application/json')
+
+def compare_v3(request, comparison_id):
+    try:
+        comparison = Comparison.objects.get(id=comparison_id)
+    except:
+        comparison = None
+
+    context = {'comparison': comparison}
+    return render(request, 'compare_v3.html', context)
 
 def background_colors(request, comparison_id):
     pass

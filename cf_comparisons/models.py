@@ -1,10 +1,43 @@
 from django.db import models
-from clonotypes.models import ClonoFilter
+from clonotypes.models import ClonoFilter, Recombination
 from utils.utils import undefaulted
 
 
 class Comparison(models.Model):
     clonofilters = models.ManyToManyField(ClonoFilter)
+
+    def vdj_freq(self):
+        '''
+        Returns a list of lists containing frequences of each
+        v_family-j_gene pair and the clonofilter id
+        '''
+        clonofilters = sorted(self.clonofilters.all())
+        vj_counts_dict_dict= dict([(clonofilter.id, clonofilter.vj_counts_dict())
+                        for clonofilter in clonofilters])
+
+        v_list = sorted(Recombination.v_family_names())
+        j_list = sorted(Recombination.j_gene_names())
+
+        data = []
+
+        # Counts for the scatter plot
+        for clonofilter_id, vj_counts_dict in vj_counts_dict_dict.iteritems():
+            for v_index, v_family in enumerate(v_list):
+                for j_index, j_gene in enumerate(j_list):
+                    data_point = []
+                    data_point.append(v_list[v_index])
+                    data_point.append(j_list[j_index])
+                    if vj_counts_dict[v_family][j_gene]:
+                        data_point.append(vj_counts_dict[v_family][j_gene])
+                    else:
+                        data_point.append(0)
+                    # Append sample id
+                    data_point.append(clonofilter_id);
+                    if data_point[2] > 0:
+                        data.append(data_point)
+
+        return data
+
 
     def add_samples(self, samples):
         '''

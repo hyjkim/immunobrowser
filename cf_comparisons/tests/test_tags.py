@@ -55,10 +55,10 @@ class CompareColorStylesUnitTest(TestCase):
         t = Template('{% load comparison_tags %}{% color_styles_tag comparison %}')
         c = Context({'comparison': self.comp})
         rendered = t.render(c)
-        self.assertIn('cf-1-active', rendered)
-        self.assertIn('cf-2-active',rendered)
-        self.assertIn('cf-1-inactive', rendered)
-        self.assertIn('cf-2-inactive',rendered)
+        self.assertIn('cf-1.active', rendered)
+        self.assertIn('cf-2.active',rendered)
+        self.assertIn('cf-1.inactive', rendered)
+        self.assertIn('cf-2.inactive',rendered)
 
 class ComparisonsTagUnitTest(TestCase):
     '''

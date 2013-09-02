@@ -33,7 +33,7 @@ class DashboardMenuTagTests(TestCase):
         self.assertIsInstance(context['search_form'], SearchForm)
 
     def test_menu_tag_with_valid_view_argument_the_view_is_active(self):
-        t = Template("{% load dashboard_tags %}{% menu_tag 'dashboard.views.compare_v2'%}")
+        t = Template("{% load dashboard_tags %}{% menu_tag 'cf_comparisons.views.compare_v3'%}")
         c = Context({})
         self.assertIn('active', t.render(c))
 
