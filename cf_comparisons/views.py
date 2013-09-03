@@ -26,12 +26,8 @@ def update_clonofilters(request, comparison_id):
             comparison = Comparison.objects.get(id=comparison_id)
 
             for cf_form in cf_forms:
-                print "New Sample\n\n\n"
-                print request.POST
-                print cf_form
                 print cf_form.errors
 
-    print comparison.id
     return HttpResponse(comparison.id, mimetype='application/json')
 
 def clonofilter_colors(request, comparison_id):

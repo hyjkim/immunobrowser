@@ -8,19 +8,15 @@
     <div class="filter-form accordian col-md-12 {{clonofilter.css_class}}
       inactive"
       id="filter-cf-{{clonofilter.id}}">
-      <!--
       <a class="accordion-toggle" data-toggle="collapse"
         data-parent="filter-cf-{{clonofilter.id}}" href="#collapse-cf-{{clonofilter.id}}">
-        -->
         <h4>{{clonofilter.sample}}</h4>
 
-      <!--</a> -->
+      </a>
       <div class="filter-form-inner accordion-body in" id="collapse-cf-{{clonofilter.id}}">
-        {{ filter_form.as_p }}
-<!--
         <span id="remove-{{clonofilter.id}}"class="glyphicon glyphicon-remove pull-right"></span>
         {{ filter_form.non_field_errors }}
-        <input type="hidden" id="id_{{clonofilter.id}}-sample"
+        <input type="hidden" name="{{clonofilter.id}}-sample" id="id_{{clonofilter.id}}-sample"
         value="{{clonofilter.sample.id}}">
         <div class="fieldWrapper">
           {{ filter_form.min_copy.errors }}
@@ -53,7 +49,6 @@
           {{ filter_form.j_gene_name }}
         </div>
 
-    -->
       </div>
     </div>
     {% endfor %}
