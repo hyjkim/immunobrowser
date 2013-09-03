@@ -6,9 +6,52 @@ from clonotypes.forms import ClonoFilterForm
 from clonotypes.models import ClonoFilter, Recombination
 import json
 
+
+def update_clonofilters(request, comparison_id):
+    comparison = Comparison.objects.get(id=comparison_id)
+    if request.method == 'POST':
+#        num_forms = int(request.POST['num_forms'])
+        cfids = [cf.id for cf in comparison.clonofilters.all()]
+
+        cf_forms = [ClonoFilterForm(request.POST, prefix=str(x))
+                    for x in cfids]
+        if all([cf_form.is_valid() for cf_form in cf_forms]):
+            clonofilters = []
+            for cf_form in cf_forms:
+                cf, created = ClonoFilter.objects.get_or_create(
+                    **cf_form.cleaned_data)
+                clonofilters.append(cf)
+            comparison, created = Comparison.get_or_create_from_clonofilters(clonofilters)
+        else:
+            comparison = Comparison.objects.get(id=comparison_id)
+
+            for cf_form in cf_forms:
+                print "New Sample\n\n\n"
+                print request.POST
+                print cf_form
+                print cf_form.errors
+
+    print comparison.id
+    return HttpResponse(comparison.id, mimetype='application/json')
+
+def clonofilter_colors(request, comparison_id):
+    from django.template import Template, Context
+    t = Template('{% load comparison_tags %}{% clonofilter_colors_tag comparison%}')
+    c = Context({'comparison': Comparison.objects.get(id=comparison_id)})
+    return HttpResponse(t.render(c), mimetype="text/css")
+
 def vdj_freq_ajax(request, comparison_id):
     comparison = Comparison.objects.get(id=comparison_id)
-    return HttpResponse(json.dumps(comparison.vdj_freq()), mimetype='application/json')
+    clonofilters = sorted(comparison.clonofilters.all())
+
+    sample_names = dict([(clonofilter.id,str(clonofilter.sample)) for clonofilter in clonofilters])
+
+    data = {'vdjFreq': comparison.vdj_freq(),
+            'vList': sorted(Recombination.v_family_names()),
+            'jList': sorted(Recombination.j_gene_names()),
+            'sampleNames': sample_names,
+            }
+    return HttpResponse(json.dumps(data), mimetype='application/json')
 
 def compare_v3(request, comparison_id):
     try:

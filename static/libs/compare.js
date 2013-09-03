@@ -26,7 +26,8 @@ function sharedClones() {
   var margin = {top: 20, right: 20, bottom: 20, left: 50},
   width = 500,
   height = 300,
-  colorScale = d3.scale.category10(),
+  colorScale = function () { return null },
+  //colorScale = d3.scale.category10(),
   xScale = d3.scale.ordinal(),
   yScale = d3.scale.linear();
 //  eventBus = eventBus.new_eventBus();

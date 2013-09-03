@@ -4,8 +4,8 @@ import json
 
 register = template.Library()
 
-@register.inclusion_tag('color_styles_tag.css')
-def color_styles_tag(comparison):
+@register.inclusion_tag('clonofilter_colors_tag.css')
+def clonofilter_colors_tag(comparison):
     active_colors = comparison.rgba_colors(0.75)
     inactive_colors = comparison.rgba_colors(0.3)
     context = {

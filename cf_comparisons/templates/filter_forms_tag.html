@@ -16,42 +16,47 @@
 
       <!--</a> -->
       <div class="filter-form-inner accordion-body in" id="collapse-cf-{{clonofilter.id}}">
+        {{ filter_form.as_p }}
+<!--
         <span id="remove-{{clonofilter.id}}"class="glyphicon glyphicon-remove pull-right"></span>
         {{ filter_form.non_field_errors }}
+        <input type="hidden" id="id_{{clonofilter.id}}-sample"
+        value="{{clonofilter.sample.id}}">
         <div class="fieldWrapper">
           {{ filter_form.min_copy.errors }}
-          <label for="id_sample">Min Copy:</label>
+          <label for="id_{{clonofilter.id}}-min_copy">Min Copy:</label>
           {{ filter_form.min_copy }}
         </div>
         <div class="fieldWrapper">
           {{ filter_form.min_length.errors }}
-          <label for="id_sample">Min Length:</label>
+          <label for="id_{{clonofilter.id}}-min_length">Min Length:</label>
           {{ filter_form.min_length }}
         </div>
         <div class="fieldWrapper">
           {{ filter_form.max_length.errors }}
-          <label for="id_sample">Max Length:</label>
+          <label for="id_{{clonofilter.id}}-max_length">Max Length:</label>
           {{ filter_form.max_length}}
         </div>
         <div class="fieldWrapper">
           {{ filter_form.norm_factor.errors }}
-          <label for="id_sample">Normalization Factor:</label>
+          <label for="id_{{clonofilter.id}}-norm_factor">Normalization Factor:</label>
           {{ filter_form.norm_factor }}
         </div>
         <div class="fieldWrapper">
           {{ filter_form.v_family_name.errors }}
-          <label for="id_sample">V Family Name:</label>
+          <label for="id_{{clonofilter.id}}-v_family_name">V Family Name:</label>
           {{ filter_form.v_family_name}}
         </div>
         <div class="fieldWrapper">
           {{ filter_form.j_gene_name.errors }}
-          <label for="id_sample">J Gene Name:</label>
+          <label for="id_{{clonofilter.id}}-j_gene_name">J Gene Name:</label>
           {{ filter_form.j_gene_name }}
         </div>
 
+    -->
       </div>
     </div>
     {% endfor %}
-    <input type="submit" value="Update" class="btn btn-default"/>
+    <input type="button" value="Update" class="btn btn-default" id="compare-update"/>
   </form>
 </div>

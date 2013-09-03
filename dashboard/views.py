@@ -78,6 +78,7 @@ def remove_clonofilter(request):
 
 def add_samples_v2(request):
     '''
+    This should be moved to cf_comparisons
     Processes an ajax request.
     Given an array of sampleId's, returns an array of
     clonofilter forms. The clonofilter forms are then

@@ -1,6 +1,6 @@
 from django.template import Template, Context
 from django.test import TestCase
-from cf_comparisons.templatetags.comparison_tags import scatter_nav_tag, shared_clones_tag, color_styles_tag
+from cf_comparisons.templatetags.comparison_tags import scatter_nav_tag, shared_clones_tag, clonofilter_colors_tag
 from cf_comparisons.models import Comparison
 from test_utils.factories import ComparisonFactory
 from test_utils.ghetto_factory import make_fake_comparison_with_2_samples
@@ -41,18 +41,18 @@ class SharedClonotypesTagTests(TestCase):
         self.assertIn(reverse('clonotypes.views.detail', args=[self.comparison.id]),response.content)
 
 
-class CompareColorStylesUnitTest(TestCase):
+class ClonofilterColorsUnitTest(TestCase):
     def setUp(self):
         make_fake_comparison_with_2_samples()
         self.comp = Comparison.objects.get()
 
     def test_color_style_returns_inactive_and_active_color_lists(self):
-        context = color_styles_tag(self.comp)
+        context = clonofilter_colors_tag(self.comp)
         self.assertIsInstance(context['active_colors'], dict)
         self.assertIsInstance(context['inactive_colors'], dict)
 
     def test_color_style_renders_active_and_inactive_background_color_style_(self):
-        t = Template('{% load comparison_tags %}{% color_styles_tag comparison %}')
+        t = Template('{% load comparison_tags %}{% clonofilter_colors_tag comparison %}')
         c = Context({'comparison': self.comp})
         rendered = t.render(c)
         self.assertIn('cf-1.active', rendered)

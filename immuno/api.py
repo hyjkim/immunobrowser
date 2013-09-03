@@ -37,12 +37,12 @@ class ComparisonResource(ModelResource):
         return [
             url(r"^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/vdj_freq%s$" %
                 (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('vdj_freq'), name="api_comparison_vdj_freq"),
+                self.wrap_view('vdj_freq'), name="api_vdj_freq"),
         ]
 
     def vdj_freq(self, request, **kwargs):
          """ proxy for the comparions.vdj_freq method """
-         # you can do a method check to avoid bad requests
+         # do a method check to avoid bad requests
          self.method_check(request, allowed=['get'])
          bundle = self.build_bundle(request=request)
          # using the primary key defined in the url, obtain the comparison

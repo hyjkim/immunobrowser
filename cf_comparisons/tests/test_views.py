@@ -24,9 +24,33 @@ class ComparisonsViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_update_clonofilters_takes_in_serialized_json_from_post_and_returns_a_new_comparison_id(self):
+        from cf_comparisons.views import update_clonofilters
+        data = {};
+        self.request.post = data;
+        self.assertEqual('2',
+                update_clonofilters(self.request).content)
+
+    def test_update_clonofilters_has_a_url(self):
+        self.assertEqual(
+                '/compare/update_clonofilters',
+                reverse('cf_comparisons.views.update_clonofilters', args=[self.comparison.id]))
+
+    def test_clonofilter_colors_has_a_url(self):
+        self.assertEqual('/compare/1/clonofilter_colors',
+                reverse('cf_comparisons.views.clonofilter_colors', args=[self.comparison.id]))
+
+    def test_clonofilter_colors_returns_colors_for_comparison(self):
+        from cf_comparisons.views import clonofilter_colors
+        self.assertEqual(
+                '\ndiv.cf-1-active {\n  background-color: rgba(255, 0, 41, 0.75)\n}\ncircle.cf-1.active {\n  fill: rgba(255, 0, 41, 0.75)\n}\n\ndiv.cf-2-active {\n  background-color: rgba(0, 255, 140, 0.75)\n}\ncircle.cf-2.active {\n  fill: rgba(0, 255, 140, 0.75)\n}\n\n\ndiv.cf-1.inactive {\n  background-color: rgba(255, 0, 41, 0.3)\n}\ncircle.cf-1.inactive {\n  fill: rgba(255, 0, 41, 0.3)\n}\n\n\ndiv.cf-2.inactive {\n  background-color: rgba(0, 255, 140, 0.3)\n}\ncircle.cf-2.inactive {\n  fill: rgba(0, 255, 140, 0.3)\n}\n\n\n',
+                clonofilter_colors(self.request, self.comparison.id).content)
+
     def test_vdj_freq_ajax_returns_vdj_usage_sample_stats(self):
         from cf_comparisons.views import vdj_freq_ajax
-        self.assertEqual('[["7", "TRBJ2-5", 0.6666666666666666, 1], ["8", "TRBJ2-4", 0.3333333333333333, 1], ["7", "TRBJ2-5", 1.0, 2]]', vdj_freq_ajax(self.request, self.comparison.id).content)
+        self.assertEqual(
+                '{"sampleNames": {"1": "test patient 2012-12-12 cd4+", "2": "test patient 2012-12-13 cd4+"}, "vdjFreq": [["7", "TRBJ2-5", 0.6666666666666666, 1], ["8", "TRBJ2-4", 0.3333333333333333, 1], ["7", "TRBJ2-5", 1.0, 2]], "jList": ["TRBJ2-4", "TRBJ2-5"], "vList": ["7", "8"]}',
+                vdj_freq_ajax(self.request, self.comparison.id).content)
 
     def test_compare_v3_renders_compare_v3_html(self):
         response = compare_v3(self.request, self.comparison.id)
@@ -35,9 +59,6 @@ class ComparisonsViewUnitTest(TestCase):
     def test_compare_v3_returns_comparison_to_template(self):
         response = compare_v3(self.request, self.comparison.id)
         self.assertEqual(self.comparison, response['comparison'])
-
-    def test_compare_color_styles_returns_stylesheet_containing_active_and_inactive_background_colors(self):
-        self.fail('todo')
 
     def test_shared_clones_takes_in_comparison_id(self):
         shared_clones(self.request, self.comparison.id)
