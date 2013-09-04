@@ -69,7 +69,6 @@ function scatterNav2() {
     // Add eventBus listeners to highlight all elements related
     // to a sample
     eventBus.subscribe('activate', function(selection) {
-      console.log("something should happen here");
       selection.classed('active', true);
     });
 
@@ -81,12 +80,14 @@ function scatterNav2() {
     var cfids = nestedData.map(function(d) {return d.key});
     cfids.forEach(function (cfid) {
       cfcircles = d3.selectAll('circle.cf-'+cfid)
-      eventBus.subscribe('activate cf-'+cfid, function () {
-        cfcircles.classed('active', true);
-      });
-    eventBus.subscribe('inactivate cf-'+cfid, function () {
-      cfcircles.classed('active', false);
-    });
+      var classToggle = function (selection, addOrRemove) {
+        var cfcircles = selection;
+        return function () {
+          cfcircles.classed('active', addOrRemove);
+        }
+      }
+      eventBus.subscribe('activate cf-'+cfid, classToggle(cfcircles, true));
+    eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfcircles, false));
 
     });
 
