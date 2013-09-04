@@ -91,6 +91,7 @@ div.recombination {
     fill: none;
     stroke: black;
     shape-rendering: crispEdges;
+    opacity: 0.3;
   }
   .axis text {
     font-family: sans-serif;

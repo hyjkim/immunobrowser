@@ -12,9 +12,10 @@
 
 {% block extra_head %}
 <script type='text/javascript' src="/static/libs/compare.js"></script>
-<script type='text/javascript' src="{{ STATIC_URL }}libs/eventBus.js" charset="utf-8"></script>
+<script type='text/javascript' src="/static/libs/scatternav.js"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/EventBus.js" charset="utf-8"></script>
 <script type='text/javascript'>
-window.eventBus = eventBus.new_eventBus()
+window.eventBus = EventBus.newEventBus()
 </script>
 {% endblock %}
 
@@ -81,6 +82,7 @@ var comparisonRefresh = function () {
   var sampleCompareDiv = $('div#sample-compare');
   var sampleForm = $('div#sample-compare form');
   var comparisonId;
+  var eventBus = EventBus.newEventBus();
 
   // update the forms
   var init = function() {
@@ -97,7 +99,6 @@ var comparisonRefresh = function () {
   // enable add sample functionality
   var addSample = function () {
     addSampleToggle.click(function () {
-        console.log('click detected');
         sampleCompareDiv.show();
         addSampleToggle.hide();
         });
@@ -155,9 +156,9 @@ var comparisonRefresh = function () {
     $.get(url,
         function (d) {
         filterFormDiv.html(d);
+        // Refresh everything when a the update button is clicked
         $('input#compare-update')
         .click(function() {
-          console.log('click detected');
           var clonofilterForm = $('div#filter-forms form');
           //          event.preventDefault();
           var postData =clonofilterForm.serializeArray();
@@ -173,6 +174,26 @@ var comparisonRefresh = function () {
             });
 
           });
+
+    // add event to select all graphic elements associated with the clonofilter
+    var filterForms = $('.filter-form');
+    filterForms.each(function () {
+        var cfid = $(this).attr('id').replace("filter-","");
+        eventBus.subscribe("activate " + cfid, function (selection) {
+          selection.addClass('active');
+          });
+        eventBus.subscribe("inactivate " + cfid, function (selection) {
+          selection.removeClass('active');
+          });
+        });
+    filterForms.on("mouseover",function(){
+        var cfid = $(this).attr('id').replace("filter-","");
+        eventBus.publish("activate " + cfid, $(this));
+        })
+    .on("mouseout", function() {
+        var cfid = $(this).attr('id').replace("filter-","");
+        eventBus.publish("inactivate " + cfid, $(this));
+        });
 
         });
     // update the colors
@@ -228,6 +249,20 @@ var comparisonRefresh = function () {
         .datum(vdjFreq)
         .call(my_nav)
         ;
+
+      var scatNav2 = scatterNav2()
+        .v(my_xScale)
+        .j(my_yScale)
+        .r(my_rScale)
+        .eventBus(eventBus)
+        .sampleName(my_names);
+      console.log(scatNav2.eventBus().subscriptions());
+
+      navDiv
+        .datum(vdjFreq)
+        .call(scatNav2)
+        ;
+
     }
   }
 
