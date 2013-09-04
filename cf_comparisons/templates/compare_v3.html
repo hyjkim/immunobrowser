@@ -37,7 +37,8 @@ window.eventBus = eventBus.new_eventBus()
         Add sample
       </a>
     </div>
-    <div id="sample-compare" class="col-md-12 text-center">
+    <div id="sample-compare" class="col-md-12 text-center" style="display: none">
+      {% sample_compare_tag sample_compare_form%}
     </div>
   </div>
 
@@ -56,7 +57,6 @@ window.eventBus = eventBus.new_eventBus()
 
 
 
-{% if comparison %}
 <script type='text/javascript'>
 
 
@@ -75,17 +75,72 @@ window.eventBus = eventBus.new_eventBus()
 var comparisonRefresh = function () {
   var filterFormDiv = d3.select("div#filter-forms");
   var clonofilterColors = d3.select("style#clonofilter-colors");
+  var addSampleToggle = $("div#add-sample");
+  var sampleCancel = $('div#sample-compare :button');
+  var sampleSubmit = $('div#sample-compare :submit');
+  var sampleCompareDiv = $('div#sample-compare');
+  var sampleForm = $('div#sample-compare form');
   var comparisonId;
 
   // update the forms
   var init = function() {
-    refresh();
+    if (comparisonId) refresh();
+    addSample();
   }
 
   var refresh = function() {
     filterFormRefresh();
     clonofilterColorsRefresh();
     drawScatterNav();
+  }
+
+  // enable add sample functionality
+  var addSample = function () {
+    addSampleToggle.click(function () {
+        console.log('click detected');
+        sampleCompareDiv.show();
+        addSampleToggle.hide();
+        });
+    // Hides add sample form when cancel button is clicked
+    sampleCancel.click(function () {
+        sampleCompareDiv.hide();
+        addSampleToggle.show();
+        });
+
+    sampleSubmit.click(function () {
+        event.preventDefault();
+        var postData = sampleForm.serializeArray();
+        if (comparisonId) {
+        postData.push({'name':'comparison', 'value': comparisonId});
+        }
+
+        sampleCompareDiv.hide();
+        addSampleToggle.show();
+
+        console.log(postData);
+
+        $.post('{% url 'dashboard.views.add_samples_v2' %}',
+          postData, function (compId) {
+
+          // Load filter forms
+          $.get("/compare/" + compId + "/filter_forms",
+            function(filterForms) {
+            $('div#filter-forms').html(filterForms)
+            refresh();
+            });
+
+          // Update global comparisonId variable
+          comparisonId = compId
+
+          // Modify url bar
+          // Should modify this javascript to use 
+          // a django template tag for 'dashboard.views.compare_v2'
+          window.history.pushState(null, '', '/compare/' + compId);
+          });
+
+
+    });
+
   }
 
   var clonofilterColorsRefresh = function () {
@@ -192,10 +247,9 @@ var comparisonRefresh = function () {
 }
 
 $(function() {
-    var test = comparisonRefresh().comparisonId({{comparison.id}});
+    var test = comparisonRefresh();
+    test.comparisonId({{comparison.id}});
     test();
     });
-
   </script>
-  {% endif %}
   {% endblock %}

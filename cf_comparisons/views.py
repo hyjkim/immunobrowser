@@ -50,12 +50,17 @@ def vdj_freq_ajax(request, comparison_id):
     return HttpResponse(json.dumps(data), mimetype='application/json')
 
 def compare_v3(request, comparison_id):
+    from cf_comparisons.forms import SampleCompareForm
+    sample_compare_form = SampleCompareForm()
     try:
         comparison = Comparison.objects.get(id=comparison_id)
     except:
         comparison = None
 
-    context = {'comparison': comparison}
+    context = {
+        'sample_compare_form': sample_compare_form,
+        'comparison': comparison
+    }
     return render(request, 'compare_v3.html', context)
 
 def background_colors(request, comparison_id):
