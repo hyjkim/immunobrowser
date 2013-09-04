@@ -45,9 +45,11 @@ window.eventBus = eventBus.new_eventBus()
     Add a sample to get started!
     <div id="scatter-main" class="row">
       <h3>V-J usage <span class="glyphicon glyphicon-info-sign"></span></h3>
+      <img src="{{STATIC_URL}}img/ajax-loader.gif">
     </div>
     <div id="functionality">
       <h3>Functionality <span class="glyphicon glyphicon-info-sign"></span></h3>
+      <img src="{{STATIC_URL}}img/ajax-loader.gif">
     </div>
   </div>
 </div>
@@ -83,6 +85,7 @@ var comparisonRefresh = function () {
   var refresh = function() {
     filterFormRefresh();
     clonofilterColorsRefresh();
+    drawScatterNav();
   }
 
   var clonofilterColorsRefresh = function () {
@@ -97,8 +100,8 @@ var comparisonRefresh = function () {
     $.get(url,
         function (d) {
         filterFormDiv.html(d);
-        d3.select('input#compare-update')
-        .on("click", function() {
+        $('input#compare-update')
+        .click(function() {
           console.log('click detected');
           var clonofilterForm = $('div#filter-forms form');
           //          event.preventDefault();
@@ -106,9 +109,6 @@ var comparisonRefresh = function () {
           if (comparisonId) {
           postData.push({'name':'comparison', 'value': comparisonId});
           }
-
-//          sampleCompareDiv.hide();
-//          addSampleDiv.show();
 
           $.post('/compare/'+comparisonId+'/update_clonofilters',
             postData, function (compId) {
@@ -126,7 +126,7 @@ var comparisonRefresh = function () {
   var drawScatterNav = function() {
     var vdjFreq, vList, jList, sampleNames;
 
-    d3.json('{% url 'cf_comparisons.views.vdj_freq_ajax' comparison.id %}', function(d) {
+    d3.json('/compare/'+comparisonId+'/vdj_freq_ajax', function(d) {
         vdjFreq = d['vdjFreq'];
         vList = d['vList'];
         jList = d['jList'];
@@ -165,7 +165,11 @@ var comparisonRefresh = function () {
         .r(my_rScale)
         .sampleName(my_names);
 
-      var navDiv = d3.select("#scatter-main")
+      var navDiv = d3.select("#scatter-main");
+
+      navDiv.html('');
+
+      navDiv
         .datum(vdjFreq)
         .call(my_nav)
         ;

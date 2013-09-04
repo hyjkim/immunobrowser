@@ -7,10 +7,10 @@ circle.cf-{{ cfid }}.active {
 }
 {% endfor %}
 {% for cfid, rgba in inactive_colors.iteritems %}
-div.cf-{{ cfid }}.inactive {
+div.cf-{{ cfid }} {
   background-color: {{rgba}}
 }
-circle.cf-{{ cfid }}.inactive {
+circle.cf-{{ cfid }} {
   fill: {{rgba}}
 }
 

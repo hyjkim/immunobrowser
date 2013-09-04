@@ -417,8 +417,9 @@ function scatterNav() {
       .attr("cx", X)
       .attr("cy", Y)
       .attr("r", R)
-      .attr("fill", Color)
-      .attr("class", "inactive");
+//      .attr("fill", Color)
+      .attr("class", function(d) {return "cf-"+d[3].toString()})
+      .classed('inactive', true);
 
     // set up axes and labels
     var xAxis = d3.svg.axis()
@@ -502,7 +503,7 @@ function scatterNav() {
       .on("mouseover", function (d) {
         // dev
         var thisTooltip = d3.select(this);
-        thisTooltip.attr("class", "active");
+//        thisTooltip.attr("class", "active");
 
         //highlight associated circles
         var thisV = d.values[0][0];
@@ -511,7 +512,8 @@ function scatterNav() {
         .filter(function(d) {
           return (thisV == d[0]) && (thisJ == d[1]);
         })
-      .attr("class", "active");
+      .classed("active", true)
+      .classed("inactive", false);
 
       //generate and display tooltip
 
@@ -553,10 +555,8 @@ function scatterNav() {
     })
     .on("mouseout", function() {
       tooltip.html("");
-      sampleCircles.attr("class", "inactive");
-
-      //dev
-      //      sampleTooltips.attr("class", "inactive");
+      sampleCircles.classed("active", false)
+      .classed("active", false);
     });
 
 
@@ -593,7 +593,8 @@ function scatterNav() {
       .on("mouseover", function() {
         var vGene = d3.select(this).datum();
         d3.select(this).attr("fill", "blue");
-        d3.selectAll("g.v-" +vGene+ " circle").attr("class", "active");
+        d3.selectAll("g.v-" +vGene+ " circle")
+        .classed("active", true);
 
         var filteredTestData = data.filter(function (d) {
           return d[0] == vGene
@@ -602,7 +603,7 @@ function scatterNav() {
       })
     .on("mouseout", function () {
       xLabels.attr("fill", null);
-      sampleCircles.attr("class", "inactive");
+      sampleCircles.classed("active", false);
       //      jHistInner.datum(data).call(jHist);
     });
 
@@ -614,7 +615,7 @@ function scatterNav() {
         d3.select(this).attr("fill", "blue");
         d3.selectAll("circle")
         .filter(function(d) {return d[1] == jGene})
-        .attr("class", "active");
+        .classed("active", true);
 
       // Redraw v histograms with a filtered dataset
       var filteredTestData = data.filter(function (d) {
@@ -625,7 +626,8 @@ function scatterNav() {
       })
     .on("mouseout", function () {
       xLabels.attr("fill", null);
-      sampleCircles.attr("class", "inactive");
+      sampleCircles
+      .classed('active', false);
       yLabels.attr("fill", null);
       //      vHistInner.datum(data).call(vHist);
     })
@@ -707,8 +709,7 @@ function scatterNav() {
     jPoints
       .enter()
       .append("circle")
-      .attr("r", 5)
-      .attr("class", "inactive");
+      .attr("r", 5);
 
     // Plot the circles
     selection.selectAll("circle")
@@ -735,17 +736,11 @@ function scatterNav() {
       jPoints
       .on("mouseover", function()  {
         d3.select(this).attr("class", "active");
-        //        tooltip.style("visibility", "visibile");
-        //        tooltip.text("test");
       })
     .on("mousemove", function()  {
-      //      return tooltip.style("top",
-      //        (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
     })
     .on("mouseout", function()  {
       jPoints.attr("class", "inactive");
-      //      tooltip.html("");
-      //      tooltip.style("visibility", "hidden");
     })
     .on("click", function(d) {
       alert(d.key + " " + d.values);
@@ -805,7 +800,7 @@ function scatterNav() {
     vG.enter()
       .append("g")
       .attr("class", function(d,i) {
-        return "sample-" + i + " points";
+        return "cf-" + i + " points";
       })
     .attr("fill", function(d) {return colorScale(d.key)})
 
@@ -823,8 +818,7 @@ function scatterNav() {
     vPoints
       .enter()
       .append("circle")
-      .attr("r", 5)
-      .attr("class", "inactive");
+      .attr("r", 5);
 
     // Plot the circles
     selection.selectAll("circle")
@@ -849,7 +843,7 @@ function scatterNav() {
     // Add some tooltips
     vPoints
       .on("mouseover", function()  {
-        d3.select(this).attr("class", "active");
+        d3.select(this).classed("active", true);
         //        tooltip.style("visibility", "visibile");
         //        tooltip.text("test");
       })
@@ -858,7 +852,7 @@ function scatterNav() {
       //        (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
     })
     .on("mouseout", function()  {
-      vPoints.attr("class", "inactive");
+      vPoints.classed("active", false);
       //      tooltip.html("");
       //      tooltip.style("visibility", "hidden");
     })
@@ -998,10 +992,10 @@ function scatterNav() {
   // Modifies a subset of elements 
   // Takes in a d3 selection and changes all elements to active state
   nav.activate = function (selection) {
-    selection.attr("class", "active")
+    selection.classed("active", true);
   }
   nav.inactivate = function (selection) {
-    selection.attr("class", "inactive")
+    selection.classed("active", false);
   }
 
 
