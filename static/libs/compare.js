@@ -25,6 +25,7 @@ var comparisonRefresh = function () {
   var filterFormDiv = d3.select("div#filter-forms");
   var navDiv = d3.select("#scatter-content");
   var functDiv = d3.select("#functionality-content");
+  var sharedClonesDiv = d3.select("#shared-clones-content");
   var clonofilterColors = d3.select("style#clonofilter-colors");
   var addSampleToggle = $("div#add-sample");
   var sampleCancel = $('div#sample-compare :button');
@@ -45,6 +46,7 @@ var comparisonRefresh = function () {
     clonofilterColorsRefresh();
     drawScatterNav();
     drawFunctionality();
+    drawSharedClones();
   }
 
   // enable add sample functionality
@@ -151,26 +153,6 @@ var comparisonRefresh = function () {
     // update the colors
   }
 
-  var drawFunctionality = function () {
-    d3.json('/compare/'+comparisonId+'/functionality_ajax', function(d) {
-        console.log(d);
-        var functData = d['functionality'];
-        var sampleNames = d['sampleNames'];
-
-        var my_names = nameMap(sampleNames);
-        var functPlot = functionality2()
-        .sampleName(my_names);
-
-
-        functDiv.html('');
-
-        functDiv
-        .datum(functData)
-        .call(functPlot)
-        ;
-        });
-  }
-
   var drawScatterNav = function() {
     var vdjFreq, vList, jList, sampleNames;
 
@@ -229,6 +211,47 @@ var comparisonRefresh = function () {
         ;
 
     }
+  }
+
+  var drawFunctionality = function () {
+    d3.json('/compare/'+comparisonId+'/functionality_ajax', function(d) {
+        console.log(d);
+        var functData = d['functionality'];
+        var sampleNames = d['sampleNames'];
+
+        var my_names = nameMap(sampleNames);
+        var functPlot = functionality2()
+        .sampleName(my_names);
+
+        // Remove existing stuff in the div
+        functDiv.html('');
+
+        functDiv
+        .datum(functData)
+        .call(functPlot)
+        ;
+        });
+  }
+
+  var drawSharedClones = function () {
+    d3.json('/compare/'+comparisonId+'/shared_clones_ajax', function(d) {
+      var aminoAcids = d3.map(d['aminoAcids'])
+      var sampleNAmes = d['sampleNames']
+
+      sharedClonesDiv.html('');
+
+    var mySharedClones = sharedClones()
+      .eventBus(eventBus);
+
+    sharedClonesDiv
+      .datum(aminoAcids.entries())
+      .call(mySharedClones);
+    });
+
+    $.get('/compare/'+comparisonId+'/shared_clones', function(d) {
+      sharedClonesDiv.append("div").html(d);
+    });
+
   }
 
   var nameMap = function (n) {

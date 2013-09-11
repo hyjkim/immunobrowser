@@ -2,8 +2,6 @@ function sharedClones() {
   var margin = {top: 20, right: 20, bottom: 20, left: 50},
   width = 500,
   height = 300,
-  colorScale = function () { return null },
-  //colorScale = d3.scale.category10(),
   xScale = d3.scale.ordinal(),
   yScale = d3.scale.linear(),
   eventBus = EventBus.newEventBus();
@@ -69,8 +67,7 @@ function sharedClones() {
       .attr('r', 10)
 //      .attr('class', 'inactive')
 //      .attr('class', function(d) {return "cf-" + d.key + "-inactive"})
-      .attr('class', function(d) {return "cf-" + d.key })
-      .attr("fill", function(d) {return colorScale(d.key)});
+      .attr('class', function(d) {return "cf-" + d.key });
 
       // Add interactivity to eventBus
       var activate = function (selection) {
@@ -93,14 +90,16 @@ function sharedClones() {
 
       // selecting samples
       cfids.forEach(function (cfid) {
-        //eventBus.subscribe('activate cf-'+cfid, activateSample().selection(circles.selectAll('.cf-'+cfid)));
-        cfcircles = d3.selectAll('circle.cf-'+cfid)
-        eventBus.subscribe('activate cf-'+cfid, function () {
-          cfcircles.classed('active', true);
-        });
-        eventBus.subscribe('inactivate cf-'+cfid, function () {
-          cfcircles.classed('active', false);
-        });
+        cfcircles = selection.selectAll('circle.cf-'+cfid)
+        var classToggle = function (selection, addOrRemove) {
+          var cfcircles = selection;
+          return function () {
+            cfcircles.classed('active', addOrRemove);
+          }
+        }
+      eventBus.subscribe('activate cf-'+cfid, classToggle(cfcircles, true));
+      eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfcircles, false));
+
 
       });
 
@@ -153,12 +152,6 @@ function sharedClones() {
   plot.y = function(value) {
     if(!arguments.length) return yScale;
     yScale = value;
-    return plot;
-  }
-
-  plot.color = function(value) {
-    if(!arguments.length) return colorScale;
-    colorScale = value;
     return plot;
   }
 

@@ -1,73 +1,25 @@
 {% load my_filters %}
-<div id="shared-clones" class="row">
-  <h3>Shared Amino Acids <span class="glyphicon glyphicon-info-sign"></span></h3>
-  <div id="shared-clones-d3" class="col-md-6">
-  </div>
-  <div class="col-md-6">
-    <table class="table">
-      <tr>
-        <th>
-          Shared Amino Acid Sequence
-        </th>
-        {% for cfid, sample_name in sample_names.items %}
-        <th class="cf-{{cfid}}">
-          {{sample_name}}
-        </th>
-        {% endfor %}
-      </tr>
-      {% for aa_id, values in amino_acids.items %}
-      <tr class="aa-{{aa_id}}">
-        <td>
-          <a href="{% url 'clonotypes.views.amino_acid_detail' aa_id %}">{{values.sequence}}</a>
-        </td>
-        {% for cfid, sample_name in sample_names.items %}
-        <td class="cf-{{cfid}}">
-          {{values.clonofilters|lookup:cfid}}
-        </td>
-        {% endfor %}
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
-</div>
-
-<div id="compare-similarity">
-  <h3>Entropy (Coming soon)</h3>
-</div>
-
-<script type="text/javascript">
-
-  {% autoescape off %}
-  var aminoAcids = d3.map({{amino_acids|jsonify}});
-  var sampleNames = {{ sample_names|jsonify }};
-  var sampleColors = {{ sample_colors}};
-{% endautoescape %}
-
-// Comparison view
-
-function colormap (c) {
-  var colors = c;
-  return function (d) {
-    return colors[d];
-  }
-};
-
-
-var mySharedClones = sharedClones()
-.color(colormap(sampleColors))
-  .eventBus(window.eventBus);
-
-
-var div = d3.select('#shared-clones-d3').datum(aminoAcids.entries());
-
-div.call(mySharedClones);
-
-// testing-- incorporate into compare.js
-//var table = div.selectAll('table').data().enter().append('table');
-
-//var tr = table.select('tr')
-//.data(function(d) {console.log(d);return [d.key, d.value]})
-//  .enter().append('tr');
-
-
-</script>
+<table class="table">
+  <tr>
+    <th>
+      Shared Amino Acid Sequence
+    </th>
+    {% for cfid, sample_name in sample_names.items %}
+    <th class="cf-{{cfid}}">
+      {{sample_name}}
+    </th>
+    {% endfor %}
+  </tr>
+  {% for aa_id, values in amino_acids.items %}
+  <tr class="aa-{{aa_id}}">
+    <td>
+      <a href="{% url 'clonotypes.views.amino_acid_detail' aa_id %}">{{values.sequence}}</a>
+    </td>
+    {% for cfid, sample_name in sample_names.items %}
+    <td class="cf-{{cfid}}">
+      {{values.clonofilters|lookup:cfid}}
+    </td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>

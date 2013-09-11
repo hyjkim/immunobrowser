@@ -7,6 +7,17 @@ from clonotypes.models import ClonoFilter, Recombination
 import json
 
 
+def shared_clones_ajax(request, comparison_id):
+    import json
+    comparison = Comparison.objects.get(id=comparison_id)
+    shared_amino_acids_counts = comparison.get_shared_amino_acids_counts()
+    data = {
+               'aminoAcids': shared_amino_acids_counts,
+               'sampleNames': comparison.sample_names(),
+            }
+    return HttpResponse(json.dumps(data), mimetype='application/json')
+
+
 def functionality_ajax(request, comparison_id):
     comparison = Comparison.objects.get(id=comparison_id)
     comp_functionality = []

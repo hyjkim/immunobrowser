@@ -106,4 +106,3 @@ def shared_clones_tag(comparison):
                'sample_colors': json.dumps(comparison.colors()),
             }
     return context
-

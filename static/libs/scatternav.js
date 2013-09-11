@@ -86,7 +86,7 @@ function scatterNav2() {
           cfcircles.classed('active', addOrRemove);
         }
       }
-      eventBus.subscribe('activate cf-'+cfid, classToggle(cfcircles, true));
+    eventBus.subscribe('activate cf-'+cfid, classToggle(cfcircles, true));
     eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfcircles, false));
 
     });

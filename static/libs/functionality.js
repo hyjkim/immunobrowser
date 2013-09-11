@@ -1,10 +1,11 @@
 function functionality2() {
   var margin = {top: 10, right: 10, bottom: 10, left: 10},
-      width = 600,
+      width = 800,
       height = 200,
       heightScale = 40,
       plotWidth = 400,
       labelWidth = 200,
+      legendWidth = 200,
       colorScale = d3.scale.ordinal(),
       nameMap = function(d) {return d},
       eventBus = EventBus.newEventBus();
