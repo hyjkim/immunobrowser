@@ -1,5 +1,10 @@
 import os
 import sys
+import djcelery
+
+# Needed for celery
+djcelery.setup_loader()
+
 # Stuff to make media serving work
 path = lambda root,*a: os.path.join(root, *a)
 # Django settings for immuno project.
@@ -140,10 +145,11 @@ INSTALLED_APPS = (
     # General shared utils for all tests
     'test_utils',
 
-    # Imported apps
+    # third party apps
     'south',
     'tastypie',
     'registration',
+    'djcelery',
 
     ## Actual apps
     'patients',
@@ -153,6 +159,7 @@ INSTALLED_APPS = (
     'cf_comparisons',
     'dashboard',
     'index',
+    'pub_blast',
 )
 # Required by django-registration
 ACCOUNT_ACTIVATION_DAYS=1 # 24 hour activation window

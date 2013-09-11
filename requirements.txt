@@ -6,6 +6,7 @@ matplotlib==1.2.1
 django-tastypie
 simplejson==3.3.0
 django-registration
+django-celery
 ### Development ###
 south
 mock
