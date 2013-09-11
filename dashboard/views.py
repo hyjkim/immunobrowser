@@ -37,23 +37,24 @@ def search(request):
             aa_page = request.GET.get('aa_page')
 
             try:
-                recs = rec_paginator.page(aa_page)
+                recs = rec_paginator.page(rec_page)
             except PageNotAnInteger:
                 recs = rec_paginator.page(1)
             except EmptyPage:
-                recs = rec_paginator.page(recs_paginator.num_pages)
+                recs = rec_paginator.page(rec_paginator.num_pages)
 
             try:
                 aas = aa_paginator.page(aa_page)
             except PageNotAnInteger:
                 aas = aa_paginator.page(1)
             except EmptyPage:
-                aas = aa_paginator.page(aas_paginator.num_pages)
+                aas = aa_paginator.page(aa_paginator.num_pages)
 
 
             context.update({'samples': Sample.objects.search(terms),
                 'recombinations': recs,
                 'amino_acids': aas,
+                'terms': '+'.join(terms),
                 })
     else:
         search_form = SearchForm()

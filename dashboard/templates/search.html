@@ -76,7 +76,7 @@
 <div class="pagination">
   <span class="step-links">
     {% if recombinations.has_previous %}
-    <a href="?page={{ recombinations.previous_page_number }}">previous</a>
+    <a href="?query={{terms}}&rec_page={{ recombinations.previous_page_number }}&aa_page={{ amino_acids.number}}">previous</a>
     {% endif %}
 
     <span class="current">
@@ -84,7 +84,7 @@
     </span>
 
     {% if recombinations.has_next %}
-    <a href="?page={{ recombinations.next_page_number }}">next</a>
+    <a href="?query={{terms}}&rec_page={{ recombinations.next_page_number}}&aa_page={{ amino_acids.number }}">next</a>
     {% endif %}
   </span>
 </div>
@@ -102,7 +102,7 @@
 <div class="pagination">
   <span class="step-links">
     {% if amino_acids.has_previous %}
-    <a href="?page={{ amino_acids.previous_page_number }}">previous</a>
+    <a href="?query={{terms}}&aa_page={{ amino_acids.previous_page_number }}&rec_pag={{recombinations.number}}">previous</a>
     {% endif %}
 
     <span class="current">
@@ -110,7 +110,7 @@
     </span>
 
     {% if amino_acids.has_next %}
-    <a href="?page={{ amino_acids.next_page_number }}">next</a>
+    <a href="?query={{terms}}&aa_page={{ amino_acids.next_page_number }}&rec_pag={{recombinations.number}}">next</a>
     {% endif %}
   </span>
 </div>
