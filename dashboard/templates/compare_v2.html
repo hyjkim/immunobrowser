@@ -4,16 +4,18 @@
 {% block css %}
 <style type="text/css">
 {% if comparison %}
- {% color_styles_tag comparison %}
+ {% clonofilter_colors_tag comparison %}
 {% endif %}
 </style>
 {% endblock %}
 
 
 {% block extra_head %}
-<script type='text/javascript' src="{{ STATIC_URL }}libs/eventBus.js" charset="utf-8"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/EventBus.js" charset="utf-8"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/scatternav.js" charset="utf-8"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/functionality.js" charset="utf-8"></script>
 <script type='text/javascript'>
-window.eventBus = eventBus.new_eventBus()
+window.eventBus = EventBus.newEventBus()
 </script>
 {% endblock %}
 

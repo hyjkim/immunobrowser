@@ -7,6 +7,27 @@ from clonotypes.models import ClonoFilter, Recombination
 import json
 
 
+def functionality_ajax(request, comparison_id):
+    comparison = Comparison.objects.get(id=comparison_id)
+    comp_functionality = []
+    for cf in comparison.clonofilters.all():
+        cf_functionality = {}
+        values = {}
+        for key, value in cf.functionality_dict().iteritems():
+            values[key] = value
+        cf_functionality['key'] = cf.id
+        cf_functionality['values'] = values
+        comp_functionality.append(cf_functionality)
+
+    sample_names = dict([(clonofilter.id,str(clonofilter.sample)) for clonofilter in comparison.clonofilters.all()])
+
+    data = {'functionality':  comp_functionality,
+            'sampleNames': sample_names,
+            }
+
+
+    return HttpResponse(json.dumps(data), mimetype='application/json')
+
 def update_clonofilters(request, comparison_id):
     comparison = Comparison.objects.get(id=comparison_id)
     if request.method == 'POST':

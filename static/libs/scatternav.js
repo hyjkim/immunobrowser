@@ -79,7 +79,7 @@ function scatterNav2() {
     //subscribe all samples
     var cfids = nestedData.map(function(d) {return d.key});
     cfids.forEach(function (cfid) {
-      cfcircles = d3.selectAll('circle.cf-'+cfid)
+      cfcircles = selection.selectAll('circle.cf-'+cfid)
       var classToggle = function (selection, addOrRemove) {
         var cfcircles = selection;
         return function () {
@@ -98,7 +98,7 @@ function scatterNav2() {
   var scatter = function(selection){
     var sampleRows = selection.selectAll("g")
       //.data(function(d) {return d.key})
-      .data(function(d) { console.log(d); return d} )
+      .data(function(d) {return d})
       .enter()
       .append("g")
       .attr("class", function(d) {
@@ -191,7 +191,6 @@ function scatterNav2() {
       .on("mouseover", function (d) {
         // dev
         var thisTooltip = d3.select(this);
-        //        thisTooltip.attr("class", "active");
 
         //highlight associated circles
         var thisV = d.values[0][0];
@@ -203,7 +202,6 @@ function scatterNav2() {
       .classed("active", true);
 
       //generate and display tooltip
-
       tooltip.append("div")
         .text("V family: " + thisV);
       tooltip.append("div")
@@ -220,7 +218,7 @@ function scatterNav2() {
       sampleDivs
         .append("div")
         .text(function (d) {
-          return "Sample: " + SampleName(d);
+          return SampleName(d);
         });
 
       sampleDivs

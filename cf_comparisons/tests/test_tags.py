@@ -57,8 +57,8 @@ class ClonofilterColorsUnitTest(TestCase):
         rendered = t.render(c)
         self.assertIn('cf-1.active', rendered)
         self.assertIn('cf-2.active',rendered)
-        self.assertIn('cf-1.inactive', rendered)
-        self.assertIn('cf-2.inactive',rendered)
+        self.assertIn('cf-1', rendered)
+        self.assertIn('cf-2', rendered)
 
 class ComparisonsTagUnitTest(TestCase):
     '''

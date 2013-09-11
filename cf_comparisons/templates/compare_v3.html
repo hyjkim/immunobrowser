@@ -11,8 +11,10 @@
 
 
 {% block extra_head %}
-<script type='text/javascript' src="/static/libs/compare.js"></script>
-<script type='text/javascript' src="/static/libs/scatternav.js"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/compare.js"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/scatternav.js"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/functionality.js"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/sharedClones.js"></script>
 <script type='text/javascript' src="{{ STATIC_URL }}libs/EventBus.js" charset="utf-8"></script>
 <script type='text/javascript'>
 window.eventBus = EventBus.newEventBus()
@@ -46,21 +48,25 @@ window.eventBus = EventBus.newEventBus()
   <div id="subcontent" class="col-md-3">
     Add a sample to get started!
     <div id="scatter-main" class="row">
+    <div id="scatter-header" class="col-md-12">
       <h3>V-J usage <span class="glyphicon glyphicon-info-sign"></span></h3>
+    </div>
+    <div id="scatter-content" class="row">
       <img src="{{STATIC_URL}}img/ajax-loader.gif">
     </div>
-    <div id="functionality">
+    </div>
+    <div id="functionality-main" class ="row">
+    <div id="functionality-header" class="col-md-12">
       <h3>Functionality <span class="glyphicon glyphicon-info-sign"></span></h3>
+    </div>
+    <div id="functionality-content">
       <img src="{{STATIC_URL}}img/ajax-loader.gif">
+    </div>
     </div>
   </div>
 </div>
 
-
-
 <script type='text/javascript'>
-
-
   // design a compare app controller for individual
   // d3 plots. 
   // This app should be able to load data on call
@@ -73,218 +79,11 @@ window.eventBus = EventBus.newEventBus()
   // a consistent design pattern
 
   // load filter forms loading closure
-var comparisonRefresh = function () {
-  var filterFormDiv = d3.select("div#filter-forms");
-  var clonofilterColors = d3.select("style#clonofilter-colors");
-  var addSampleToggle = $("div#add-sample");
-  var sampleCancel = $('div#sample-compare :button');
-  var sampleSubmit = $('div#sample-compare :submit');
-  var sampleCompareDiv = $('div#sample-compare');
-  var sampleForm = $('div#sample-compare form');
-  var comparisonId;
-  var eventBus = EventBus.newEventBus();
-
-  // update the forms
-  var init = function() {
-    if (comparisonId) refresh();
-    addSample();
-  }
-
-  var refresh = function() {
-    filterFormRefresh();
-    clonofilterColorsRefresh();
-    drawScatterNav();
-  }
-
-  // enable add sample functionality
-  var addSample = function () {
-    addSampleToggle.click(function () {
-        sampleCompareDiv.show();
-        addSampleToggle.hide();
-        });
-    // Hides add sample form when cancel button is clicked
-    sampleCancel.click(function () {
-        sampleCompareDiv.hide();
-        addSampleToggle.show();
-        });
-
-    sampleSubmit.click(function () {
-        event.preventDefault();
-        var postData = sampleForm.serializeArray();
-        if (comparisonId) {
-        postData.push({'name':'comparison', 'value': comparisonId});
-        }
-
-        sampleCompareDiv.hide();
-        addSampleToggle.show();
-
-        console.log(postData);
-
-        $.post('{% url 'dashboard.views.add_samples_v2' %}',
-          postData, function (compId) {
-
-          // Load filter forms
-          $.get("/compare/" + compId + "/filter_forms",
-            function(filterForms) {
-            $('div#filter-forms').html(filterForms)
-            refresh();
-            });
-
-          // Update global comparisonId variable
-          comparisonId = compId
-
-          // Modify url bar
-          // Should modify this javascript to use 
-          // a django template tag for 'dashboard.views.compare_v2'
-          window.history.pushState(null, '', '/compare/' + compId);
-          });
-
-
-    });
-
-  }
-
-  var clonofilterColorsRefresh = function () {
-    var url = '/compare/'+comparisonId+'/clonofilter_colors';
-    $.get(url, function (d) {
-        clonofilterColors.text(d);
-        });
-  }
-
-  var filterFormRefresh = function () {
-    var url = '/compare/'+comparisonId+'/filter_forms';
-    $.get(url,
-        function (d) {
-        filterFormDiv.html(d);
-        // Refresh everything when a the update button is clicked
-        $('input#compare-update')
-        .click(function() {
-          var clonofilterForm = $('div#filter-forms form');
-          //          event.preventDefault();
-          var postData =clonofilterForm.serializeArray();
-          if (comparisonId) {
-          postData.push({'name':'comparison', 'value': comparisonId});
-          }
-
-          $.post('/compare/'+comparisonId+'/update_clonofilters',
-            postData, function (compId) {
-            console.log(compId);
-            comparisonId = compId;
-            refresh();
-            });
-
-          });
-
-    // add event to select all graphic elements associated with the clonofilter
-    var filterForms = $('.filter-form');
-    filterForms.each(function () {
-        var cfid = $(this).attr('id').replace("filter-","");
-        eventBus.subscribe("activate " + cfid, function (selection) {
-          selection.addClass('active');
-          });
-        eventBus.subscribe("inactivate " + cfid, function (selection) {
-          selection.removeClass('active');
-          });
-        });
-    filterForms.on("mouseover",function(){
-        var cfid = $(this).attr('id').replace("filter-","");
-        eventBus.publish("activate " + cfid, $(this));
-        })
-    .on("mouseout", function() {
-        var cfid = $(this).attr('id').replace("filter-","");
-        eventBus.publish("inactivate " + cfid, $(this));
-        });
-
-        });
-    // update the colors
-  }
-
-  var drawScatterNav = function() {
-    var vdjFreq, vList, jList, sampleNames;
-
-    d3.json('/compare/'+comparisonId+'/vdj_freq_ajax', function(d) {
-        vdjFreq = d['vdjFreq'];
-        vList = d['vList'];
-        jList = d['jList'];
-        sampleNames = d['sampleNames'];
-        scatNav();
-        });
-
-    var scatNav = function () {
-      function namemap (n) {
-        var names = n;
-        return function(d) {
-          return names[d];
-        }
-      };
-
-      var my_xScale = d3.scale
-        .ordinal()
-        .domain(vList);
-
-      var my_yScale = d3.scale
-        .ordinal()
-        .domain(jList);
-
-      var my_rScale = d3.scale.linear()
-        .domain([0, d3.max(vdjFreq, function(d) {
-              return d[2];
-              })
-            ])
-        .range([0, 24]);
-
-      var my_names = namemap(sampleNames);
-
-      var my_nav = scatterNav()
-        .x(my_xScale)
-        .y(my_yScale)
-        .r(my_rScale)
-        .sampleName(my_names);
-
-      var navDiv = d3.select("#scatter-main");
-
-      navDiv.html('');
-
-      navDiv
-        .datum(vdjFreq)
-        .call(my_nav)
-        ;
-
-      var scatNav2 = scatterNav2()
-        .v(my_xScale)
-        .j(my_yScale)
-        .r(my_rScale)
-        .eventBus(eventBus)
-        .sampleName(my_names);
-      console.log(scatNav2.eventBus().subscriptions());
-
-      navDiv
-        .datum(vdjFreq)
-        .call(scatNav2)
-        ;
-
-    }
-  }
-
-  init.filterFormDiv = function(value) {
-    if(!arguments.length) return filterFormDiv;
-    filterFormDiv = value;
-    return init;
-  }
-
-  init.comparisonId = function(value) {
-    if(!arguments.length) return comparisonId;
-    comparisonId = value;
-    return init;
-  }
-
-  return init;
-}
 
 $(function() {
     var test = comparisonRefresh();
     test.comparisonId({{comparison.id}});
     test();
     });
-  </script>
-  {% endblock %}
+</script>
+{% endblock %}

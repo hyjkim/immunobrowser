@@ -21,320 +21,235 @@
 
 //     I may remove the data requirement on the call back
 //     for now or make it optional
+var comparisonRefresh = function () {
+  var filterFormDiv = d3.select("div#filter-forms");
+  var navDiv = d3.select("#scatter-content");
+  var functDiv = d3.select("#functionality-content");
+  var clonofilterColors = d3.select("style#clonofilter-colors");
+  var addSampleToggle = $("div#add-sample");
+  var sampleCancel = $('div#sample-compare :button');
+  var sampleSubmit = $('div#sample-compare :submit');
+  var sampleCompareDiv = $('div#sample-compare');
+  var sampleForm = $('div#sample-compare form');
+  var comparisonId;
+  var eventBus = EventBus.newEventBus();
 
-function sharedClones() {
-  var margin = {top: 20, right: 20, bottom: 20, left: 50},
-  width = 500,
-  height = 300,
-  colorScale = function () { return null },
-  //colorScale = d3.scale.category10(),
-  xScale = d3.scale.ordinal(),
-  yScale = d3.scale.linear(),
-  eventBus = EventBus.new_eventBus();
+  // update the forms
+  var init = function() {
+    if (comparisonId) refresh();
+    addSample();
+  }
 
-  function plot(selection) {
-    selection.each(function (data) {
-      // Get max frequency
-      var max_freq = d3.max(data, function(d) {
-        return d3.max(d3.map(d.value.clonofilters).entries(), function (freq) {
-          return freq.value;
+  var refresh = function() {
+    filterFormRefresh();
+    clonofilterColorsRefresh();
+    drawScatterNav();
+    drawFunctionality();
+  }
+
+  // enable add sample functionality
+  var addSample = function () {
+    addSampleToggle.click(function () {
+        sampleCompareDiv.show();
+        addSampleToggle.hide();
         });
-      });
-      // get x domain
-      var cfids = data.map(function(d) {
-        return d3.map(d.value.clonofilters).keys();
-      });
-      cfids = d3.set([].concat.apply([], cfids)).values();
-      // set scales
-      xScale.domain(cfids)
-      .rangePoints([0, width - margin.left - margin.right], 1);
-      yScale.domain([0,max_freq]).range([height - margin.top - margin.bottom,0]);
-
-      // get the svg and create it if necessary
-      var svg = selection.selectAll('svg').data([data]);
-      svg.enter().insert("svg");
-      svg.attr("width", width)
-      .attr("height", height);
-
-      var gInner = svg.append("g").data([data])
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-      // create a g for amino acid groups
-      var gAmino = gInner.selectAll('g.Inner')
-        .data(function(d) {return d});
-        gAmino.enter().append('g')
-          .attr("class",function(d) {return "aa-"+d.key})
-
-      // draw lines
-      var line = d3.svg.line()
-        .x(function (d) {return xScale(d.key)})
-        .y(function (d) {return yScale(d.value)});
-
-      var path = gAmino.selectAll(".line")
-      .data(function(d) {return [d3.map(d.value['clonofilters']).entries()]});
-
-      path.enter().append("path")
-      .attr("class", "line inactive")
-      .attr("stroke-width", 1)
-      .attr("stroke", "#000000")
-      .attr("fill", "none");
-
-    gAmino.selectAll(".line")
-      .attr("d", function(d) {return line(d)});
-
-       
-      // draw circles
-      var circles = gAmino.selectAll('circle')
-      .data(function(d) {return d3.map(d.value['clonofilters']).entries()});
-      circles.enter().append('circle')
-      .attr('cx',function(d) {return xScale(d.key)})
-      .attr('cy', function(d) {return yScale(d.value)})
-      .attr('r', 10)
-//      .attr('class', 'inactive')
-//      .attr('class', function(d) {return "cf-" + d.key + "-inactive"})
-      .attr('class', function(d) {return "cf-" + d.key })
-      .attr("fill", function(d) {return colorScale(d.key)});
-
-      // Add interactivity to eventBus
-      var activate = function (selection) {
-        selection.classed('active', true);
-      }
-      var inactivate = function (selection) {
-        selection.classed('active', false);
-      }
-
-      eventBus.subscribe('activate',activate);
-      eventBus.subscribe('inactivate',inactivate);
-
-      // selecting individual circles
-      circles.on('mouseover', function () {
-        eventBus.publish('activate', d3.select(this));
-      })
-      .on('mouseout', function () {
-        eventBus.publish('inactivate', circles);
-      })
-
-      // selecting samples
-      cfids.forEach(function (cfid) {
-        //eventBus.subscribe('activate cf-'+cfid, activateSample().selection(circles.selectAll('.cf-'+cfid)));
-        cfcircles = d3.selectAll('circle.cf-'+cfid)
-        eventBus.subscribe('activate cf-'+cfid, function () {
-          cfcircles.classed('active', true);
-        });
-        eventBus.subscribe('inactivate cf-'+cfid, function () {
-          cfcircles.classed('active', false);
+    // Hides add sample form when cancel button is clicked
+    sampleCancel.click(function () {
+        sampleCompareDiv.hide();
+        addSampleToggle.show();
         });
 
-      });
+    sampleSubmit.click(function () {
+        event.preventDefault();
+        var postData = sampleForm.serializeArray();
+        if (comparisonId) {
+        postData.push({'name':'comparison', 'value': comparisonId});
+        }
 
-      //amino acid highlighting functionality
-      var amino = d3.select(".amino")
-        .on("mouseover", function() {
-          console.log(d3.select(this));
-        });
+        sampleCompareDiv.hide();
+        addSampleToggle.show();
 
-      // draw x axis
-      var xAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient("bottom");
+        console.log(postData);
 
-      gInner.append("g")
-        .attr("class", "axis xAxis")
-        .attr("transform", "translate(0," + (d3.max(yScale.range()) + ")"))
-        .call(xAxis);
+        $.post('/dashboard/add_samples_v2',
+          postData, function (compId) {
 
-      // draw y axis
-      var yAxis = d3.svg.axis()
-        .scale(yScale)
-        .orient("left");
+          // Load filter forms
+          $.get("/compare/" + compId + "/filter_forms",
+            function(filterForms) {
+            $('div#filter-forms').html(filterForms)
+            refresh();
+            });
 
-      gInner.append("g")
-        .attr("class", "axis yAxis")
-        .call(yAxis);
+          // Update global comparisonId variable
+          comparisonId = compId
+
+          // Modify url bar
+          // Should modify this javascript to use 
+          // a django template tag for 'dashboard.views.compare_v2'
+          window.history.pushState(null, '', '/compare/' + compId);
+          });
+
 
     });
+
   }
 
-  plot.width = function(value) {
-    if(!arguments.length) return width;
-    width = value;
-    return plot;
+  var clonofilterColorsRefresh = function () {
+    var url = '/compare/'+comparisonId+'/clonofilter_colors';
+    $.get(url, function (d) {
+        clonofilterColors.text(d);
+        });
   }
 
-  plot.height = function(value) {
-    if(!arguments.length) return height;
-    height = value;
-    return plot;
-  }
+  var filterFormRefresh = function () {
+    var url = '/compare/'+comparisonId+'/filter_forms';
+    $.get(url,
+        function (d) {
+        filterFormDiv.html(d);
+        // Refresh everything when a the update button is clicked
+        $('input#compare-update')
+        .click(function() {
+          var clonofilterForm = $('div#filter-forms form');
+          //          event.preventDefault();
+          var postData =clonofilterForm.serializeArray();
+          if (comparisonId) {
+          postData.push({'name':'comparison', 'value': comparisonId});
+          }
+          console.log(postData)
 
-  plot.x = function(value) {
-    if(!arguments.length) return xScale;
-    xScale = value;
-    return plot;
-  }
+          $.post('/compare/'+comparisonId+'/update_clonofilters',
+            postData, function (compId) {
+            console.log(compId);
+            comparisonId = compId;
+            refresh();
+            });
 
-  plot.y = function(value) {
-    if(!arguments.length) return yScale;
-    yScale = value;
-    return plot;
-  }
+          });
 
-  plot.color = function(value) {
-    if(!arguments.length) return colorScale;
-    colorScale = value;
-    return plot;
-  }
-
-  plot.eventBus = function(value) {
-    if(!arguments.length) return eventBus;
-    eventBus = value;
-    return plot;
-  }
-
-  return plot;
-}
-
-function functionality() {
-  var margin = {top: 10, right: 10, bottom: 10, left: 100},
-      width = 600,
-      height = 200,
-      heightScale = 40,
-      //      xScale = d3.scale.linear().domain([0,1]),
-      colorScale = d3.scale.ordinal(),
-      nameMap = function(d) {return d};
-
-  function plot (selection) {
-    selection.each (function (data) {
-      //      xScale
-      //      .range([0, width - margin.left - margin.right]);
-      //
-      // Get sample IDs
-      var sampleIds = data.map(function (d) {return d.key});
-
-      // Scale height 
-      height = sampleIds.length * heightScale;
-
-      // Make svg and set some attributes
-
-      var svg = d3.select(this).selectAll("svg").data(d3.select(this).data());
-
-      svg.enter().append("svg");
-      svg.attr("width", width)
-      .attr("height", height);
-
-    var gInner = svg.append('g')
-      .attr("class", "inner")
-      .attr("transform", 'translate(' + margin.left + ',' + (height - margin.top ) +') rotate(-90)');
-
-
-    // get set of productivity statuses
-    var prodStatuses = d3.set([].concat.apply([],data.map(function (d) {
-      return d3.map(d.values).keys();
-    }))).values();
-
-    // map data such that each productivity status has a sample id and a
-    // percentage
-    var dataMap = prodStatuses.map(
-        function(prodStatus) {
-          return {
-            'key': prodStatus,
-        'values': data.map(
-          function (d) {
-            var y;
-            (prodStatus in d.values) ? y = d.values[prodStatus]: y = 0;
-
-            return {
-              'x': d.key,
-        'y': y
-            };
-          })
-          };
+    // add event to select all graphic elements associated with the clonofilter
+    var filterForms = $('.filter-form');
+    filterForms.each(function () {
+        var cfid = $(this).attr('id').replace("filter-","");
+        eventBus.subscribe("activate " + cfid, function (selection) {
+          selection.addClass('active');
+          });
+        eventBus.subscribe("inactivate " + cfid, function (selection) {
+          selection.removeClass('active');
+          });
+        });
+    filterForms.on("mouseover",function(){
+        var cfid = $(this).attr('id').replace("filter-","");
+        eventBus.publish("activate " + cfid, $(this));
+        })
+    .on("mouseout", function() {
+        var cfid = $(this).attr('id').replace("filter-","");
+        eventBus.publish("inactivate " + cfid, $(this));
         });
 
-
-
-    var x = d3.scale.ordinal()
-      .domain(sampleIds)
-      .rangeRoundBands([0, height - margin.top - margin.bottom], 0.1);
-    //.rangeRoundBands([0, width - margin.left - margin.right]);
-
-    var y = d3.scale.linear()
-      .domain([0,1])
-      .range([width - margin.left - margin.right, 0]);
-    //.range([height - margin.top - margin.bottom, 0], 0.1);
-
-    var color = d3.scale.category10();
-
-    var stackMax = 1;
-    var stack = d3.layout.stack()
-      .values(function (d) { return d.values });
-
-
-
-    var layers = gInner.selectAll('.layer')
-      .data(stack(dataMap))
-      .enter()
-      .append('g')
-      .attr('class', function (d) {return 'layer ' + d.key})
-      .style("fill", function(d, i) { return color(i); });
-
-    var rects = layers.selectAll('rect')
-      .data(function (d) {return d.values})
-      .enter()
-      .append('rect')
-      .attr('x', function(d) {return x(d.x)})
-      //.attr('y', function(d) {return y(d.y)})
-      .attr("y", function(d) { return y(d.y0 + d.y); })
-      .attr('width', x.rangeBand())
-      .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); });
-    //.attr("height", function(d) { return y(d.y); });
-
-
-    // draw an x axis
-    var xAxis = d3.svg.axis()
-      .scale(x)
-      .tickSize(0)
-      .tickPadding(0)
-      .orient('top');
-
-    gInner.append('g')
-      .attr('class', 'x axis')
-      //      .attr('transform', 'rotate(90)')
-      .call(xAxis);
-
-    // Convert the sample id to sample names
-    gInner.selectAll('g .axis .tick text')
-      .text(function (d) {
-        return nameMap(d);
-      })
-    .attr('transform', 'rotate(90)')
-      ;
-
-    });
+        });
+    // update the colors
   }
 
-  // public accessors
-  plot.x = function(value) {
-    if (!arguments.length) return xScale;
-    xScale = value;
-    return plot;
+  var drawFunctionality = function () {
+    d3.json('/compare/'+comparisonId+'/functionality_ajax', function(d) {
+        console.log(d);
+        var functData = d['functionality'];
+        var sampleNames = d['sampleNames'];
+
+        var my_names = nameMap(sampleNames);
+        var functPlot = functionality2()
+        .sampleName(my_names);
+
+
+        functDiv.html('');
+
+        functDiv
+        .datum(functData)
+        .call(functPlot)
+        ;
+        });
   }
 
-  plot.colors = function(value) {
-    if (!arguments.length) return colorScale;
-    colorScale = value;
-    return plot;
+  var drawScatterNav = function() {
+    var vdjFreq, vList, jList, sampleNames;
+
+    d3.json('/compare/'+comparisonId+'/vdj_freq_ajax', function(d) {
+        vdjFreq = d['vdjFreq'];
+        vList = d['vList'];
+        jList = d['jList'];
+        sampleNames = d['sampleNames'];
+        scatNav();
+        });
+
+    var scatNav = function () {
+      
+
+      var my_xScale = d3.scale
+        .ordinal()
+        .domain(vList);
+
+      var my_yScale = d3.scale
+        .ordinal()
+        .domain(jList);
+
+      var my_rScale = d3.scale.linear()
+        .domain([0, d3.max(vdjFreq, function(d) {
+              return d[2];
+              })
+            ])
+        .range([0, 24]);
+
+      my_names = nameMap(sampleNames);
+
+      var my_nav = scatterNav()
+        .x(my_xScale)
+        .y(my_yScale)
+        .r(my_rScale)
+        .sampleName(my_names);
+
+
+      navDiv.html('');
+
+      navDiv
+        .datum(vdjFreq)
+        .call(my_nav)
+        ;
+
+      var scatNav2 = scatterNav2()
+        .v(my_xScale)
+        .j(my_yScale)
+        .r(my_rScale)
+        .eventBus(eventBus)
+        .sampleName(my_names);
+
+      navDiv
+        .datum(vdjFreq)
+        .call(scatNav2)
+        ;
+
+    }
   }
 
-  plot.sampleName = function(value) {
-    if(!arguments.length) return nameMap;
-    nameMap = value;
-    return plot;
+  var nameMap = function (n) {
+    var names = n;
+    return function(d) {
+      return names[d];
+    }
+  };
+
+  init.filterFormDiv = function(value) {
+    if(!arguments.length) return filterFormDiv;
+    filterFormDiv = value;
+    return init;
   }
 
+  init.comparisonId = function(value) {
+    if(!arguments.length) return comparisonId;
+    comparisonId = value;
+    return init;
+  }
 
-  return plot;
+  return init;
 }
-
 

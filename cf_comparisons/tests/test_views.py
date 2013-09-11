@@ -24,16 +24,25 @@ class ComparisonsViewUnitTest(TestCase):
     def tearDown(self):
         self.renderPatch.stop()
 
+    def test_functionality_ajax_has_a_url(self):
+        self.assertEqual('/compare/1/functionality_ajax',
+                reverse('cf_comparisons.views.functionality_ajax', args=[self.comparison.id]))
+
+    def test_functionality_ajax_returns_functionality_stats(self):
+        from cf_comparisons.views import functionality_ajax
+        self.assertEqual('[{"values": {"Out of frame": 0.3333333333333333, "Productive": 0.6666666666666666}, "key": 1}, {"values": {"Productive": 1.0}, "key": 2}]' != '{"sampleNames": {"1": "test patient 2012-12-12 cd4+", "2": "test patient 2012-12-13 cd4+"}, "functionality": {"values": {"Productive": 1.0}, "key": 2}}',
+                         functionality_ajax(self.request, self.comparison.id).content)
+
     def test_update_clonofilters_takes_in_serialized_json_from_post_and_returns_a_new_comparison_id(self):
         from cf_comparisons.views import update_clonofilters
         data = {};
         self.request.post = data;
         self.assertEqual('2',
-                update_clonofilters(self.request).content)
+                update_clonofilters(self.request, self.comparison.id).content)
 
     def test_update_clonofilters_has_a_url(self):
         self.assertEqual(
-                '/compare/update_clonofilters',
+                '/compare/1/update_clonofilters',
                 reverse('cf_comparisons.views.update_clonofilters', args=[self.comparison.id]))
 
     def test_clonofilter_colors_has_a_url(self):
@@ -43,7 +52,7 @@ class ComparisonsViewUnitTest(TestCase):
     def test_clonofilter_colors_returns_colors_for_comparison(self):
         from cf_comparisons.views import clonofilter_colors
         self.assertEqual(
-                '\ndiv.cf-1-active {\n  background-color: rgba(255, 0, 41, 0.75)\n}\ncircle.cf-1.active {\n  fill: rgba(255, 0, 41, 0.75)\n}\n\ndiv.cf-2-active {\n  background-color: rgba(0, 255, 140, 0.75)\n}\ncircle.cf-2.active {\n  fill: rgba(0, 255, 140, 0.75)\n}\n\n\ndiv.cf-1.inactive {\n  background-color: rgba(255, 0, 41, 0.3)\n}\ncircle.cf-1.inactive {\n  fill: rgba(255, 0, 41, 0.3)\n}\n\n\ndiv.cf-2.inactive {\n  background-color: rgba(0, 255, 140, 0.3)\n}\ncircle.cf-2.inactive {\n  fill: rgba(0, 255, 140, 0.3)\n}\n\n\n',
+                '\ndiv.cf-1.active { background-color: rgba(255, 0, 41, 0.75)}\npath.cf-1.active {stroke: rgba(255, 0, 41, 0.75)}\ncircle.cf-1.active {fill: rgba(255, 0, 41, 0.75)}\n\ndiv.cf-2.active { background-color: rgba(0, 255, 140, 0.75)}\npath.cf-2.active {stroke: rgba(0, 255, 140, 0.75)}\ncircle.cf-2.active {fill: rgba(0, 255, 140, 0.75)}\n\n\ndiv.cf-1 {background-color: rgba(255, 0, 41, 0.3)}\npath.cf-1 { stroke: rgba(255, 0, 41, 0.3) }\ncircle.cf-1 { fill: rgba(255, 0, 41, 0.3) }\n\ndiv.cf-2 {background-color: rgba(0, 255, 140, 0.3)}\npath.cf-2 { stroke: rgba(0, 255, 140, 0.3) }\ncircle.cf-2 { fill: rgba(0, 255, 140, 0.3) }\n\n',
                 clonofilter_colors(self.request, self.comparison.id).content)
 
     def test_vdj_freq_ajax_returns_vdj_usage_sample_stats(self):
