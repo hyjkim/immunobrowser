@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
+from django.conf.urls.static import static
 from tastypie.api import Api
 from immuno.api import PatientResource, SampleResource, ClonoFilterResource, ComparisonResource
 
@@ -83,3 +84,5 @@ urlpatterns = patterns('',
                        # testing
                        url(r'^qunit$', 'fts.views.qunit'),
                        )
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

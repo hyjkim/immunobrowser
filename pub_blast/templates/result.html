@@ -6,5 +6,13 @@
 {% endblock %}
 
 {% block content %}
-Job submitted successfully. Page will eventually reload automatically.
+Results for Blast Query {{blast_query.id}}<br />
+
+Original Submission  <a href="/{{blast_query.fasta_path}}"><span class="glyphicon
+    glyphicon-download"></span></a><br />
+Download results html <a href="/{{blast_query.result_path}}"><span class="glyphicon
+    glyphicon-download"></span></a><br />
+<iframe src="/{{blast_query.result_path}}">
+blast html in line
+</iframe>
 {% endblock %}

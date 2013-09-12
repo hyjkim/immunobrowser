@@ -33,4 +33,24 @@ def submit(request):
         return redirect(reverse('pub_blast.views.new'))
 
 def result(request, query_id):
-    return render(request, 'result.html', {})
+    '''
+    Happy path for results. Checks to see if the celery
+    task has completed and if so, returns the blast result
+    '''
+    try:
+        blast_query = BlastQuery.objects.get(id=query_id)
+        context = {'blast_query': blast_query}
+        if blast_query.ready():
+            return render(request, 'result.html', context)
+        else:
+            return render(request, 'processing.html',context)
+    except Exception as e:
+        print e
+        return result_not_found(request)
+
+
+def result_not_found(request):
+    '''
+    sad path for blast queries that aren't found in db
+    '''
+    return render(request, 'result_not_found.html')
