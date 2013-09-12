@@ -9,7 +9,7 @@ def menu_tag(*args):
     MENU_FIELDS = [
         {'view': 'samples.views.home', 'name': 'Browse', 'active': False},
         {'view': 'cf_comparisons.views.compare_v3', 'name': 'Compare', 'active': False},
-        {'view': '', 'name': 'Blast', 'active': False},
+        {'view': 'pub_blast.views.new', 'name': 'Blast', 'active': False},
         {'view': '', 'name': 'Upload', 'active': False},
     ]
 
