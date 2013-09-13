@@ -8,6 +8,7 @@ simplejson==3.3.0
 django-registration
 django-celery
 biopython
+docutils
 ### Development ###
 south
 mock

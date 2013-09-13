@@ -27,11 +27,12 @@ var comparisonRefresh = function () {
   var functDiv = d3.select("#functionality-content");
   var sharedClonesDiv = d3.select("#shared-clones-content");
   var clonofilterColors = d3.select("style#clonofilter-colors");
-  var addSampleToggle = $("div#add-sample");
+  var addSampleToggle = $("button#add-sample");
   var sampleCancel = $('div#sample-compare :button');
   var sampleSubmit = $('div#sample-compare :submit');
   var sampleCompareDiv = $('div#sample-compare');
   var sampleForm = $('div#sample-compare form');
+  var sideNav = $('div#sidenav');
   var comparisonId;
   var eventBus = EventBus.newEventBus();
 
@@ -39,6 +40,12 @@ var comparisonRefresh = function () {
   var init = function() {
     if (comparisonId) refresh();
     addSample();
+    setupNav();
+
+    // Resize the scrollable divs when the window is resized
+    $(window).resize(function () {
+      setupNav();
+    });
   }
 
   var refresh = function() {
@@ -49,16 +56,24 @@ var comparisonRefresh = function () {
     drawSharedClones();
   }
 
+  var setupNav = function () {
+    var contentHeight = $(window).height() - $('nav#topnav').height();
+    sideNav.css('max-height', contentHeight);
+    sideNav.css('height', contentHeight);
+    $('#subcontent').css('max-height', contentHeight);
+    $('#subcontent').css('height', contentHeight);
+  }
+
   // enable add sample functionality
   var addSample = function () {
     addSampleToggle.click(function () {
         sampleCompareDiv.show();
-        addSampleToggle.hide();
+        addSampleToggle.prop('disabled', true);
         });
     // Hides add sample form when cancel button is clicked
     sampleCancel.click(function () {
         sampleCompareDiv.hide();
-        addSampleToggle.show();
+        addSampleToggle.prop('disabled', false);
         });
 
     sampleSubmit.click(function () {
