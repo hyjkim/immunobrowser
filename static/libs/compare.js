@@ -56,13 +56,16 @@ var comparisonRefresh = function () {
   var setupNav = function () {
 
     var hideButton = $('button#hide-all');
-    var expandButton = $('button#expand-all');
+    var showButton = $('button#show-all');
+
     // Set up buttons for navbar
     hideButton.click(function () {
-      $('.filter-form .accordion-body').collapse('hide');
+//      $('.filter-form .accordion-body').collapse('hide');
+      eventBus.publish('hide all', 1);
     });
-    expandButton.click(function () {
-      $('.filter-form .accordion-body').collapse('show');
+    showButton.click(function () {
+//      $('.filter-form .accordion-body').collapse('show');
+      eventBus.publish('show all', 1);
     });
     // Resize the scrollable divs when the window is resized
     $(window).resize(function () {
@@ -114,7 +117,7 @@ var comparisonRefresh = function () {
 
           // Update global comparisonId variable
           comparisonId = compId
-            refresh();
+          refresh();
 
           // Modify url bar
           // Should modify this javascript to use 
@@ -139,6 +142,58 @@ var comparisonRefresh = function () {
     $.get(url,
         function (d) {
         filterFormDiv.html(d);
+
+        // Adds hide and show filter collapse functions to eventBus
+        // Closures for show and hide event
+        var showFilter = function (s, g, i) {
+          var selection = s;
+          var inner = i;
+          var glyph = g;
+          var show = function() {
+            inner.collapse('show');
+            glyph.removeClass('glyphicon-chevron-right');
+            glyph.addClass('glyphicon-chevron-down');
+          }
+          return show;
+        }
+
+        var hideFilter = function (s, g, i) {
+          var selection = s;
+          var inner = i;
+          var glyph = g;
+          var hide = function() {
+            inner.collapse('hide');
+            glyph.removeClass('glyphicon-chevron-down');
+            glyph.addClass('glyphicon-chevron-right');
+          }
+          return hide;
+        }
+
+        // Subscribe form filters to individual and global hide and show events
+        $('.filter-form').each(function () {
+          var cfid = $(this).attr('id').replace('filter-','');
+          var glyph = $(this).find('span.toggle');
+          var inner = $(this).find('div.filter-form-inner');
+
+          eventBus.subscribe('hide ' + cfid, hideFilter($(this), glyph, inner));
+          eventBus.subscribe('hide all', hideFilter($(this), glyph, inner));
+          eventBus.subscribe('show ' + cfid, showFilter($(this), glyph, inner));
+          eventBus.subscribe('show all', showFilter($(this), glyph, inner));
+
+          glyph.on("click", function() {
+            console.log(glyph);
+            if(glyph.hasClass('glyphicon-chevron-right')) {
+              eventBus.publish('show ' + cfid, 1);
+            }
+            else {
+              eventBus.publish('hide ' + cfid, 1);
+            }
+          });
+
+        });
+        // Hide all the filters on load (this fixes a bug that hides samples
+        // when 'show all' event is initiated upon first loading
+        eventBus.publish('hide all', 1);
 
         // Sets up an event to refresh when update is clicked
         $('input#compare-update')

@@ -39,6 +39,14 @@ body {
   overflow; auto;
 }
 
+span.toggle {
+  color: grey;
+}
+
+span.toggle:hover {
+  color: darkgrey;
+}
+
 th {
   font-weight: 500;
 }

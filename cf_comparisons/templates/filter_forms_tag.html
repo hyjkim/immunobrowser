@@ -9,13 +9,17 @@
       <div class="row">
         <div class="filter-form accordian col-md-12 {{clonofilter.css_class}}"
           id="filter-cf-{{clonofilter.id}}">
+          <!--
           <a class="accordion-toggle" data-toggle="collapse"
             data-parent="filter-cf-{{clonofilter.id}}" href="#collapse-cf-{{clonofilter.id}}">
-            <span id="toggle-{{clonofilter.id}}" class="glyphicon glyphicon-chevron-right"></span>
+            -->
+            <span id="toggle-cf-{{clonofilter.id}}" class="toggle glyphicon glyphicon-chevron-down"></span>
+            <!--
           </a>
+          -->
             {{clonofilter.sample}}
           <span id="remove-{{clonofilter.id}}" class="glyphicon glyphicon-remove"></span>
-          <div id="collapse-cf-{{clonofilter.id}}" class="filter-form-inner accordion-body in">
+          <div id="collapse-cf-{{clonofilter.id}}" class="filter-form-inner accordion-body in" style="height: auto;">
             {{ filter_form.non_field_errors }}
             <input type="hidden" name="{{clonofilter.id}}-sample" id="id_{{clonofilter.id}}-sample"
             value="{{clonofilter.sample.id}}">
