@@ -126,8 +126,7 @@ div.recombination {
     opacity: 0.3;
   }
   .axis text {
-    font-family: sans-serif;
-    font-size: 11px;
+    font-size: 13px;
   }
   .tooltip {
     position: absolute;

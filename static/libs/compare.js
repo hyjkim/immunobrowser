@@ -79,7 +79,7 @@ var comparisonRefresh = function () {
     });
     // Resize the scrollable divs when the window is resized
     $(window).resize(function () {
-      setNavHeigh();
+      setNavHeight();
     });
   }
 
@@ -336,7 +336,6 @@ var comparisonRefresh = function () {
 
   var drawFunctionality = function () {
     d3.json('/compare/'+comparisonId+'/functionality_ajax', function(d) {
-      console.log(d);
       var functData = d['functionality'];
       var sampleNames = d['sampleNames'];
 
