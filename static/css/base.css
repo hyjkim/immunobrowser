@@ -39,11 +39,11 @@ body {
   overflow; auto;
 }
 
-span.toggle {
+span.toggle, span.glyphicon-remove {
   color: grey;
 }
 
-span.toggle:hover {
+span.toggle:hover, span.glyphicon-remove:hover {
   color: darkgrey;
 }
 

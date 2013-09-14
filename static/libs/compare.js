@@ -147,104 +147,128 @@ var comparisonRefresh = function () {
         });
   }
 
+  // Parses the cfid from a glyph, removes it and refreshes the 
+  // filterform div
+  var removeClonofilter = function() {
+    cfId = $(this).attr('id').match(/\d+/)[0];
+    postData = [{'name':'comparison', 'value': comparisonId},
+             {'name':'clonofilter', 'value': cfId}];
+    $.post('/dashboard/remove_clonofilter',
+        postData, function (compId) {
+          comparisonId = compId;
+          window.history.pushState(null, '', '/compare/' + compId);
+          // Load filter forms
+          $.get("/compare/" + compId + "/filter_forms",
+            function(filterForms) {
+              $('div#filter-forms').html(filterForms)
+            filterFormRefresh();
+            });
+        });
+  }
+
   var filterFormRefresh = function () {
     var url = '/compare/'+comparisonId+'/filter_forms';
     $.get(url,
         function (d) {
-        filterFormDiv.html(d);
+          filterFormDiv.html(d);
 
-        // Adds hide and show filter collapse functions to eventBus
-        // Closures for show and hide event
-        var showFilter = function (s, g, i) {
-          var selection = s;
-          var inner = i;
-          var glyph = g;
-          var show = function() {
-            inner.collapse('show');
-            glyph.removeClass('glyphicon-chevron-right');
-            glyph.addClass('glyphicon-chevron-down');
-          }
-          return show;
-        }
-
-        var hideFilter = function (s, g, i) {
-          var selection = s;
-          var inner = i;
-          var glyph = g;
-          var hide = function() {
-            inner.collapse('hide');
-            glyph.removeClass('glyphicon-chevron-down');
-            glyph.addClass('glyphicon-chevron-right');
-          }
-          return hide;
-        }
-
-        // Subscribe form filters to individual and global hide and show events
-        $('.filter-form').each(function () {
-          var cfid = $(this).attr('id').replace('filter-','');
-          var glyph = $(this).find('span.toggle');
-          var inner = $(this).find('div.filter-form-inner');
-
-          unsubscribeTokens.push(eventBus.subscribe('hide ' + cfid, hideFilter($(this), glyph, inner)));
-          unsubscribeTokens.push(eventBus.subscribe('hide all', hideFilter($(this), glyph, inner)));
-          unsubscribeTokens.push(eventBus.subscribe('show ' + cfid, showFilter($(this), glyph, inner)));
-          unsubscribeTokens.push(eventBus.subscribe('show all', showFilter($(this), glyph, inner)));
-
-          glyph.on("click", function() {
-            console.log(glyph);
-            if(glyph.hasClass('glyphicon-chevron-right')) {
-              eventBus.publish('show ' + cfid, 1);
+          // Adds hide and show filter collapse functions to eventBus
+          // Closures for show and hide event
+          var showFilter = function (s, g, i) {
+            var selection = s;
+            var inner = i;
+            var glyph = g;
+            var show = function() {
+              inner.collapse('show');
+              glyph.removeClass('glyphicon-chevron-right');
+              glyph.addClass('glyphicon-chevron-down');
             }
-            else {
-              eventBus.publish('hide ' + cfid, 1);
-            }
-          });
-
-        });
-        // Hide all the filters on load (this fixes a bug that hides samples
-        // when 'show all' event is initiated upon first loading
-        eventBus.publish('hide all', 1);
-
-        // Sets up an event to refresh when update is clicked
-        $('input#compare-update')
-        .click(function() {
-          var clonofilterForm = $('div#filter-forms form');
-          //          event.preventDefault();
-          var postData =clonofilterForm.serializeArray();
-          if (comparisonId) {
-          postData.push({'name':'comparison', 'value': comparisonId});
+            return show;
           }
-          console.log(postData)
 
-          $.post('/compare/'+comparisonId+'/update_clonofilters',
-            postData, function (compId) {
-            console.log(compId);
-            comparisonId = compId;
+          var hideFilter = function (s, g, i) {
+            var selection = s;
+            var inner = i;
+            var glyph = g;
+            var hide = function() {
+              inner.collapse('hide');
+              glyph.removeClass('glyphicon-chevron-down');
+              glyph.addClass('glyphicon-chevron-right');
+            }
+            return hide;
+          }
 
-            refresh();
+          // binds close glyph icon to removeClonofilter function
+          $('.glyphicon-remove').click(removeClonofilter);
+          // Subscribe form filters to individual and global hide and show events
+          $('.filter-form').each(function () {
+            var cfid = $(this).attr('id').replace('filter-','');
+            var glyph = $(this).find('span.toggle');
+            var inner = $(this).find('div.filter-form-inner');
+
+            unsubscribeTokens.push(eventBus.subscribe('hide ' + cfid, hideFilter($(this), glyph, inner)));
+            unsubscribeTokens.push(eventBus.subscribe('hide all', hideFilter($(this), glyph, inner)));
+            unsubscribeTokens.push(eventBus.subscribe('show ' + cfid, showFilter($(this), glyph, inner)));
+            unsubscribeTokens.push(eventBus.subscribe('show all', showFilter($(this), glyph, inner)));
+
+            glyph.on("click", function() {
+              console.log(glyph);
+              if(glyph.hasClass('glyphicon-chevron-right')) {
+                eventBus.publish('show ' + cfid, 1);
+              }
+              else {
+                eventBus.publish('hide ' + cfid, 1);
+              }
             });
 
           });
 
-    // add event to select all graphic elements associated with the clonofilter
-    var filterForms = $('.filter-form');
-    filterForms.each(function () {
-        var cfid = $(this).attr('id').replace("filter-","");
-        unsubscribeTokens.push(eventBus.subscribe("activate " + cfid, function (selection) {
-          selection.addClass('active');
-          }));
-        unsubscribeTokens.push(eventBus.subscribe("inactivate " + cfid, function (selection) {
-          selection.removeClass('active');
-          }));
-        });
-    filterForms.on("mouseover",function(){
-        var cfid = $(this).attr('id').replace("filter-","");
-        eventBus.publish("activate " + cfid, $(this));
-        })
-    .on("mouseout", function() {
-        var cfid = $(this).attr('id').replace("filter-","");
-        eventBus.publish("inactivate " + cfid, $(this));
-        });
+
+
+          // Hide all the filters on load (this fixes a bug that hides samples
+          // when 'show all' event is initiated upon first loading
+          eventBus.publish('hide all', 1);
+
+          // Sets up an event to refresh when update is clicked
+          $('input#compare-update')
+            .click(function() {
+              var clonofilterForm = $('div#filter-forms form');
+              //          event.preventDefault();
+              var postData =clonofilterForm.serializeArray();
+              if (comparisonId) {
+                postData.push({'name':'comparison', 'value': comparisonId});
+              }
+              console.log(postData)
+
+              $.post('/compare/'+comparisonId+'/update_clonofilters',
+                postData, function (compId) {
+                  console.log(compId);
+                  comparisonId = compId;
+
+                  refresh();
+                });
+
+            });
+
+          // add event to select all graphic elements associated with the clonofilter
+          var filterForms = $('.filter-form');
+          filterForms.each(function () {
+            var cfid = $(this).attr('id').replace("filter-","");
+            unsubscribeTokens.push(eventBus.subscribe("activate " + cfid, function (selection) {
+              selection.addClass('active');
+            }));
+            unsubscribeTokens.push(eventBus.subscribe("inactivate " + cfid, function (selection) {
+              selection.removeClass('active');
+            }));
+          });
+          filterForms.on("mouseover",function(){
+            var cfid = $(this).attr('id').replace("filter-","");
+            eventBus.publish("activate " + cfid, $(this));
+          })
+          .on("mouseout", function() {
+            var cfid = $(this).attr('id').replace("filter-","");
+            eventBus.publish("inactivate " + cfid, $(this));
+          });
 
         });
     // update the colors
@@ -254,15 +278,15 @@ var comparisonRefresh = function () {
     var vdjFreq, vList, jList, sampleNames;
 
     d3.json('/compare/'+comparisonId+'/vdj_freq_ajax', function(d) {
-        vdjFreq = d['vdjFreq'];
-        vList = d['vList'];
-        jList = d['jList'];
-        sampleNames = d['sampleNames'];
-        scatNav();
-        });
+      vdjFreq = d['vdjFreq'];
+      vList = d['vList'];
+      jList = d['jList'];
+      sampleNames = d['sampleNames'];
+      scatNav();
+    });
 
     var scatNav = function () {
-      
+
 
       var my_xScale = d3.scale
         .ordinal()
@@ -274,8 +298,8 @@ var comparisonRefresh = function () {
 
       var my_rScale = d3.scale.linear()
         .domain([0, d3.max(vdjFreq, function(d) {
-              return d[2];
-              })
+          return d[2];
+        })
             ])
         .range([0, 24]);
 
@@ -312,22 +336,22 @@ var comparisonRefresh = function () {
 
   var drawFunctionality = function () {
     d3.json('/compare/'+comparisonId+'/functionality_ajax', function(d) {
-        console.log(d);
-        var functData = d['functionality'];
-        var sampleNames = d['sampleNames'];
+      console.log(d);
+      var functData = d['functionality'];
+      var sampleNames = d['sampleNames'];
 
-        var my_names = nameMap(sampleNames);
-        var functPlot = functionality2()
-        .sampleName(my_names);
+      var my_names = nameMap(sampleNames);
+      var functPlot = functionality2()
+      .sampleName(my_names);
 
-        // Remove existing stuff in the div
-        functDiv.html('');
+    // Remove existing stuff in the div
+    functDiv.html('');
 
-        functDiv
-        .datum(functData)
-        .call(functPlot)
-        ;
-        });
+    functDiv
+      .datum(functData)
+      .call(functPlot)
+      ;
+    });
   }
 
   var drawSharedClones = function () {
