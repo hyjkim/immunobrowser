@@ -4,6 +4,7 @@ from utils.text_manipulation import convert
 import csv
 from utils.utils import sub_dict_remove_strict
 from django.db.models.query import QuerySet
+from django.db.models import Sum, Min, Max
 
 # Create your models here.
 
@@ -245,6 +246,7 @@ class Clonotype(models.Model):
 class ClonoFilter(models.Model):
     sample = models.ForeignKey(Sample)
     min_copy = models.IntegerField(null=True)
+    max_copy = models.IntegerField(null=True)
     min_length = models.IntegerField(null=True)
     max_length = models.IntegerField(null=True)
     norm_factor = models.FloatField(null=True)
@@ -262,12 +264,28 @@ class ClonoFilter(models.Model):
 
 
     def save(self, *args, **kwargs):
-        super(ClonoFilter, self).save(*args, **kwargs)
         if self.norm_factor is None:
             size = self.size()
             if size is not None:
                 self.norm_factor = float(size)
-                super(ClonoFilter, self).save(*args, **kwargs)
+        if self.min_copy is None:
+            min_copy = self.get_clonotypes().aggregate(Min('copy'))['copy__min']
+            if min_copy is not None:
+                self.min_copy = min_copy
+        if self.max_copy is None:
+            max_copy = self.get_clonotypes().aggregate(Max('copy'))['copy__min']
+            if max_copy is not None:
+                self.max_copy = max_copy
+        if self.min_length is None:
+            min_length = self.get_clonotypes().aggregate(Min('length'))['length__min']
+            if min_length is not None:
+                self.min_length = min_length
+        if self.max_length is None:
+            max_length = self.get_clonotypes().aggregate(Max('length'))['length__min']
+            if max_length is not None:
+                self.max_length = max_length
+
+        super(ClonoFilter, self).save(*args, **kwargs)
 
     @staticmethod
     def default_from_sample(sample):
@@ -280,6 +298,10 @@ class ClonoFilter(models.Model):
         cf_dict = model_to_dict(cf)
         cf_dict['sample'] = sample
         cf_dict['norm_factor'] = cf.size()
+        cf_dict['min_copy'] = cf.get_clonotypes().aggregate(Min('copy'))['copy__min']
+        cf_dict['max_copy'] = cf.get_clonotypes().aggregate(Max('copy'))['copy__max']
+        cf_dict['min_length'] = cf.get_clonotypes().aggregate(Min('recombination__cdr3_length'))['recombination__cdr3_length__min']
+        cf_dict['max_length'] = cf.get_clonotypes().aggregate(Max('recombination__cdr3_length'))['recombination__cdr3_length__max']
         del cf_dict['id']
 
         cf, created = ClonoFilter.objects.get_or_create(**cf_dict)
@@ -310,6 +332,8 @@ class ClonoFilter(models.Model):
         queries = []
         if self.min_copy > 0:
             queries.append(Q(copy__gte=self.min_copy))
+        if self.max_copy > 0:
+            queries.append(Q(copy__lte=self.max_copy))
         if self.min_length > 0:
             queries.append(Q(recombination__cdr3_length__gte=self.min_length))
         if self.max_length > 0:
@@ -348,7 +372,6 @@ class ClonoFilter(models.Model):
         '''
         Returns the sum of 'copy' given a clonofilter
         '''
-        from django.db.models import Sum
         copy_sum = self.get_clonotypes().aggregate(Sum('copy'))
         return copy_sum['copy__sum']
 

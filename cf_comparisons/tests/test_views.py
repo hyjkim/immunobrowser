@@ -25,7 +25,7 @@ class ComparisonsViewUnitTest(TestCase):
         self.renderPatch.stop()
 
     def test_shared_clones_ajax_has_a_url(self):
-        self.assertTrue(reverse('cf_comparisons.views.shared_clones_ajax' args=[self.comparison.id])
+        self.assertTrue(reverse('cf_comparisons.views.shared_clones_ajax', args=[self.comparison.id]))
 
     def test_functionality_ajax_has_a_url(self):
         self.assertEqual('/compare/1/functionality_ajax',

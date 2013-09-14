@@ -276,6 +276,13 @@ class ClonoFilterModelTest(TestCase):
         self.f = ClonoFilter(sample=self.s)
         self.f.save()
 
+    def test_min_copy_defaults_to_min_copy_for_that_sample(self):
+        from django.db.models import Min
+        aggregate = Clonotype.objects.aggregate(Min('copy'))
+        min_copy = aggregate['copy__min']
+        self.assertEqual(self.f.min_copy, min_copy)
+        self.fail('todo')
+
     def test_css_class_returns_clonofilter_class_string(self):
         self.assertEqual(self.f.css_class(), "cf-1")
 

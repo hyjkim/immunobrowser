@@ -30,6 +30,11 @@
               {{ filter_form.min_copy }}
             </div>
             <div class="fieldWrapper">
+              {{ filter_form.max_copy.errors }}
+              <label for="id_{{clonofilter.id}}-max_copy">Max Copy:</label>
+              {{ filter_form.max_copy }}
+            </div>
+            <div class="fieldWrapper">
               {{ filter_form.min_length.errors }}
               <label for="id_{{clonofilter.id}}-min_length">Min Length:</label>
               {{ filter_form.min_length }}
