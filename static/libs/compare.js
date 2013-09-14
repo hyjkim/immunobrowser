@@ -41,11 +41,8 @@ var comparisonRefresh = function () {
     if (comparisonId) refresh();
     addSample();
     setupNav();
+    setNavHeight();
 
-    // Resize the scrollable divs when the window is resized
-    $(window).resize(function () {
-      setupNav();
-    });
   }
 
   var refresh = function() {
@@ -57,6 +54,23 @@ var comparisonRefresh = function () {
   }
 
   var setupNav = function () {
+
+    var hideButton = $('button#hide-all');
+    var expandButton = $('button#expand-all');
+    // Set up buttons for navbar
+    hideButton.click(function () {
+      $('.filter-form .accordion-body').collapse('hide');
+    });
+    expandButton.click(function () {
+      $('.filter-form .accordion-body').collapse('show');
+    });
+    // Resize the scrollable divs when the window is resized
+    $(window).resize(function () {
+      setNavHeigh();
+    });
+  }
+
+  var setNavHeight = function () {
     var contentHeight = $(window).height() - $('nav#topnav').height();
     sideNav.css('max-height', contentHeight);
     sideNav.css('height', contentHeight);
@@ -84,22 +98,23 @@ var comparisonRefresh = function () {
         }
 
         sampleCompareDiv.hide();
-        addSampleToggle.show();
-
-        console.log(postData);
+        addSampleToggle.prop('disabled', false);
 
         $.post('/dashboard/add_samples_v2',
           postData, function (compId) {
 
           // Load filter forms
+          /*
           $.get("/compare/" + compId + "/filter_forms",
             function(filterForms) {
             $('div#filter-forms').html(filterForms)
             refresh();
             });
+            */
 
           // Update global comparisonId variable
           comparisonId = compId
+            refresh();
 
           // Modify url bar
           // Should modify this javascript to use 
@@ -124,7 +139,8 @@ var comparisonRefresh = function () {
     $.get(url,
         function (d) {
         filterFormDiv.html(d);
-        // Refresh everything when a the update button is clicked
+
+        // Sets up an event to refresh when update is clicked
         $('input#compare-update')
         .click(function() {
           var clonofilterForm = $('div#filter-forms form');
@@ -139,6 +155,7 @@ var comparisonRefresh = function () {
             postData, function (compId) {
             console.log(compId);
             comparisonId = compId;
+
             refresh();
             });
 

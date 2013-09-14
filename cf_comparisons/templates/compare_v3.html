@@ -29,17 +29,19 @@
 {% block content %}
 <div id="sidenav" class="col-md-3 pre-scrollable">
   <div class="btn-group">
-      <button type="button" class="btn btn-default" disabled="true">Hide All</button>
-      <button type="button" class="btn btn-default">Expand All</button>
+      <button id="hide-all" type="button" class="btn btn-default">Hide All</button>
+      <button id="expand-all" type="button" class="btn btn-default">Expand All</button>
       <button id="add-sample" type="button" class="btn btn-default">Add Sample</button>
   </div>
   <div id="sample-compare" class="row text-center" style="display: none">
     {% sample_compare_tag sample_compare_form%}
   </div>
 
-  {% if comparison %}
-  {% filter_forms_tag comparison %}
-  {% endif %}
+  <div id="filter-forms"> 
+    {% if comparison %}
+    {% filter_forms_tag comparison %}
+    {% endif %}
+  </div>
 </div>
 
 <div id="subcontent" class="col-md-9 pre-scrollable">
@@ -97,5 +99,5 @@ $(function() {
     test.comparisonId({{comparison.id}});
     test();
     });
-</script>
-{% endblock %}
+  </script>
+  {% endblock %}
