@@ -6,11 +6,13 @@
 {% endblock %}
 
 {% block content %}
-Enter your query in FASTA format:
+<div class="col-md-12">
+  Enter your query in FASTA format:
 
-<form action="{% url 'pub_blast.views.submit' %}" method="post">
-  {% csrf_token %}
-  {{blast_form.as_p}}
-  <input type="Submit" value="Blast" class="btn btn-default" id="compare-update"/>
-</form>
+  <form action="{% url 'pub_blast.views.submit' %}" method="post">
+    {% csrf_token %}
+    {{blast_form.as_p}}
+    <input type="Submit" value="Blast" class="btn btn-default" id="compare-update"/>
+  </form>
+</div>
 {% endblock %}

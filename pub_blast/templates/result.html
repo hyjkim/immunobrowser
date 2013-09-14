@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block content %}
+<div class="col-md-12">
 Results for Blast Query {{blast_query.id}}<br />
 
 Original Submission  <a href="/{{blast_query.fasta_path}}"><span class="glyphicon
@@ -15,4 +16,5 @@ Download results html <a href="/{{blast_query.result_path}}"><span class="glyphi
 <iframe src="/{{blast_query.result_path}}">
 blast html in line
 </iframe>
+</div>
 {% endblock %}
