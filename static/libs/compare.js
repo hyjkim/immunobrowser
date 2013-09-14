@@ -34,6 +34,7 @@ var comparisonRefresh = function () {
   var sampleForm = $('div#sample-compare form');
   var sideNav = $('div#sidenav');
   var comparisonId;
+  var unsubscribeTokens = [];
   var eventBus = EventBus.newEventBus();
 
   // update the forms
@@ -46,11 +47,20 @@ var comparisonRefresh = function () {
   }
 
   var refresh = function() {
+    clearEventBus(); // Should clear eventBus of events that will disappear
     filterFormRefresh();
     clonofilterColorsRefresh();
     drawScatterNav();
     drawFunctionality();
     drawSharedClones();
+  }
+
+  var clearEventBus = function() {
+    unsubscribeTokens.forEach(function (token) {
+      eventBus.unsubscribe(token);
+    });
+    
+    unsubscribeTokens = [];
   }
 
   var setupNav = function () {
@@ -175,10 +185,10 @@ var comparisonRefresh = function () {
           var glyph = $(this).find('span.toggle');
           var inner = $(this).find('div.filter-form-inner');
 
-          eventBus.subscribe('hide ' + cfid, hideFilter($(this), glyph, inner));
-          eventBus.subscribe('hide all', hideFilter($(this), glyph, inner));
-          eventBus.subscribe('show ' + cfid, showFilter($(this), glyph, inner));
-          eventBus.subscribe('show all', showFilter($(this), glyph, inner));
+          unsubscribeTokens.push(eventBus.subscribe('hide ' + cfid, hideFilter($(this), glyph, inner)));
+          unsubscribeTokens.push(eventBus.subscribe('hide all', hideFilter($(this), glyph, inner)));
+          unsubscribeTokens.push(eventBus.subscribe('show ' + cfid, showFilter($(this), glyph, inner)));
+          unsubscribeTokens.push(eventBus.subscribe('show all', showFilter($(this), glyph, inner)));
 
           glyph.on("click", function() {
             console.log(glyph);
@@ -220,12 +230,12 @@ var comparisonRefresh = function () {
     var filterForms = $('.filter-form');
     filterForms.each(function () {
         var cfid = $(this).attr('id').replace("filter-","");
-        eventBus.subscribe("activate " + cfid, function (selection) {
+        unsubscribeTokens.push(eventBus.subscribe("activate " + cfid, function (selection) {
           selection.addClass('active');
-          });
-        eventBus.subscribe("inactivate " + cfid, function (selection) {
+          }));
+        unsubscribeTokens.push(eventBus.subscribe("inactivate " + cfid, function (selection) {
           selection.removeClass('active');
-          });
+          }));
         });
     filterForms.on("mouseover",function(){
         var cfid = $(this).attr('id').replace("filter-","");
