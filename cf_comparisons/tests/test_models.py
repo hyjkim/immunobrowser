@@ -120,6 +120,11 @@ class ComparsionModelMethodsTest(TestCase):
                 self.assertTrue(ClonoFilter.objects.get(id=cf_id))
                 self.assertIsInstance(value, float)
 
+    def test_get_shared_amino_acids_counts_are_paginated(self):
+        from django.core.paginator import Paginator
+        shared_amino_acids = self.comparison.get_shared_amino_acids_counts(per_page=1, page=1)
+        self.assertEqual(len(shared_amino_acids), 1)
+
     def test_get_shared_recombinations_counts_returns_a_nested_dict_of_floats(self):
         '''
         Tests that the method get_shared_clonotypes() returns a list of lists of clonotypes.

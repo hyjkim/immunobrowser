@@ -99,7 +99,7 @@ def scatter_nav_tag(comparison):
 @register.inclusion_tag('shared_clones_tag.html')
 def shared_clones_tag(comparison):
     import json
-    shared_amino_acids_counts = comparison.get_shared_amino_acids_counts()
+    shared_amino_acids_counts, num_pages, count = comparison.get_shared_amino_acids_counts()
     context = {
                'amino_acids': shared_amino_acids_counts,
                'sample_names': comparison.sample_names(),

@@ -9,11 +9,23 @@ import json
 
 def shared_clones_ajax(request, comparison_id):
     import json
+    # Process get arguments defining page
+    try:
+        page = request.GET['page']
+    except:
+        page = 1
+    try:
+        per_page = request.GET['per_page']
+    except:
+        per_page = 10
+
     comparison = Comparison.objects.get(id=comparison_id)
-    shared_amino_acids_counts = comparison.get_shared_amino_acids_counts()
+    shared_amino_acids_counts, num_pages, count = comparison.get_shared_amino_acids_counts(page=page, per_page=per_page)
     data = {
                'aminoAcids': shared_amino_acids_counts,
                'sampleNames': comparison.sample_names(),
+               'numPages': num_pages,
+               'count': count,
             }
     return HttpResponse(json.dumps(data), mimetype='application/json')
 

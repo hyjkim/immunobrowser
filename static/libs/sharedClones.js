@@ -49,7 +49,7 @@ function sharedClones() {
       .data(function(d) {return [d3.map(d.value['clonofilters']).entries()]});
 
       path.enter().append("path")
-      .attr("class", "line inactive")
+      .attr("class", "line")
       .attr("stroke-width", 1)
       .attr("stroke", "#000000")
       .attr("fill", "none");
@@ -65,49 +65,7 @@ function sharedClones() {
       .attr('cx',function(d) {return xScale(d.key)})
       .attr('cy', function(d) {return yScale(d.value)})
       .attr('r', 10)
-//      .attr('class', 'inactive')
-//      .attr('class', function(d) {return "cf-" + d.key + "-inactive"})
       .attr('class', function(d) {return "cf-" + d.key });
-
-      // Add interactivity to eventBus
-      var activate = function (selection) {
-        selection.classed('active', true);
-      }
-      var inactivate = function (selection) {
-        selection.classed('active', false);
-      }
-
-      eventBus.subscribe('activate',activate);
-      eventBus.subscribe('inactivate',inactivate);
-
-      // selecting individual circles
-      circles.on('mouseover', function () {
-        eventBus.publish('activate', d3.select(this));
-      })
-      .on('mouseout', function () {
-        eventBus.publish('inactivate', circles);
-      })
-
-      // selecting samples
-      cfids.forEach(function (cfid) {
-        cfcircles = selection.selectAll('circle.cf-'+cfid)
-        var classToggle = function (selection, addOrRemove) {
-          var cfcircles = selection;
-          return function () {
-            cfcircles.classed('active', addOrRemove);
-          }
-        }
-      eventBus.subscribe('activate cf-'+cfid, classToggle(cfcircles, true));
-      eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfcircles, false));
-
-
-      });
-
-      //amino acid highlighting functionality
-      var amino = d3.select(".amino")
-        .on("mouseover", function() {
-          console.log(d3.select(this));
-        });
 
       // draw x axis
       var xAxis = d3.svg.axis()
@@ -127,6 +85,82 @@ function sharedClones() {
       gInner.append("g")
         .attr("class", "axis yAxis")
         .call(yAxis);
+
+
+      // Make the table header
+      var table = selection.append('table')
+      .attr('class', 'table');
+      var tableHeader = table.append('thead').append('tr');
+      tableHeader.append('th').text('Shared Amino Acid Sequence');
+
+      // Plot table
+      table.data(selection.data(), function(d) {
+      return d;
+      });
+      var aminoAcidRows = table.selectAll('tr').data(function(d){return d}).enter()
+      .append('tr')
+      .attr('class', function(d) {return 'aa-'.concat(d.key)})
+
+      var aminoAcidCells =  aminoAcidRows.append('td')
+      .text(function(d) {return d.value.sequence})
+      ;
+
+      var sampleCells = aminoAcidRows.selectAll('td')
+      .data(function(d) {return d3.map(d.value.clonofilters).entries()}, function(d) {return d.key})
+      .enter()
+      .append('td')
+      .text(function(d) {return d.value})
+      .attr("class", function(d) {return 'cf-'+d.key});
+
+
+      // Add interactivity to eventBus
+      var classToggle = function (s, addOrRemove) {
+        var selection= s;
+        return function () {
+          selection.classed('active', addOrRemove);
+        }
+      }
+
+      var subscribeActivation = function(selection, key) {
+        eventBus.subscribe('activate ' + key, classToggle(selection, true));
+        eventBus.subscribe('inactivate ' + key, classToggle(selection, false));
+      }
+      
+      // selecting samples
+      cfids.forEach(function (cfid) {
+        cfcircles = selection.selectAll('circle.cf-'+cfid)
+        cfcells = selection.selectAll('td.cf-'+cfid)
+        subscribeActivation(cfcircles, 'cf-'+cfid);
+        subscribeActivation(cfcells, 'cf-'+cfid);
+      });
+
+      // subscribe amino_acids circles, lines and rows to highlight
+      gAmino.each(function (d) {
+        var circles = d3.select(this).selectAll('circle');
+        var lines = d3.select(this).selectAll('path');
+        subscribeActivation(circles, 'aa-'+d.key);
+        subscribeActivation(lines, 'aa-'+d.key);
+      });
+
+      //subscribe all amino_acids rows
+      aminoAcidRows.data().forEach(function(d) {
+        var aminoAcids = selection.selectAll('.aa-'+d.key+' td');
+        subscribeActivation(aminoAcids, 'aa-'+d.key)
+      });
+
+      // publish-highlight events
+      var aminoAcidEvents = function(selection) {
+        selection.each(function (d) {
+          d3.select(this).on("mouseover", function() {
+            eventBus.publish('activate aa-'+ d.key, 1);
+          });
+          d3.select(this).on("mouseout", function() {
+            eventBus.publish('inactivate aa-'+ d.key, 1);
+          });
+        });
+      }
+      aminoAcidEvents(aminoAcidRows);
+      aminoAcidEvents(gAmino);
 
     });
   }

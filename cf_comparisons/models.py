@@ -1,6 +1,7 @@
 from django.db import models
 from clonotypes.models import ClonoFilter, Recombination
 from utils.utils import undefaulted
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 
 class Comparison(models.Model):
@@ -308,9 +309,11 @@ class Comparison(models.Model):
                                 amino_acid][clonotype.sample] = clonotype
         return undefaulted(returnable)
 
-    def get_shared_amino_acids_counts(self):
+    def get_shared_amino_acids_counts(self, **kwargs):
         '''
         Given a comparison, returns the amino acids shared by all clonofilters within a comparison
+        By default returns the first 10 results, but can return different page
+        or number of results by modifying kwargs
         Returns a nested dict in the format:
             {aa1_id: {'sequence': aa.sequence, 'clonofiters':{ cf_id1: float,
                               cf_id2: float,}}
@@ -330,14 +333,26 @@ class Comparison(models.Model):
         # prefect clonofilters and index by their id
         cfid2cf = dict((cf.id, cf) for cf in clonofilters)
 
+        # Set up the paginator
+        try:
+            paginator = Paginator(self.get_shared_amino_acids(), kwargs['per_page'])
+        except:
+            paginator = Paginator(self.get_shared_amino_acids(), 10)
+
+        # Get the page number
+        try:
+            shared_amino_acids = paginator.page(kwargs['page'])
+        except EmptyPage:
+            shared_amino_acids = paginator.page(paginator.num_pages)
+        except:
+            shared_amino_acids = paginator.page(1)
+
         # Get all nucleotide_sequences belonging to samples and then only report those
         # that have at least len(samples) shared clonotypes
-
         returnable =  {}
-        shared_amino_acids = self.get_shared_amino_acids()
 
         #for amino_acid in shared_amino_acids:
-        for amino_acid in shared_amino_acids[:9]:
+        for amino_acid in shared_amino_acids:
             amino_acid_dict = {}
             clonofilter_dict = defaultdict(lambda: 0)
             for recombination in amino_acid.recombination_set.all():
@@ -349,7 +364,7 @@ class Comparison(models.Model):
             amino_acid_dict['sequence'] = amino_acid.sequence
             returnable[amino_acid.id] = amino_acid_dict
 
-        return returnable
+        return returnable, paginator.num_pages, paginator.count
 
     def get_shared_recombinations_counts(self):
         '''

@@ -359,9 +359,11 @@ var comparisonRefresh = function () {
       .call(mySharedClones);
     });
 
+/*
     $.get('/compare/'+comparisonId+'/shared_clones', function(d) {
       sharedClonesDiv.append("div").html(d);
     });
+    */
   }
 
   var nameMap = function (n) {
