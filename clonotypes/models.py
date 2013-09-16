@@ -273,15 +273,15 @@ class ClonoFilter(models.Model):
             if min_copy is not None:
                 self.min_copy = min_copy
         if self.max_copy is None:
-            max_copy = self.get_clonotypes().aggregate(Max('copy'))['copy__min']
+            max_copy = self.get_clonotypes().aggregate(Max('copy'))['copy__max']
             if max_copy is not None:
                 self.max_copy = max_copy
         if self.min_length is None:
-            min_length = self.get_clonotypes().aggregate(Min('length'))['length__min']
+            min_length = self.get_clonotypes().aggregate(Min('recombination__cdr3_length'))['recombination__cdr3_length__min']
             if min_length is not None:
                 self.min_length = min_length
         if self.max_length is None:
-            max_length = self.get_clonotypes().aggregate(Max('length'))['length__min']
+            max_length = self.get_clonotypes().aggregate(Max('recombination__cdr3_length'))['recombination__cdr3_length__max']
             if max_length is not None:
                 self.max_length = max_length
 
