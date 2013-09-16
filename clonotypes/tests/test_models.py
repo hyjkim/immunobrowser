@@ -523,7 +523,7 @@ class ClonoFilterModelTest(TestCase):
         )
 
         self.assertEqual(
-            [[10, 2.5], [36, 0.25], [39, 0.25], [42, .5]], self.f.cdr3_length_sum())
+            [[36, 0.25], [39, 0.25], [42, .5]], self.f.cdr3_length_sum())
 
 
 class ClonoFilter2ModelTest(TestCase):
