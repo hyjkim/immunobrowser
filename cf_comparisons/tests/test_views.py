@@ -156,13 +156,6 @@ class ComparisonsViewIntegrationTest(TestCase):
         response = self.client.get(url)
         self.assertIn(t.render(c), response.content)
 
-    def test_shared_clones_uses_a_template_tag(self):
-        from django.template import Template, Context
-        t = Template(
-            '{% load comparison_tags %}{% shared_clones_tag comparison %}')
-        c = Context({'comparison': self.comparison})
-        self.assertIn('<div id="shared-clones"', t.render(c))
-
     def test_scatter_nav_uses_a_template_tag(self):
         from django.template import Template, Context
         t = Template(
@@ -207,12 +200,6 @@ class ComparisonsViewIntegrationTest(TestCase):
         response = self.client.post(url, {'update': json.dumps(update_dict)})
         self.assertNotEqual(str(self.comparison.id), response)
         self.assertEqual(response.content, '2')
-
-    def test_filter_forms_renders_forms_for_comparison(self):
-        response = self.client.get(
-            reverse('cf_comparisons.views.filter_forms',
-                    args=[self.comparison.id]))
-        self.assertIn('class="filter_wrapper"', response.content)
 
     def test_comparison_has_links_to_clonofilters_within_comparison(self):
         response = self.client.get(
