@@ -158,6 +158,11 @@ div.recombination {
     opacity:0.75;
   }
 
+  path.active {
+    stroke-width: 3px;
+  }
+
   td.active {
     background-color: lightgrey;
   }
+

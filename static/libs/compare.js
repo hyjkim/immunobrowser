@@ -322,11 +322,6 @@ var comparisonRefresh = function () {
 
       navDiv.html('');
 
-      navDiv
-      .datum(vdjFreq)
-      .call(my_nav)
-      ;
-
       var scatNav2 = scatterNav2()
       .v(my_xScale)
       .j(my_yScale)

@@ -93,7 +93,7 @@ function sharedClones() {
       var tableHeader = table.append('thead').append('tr');
       tableHeader.append('th').text('Shared Amino Acid Sequence');
 
-      // Plot table
+      // draw table
       table.data(selection.data(), function(d) {
       return d;
       });
@@ -102,7 +102,9 @@ function sharedClones() {
       .attr('class', function(d) {return 'aa-'.concat(d.key)})
 
       var aminoAcidCells =  aminoAcidRows.append('td')
-      .text(function(d) {return d.value.sequence})
+      .html(function(d) {
+        return '<a href="/amino_acid/'+d.key+'">'+d.value.sequence+'</a>';
+      })
       ;
 
       var sampleCells = aminoAcidRows.selectAll('td')
@@ -124,7 +126,7 @@ function sharedClones() {
         eventBus.subscribe('activate ' + key, classToggle(selection, true));
         eventBus.subscribe('inactivate ' + key, classToggle(selection, false));
       }
-      
+
       // selecting samples
       cfids.forEach(function (cfid) {
         cfcircles = selection.selectAll('circle.cf-'+cfid)
