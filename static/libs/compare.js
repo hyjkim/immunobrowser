@@ -277,7 +277,7 @@ var comparisonRefresh = function () {
 
       spectratypeDiv.html('');
 
-      var spectratypePlot = spectratype();
+      var spectratypePlot = spectratype().eventBus(eventBus);
       spectratypeDiv.call(spectratypePlot);
     });
   }

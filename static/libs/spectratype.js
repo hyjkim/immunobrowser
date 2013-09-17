@@ -3,7 +3,9 @@ function spectratype() {
   width = 600,
   height = 400,
   x = d3.scale.linear(),
-  y = d3.scale.linear();
+  y = d3.scale.linear(),
+  eventBus = EventBus.newEventBus();
+
 
 
 
@@ -77,6 +79,27 @@ function spectratype() {
         .attr("class", "axis yAxis")
         .attr("transform", "translate("+margin.left+",0)")
         .call(yAxis);
+
+      // eventBus stuff
+      var classToggle = function (s, addOrRemove) {
+        var selection= s;
+        return function () {
+          selection.classed('active', addOrRemove);
+        }
+      }
+
+      var subscribeActivation = function(selection, key) {
+      console.log(key);
+        eventBus.subscribe('activate ' + key, classToggle(selection, true));
+        eventBus.subscribe('inactivate ' + key, classToggle(selection, false));
+      }
+
+      freqByCfid.keys().forEach(function (d) {
+        var cfid = "cf-" + d;
+        var selection = svg.selectAll('.'+cfid);
+        subscribeActivation(selection, cfid);
+      });
+
     });
   }
 
@@ -89,6 +112,12 @@ function spectratype() {
   plot.height = function (value) {
     if(!arguments.length) return height;
     height = value;
+    return plot
+  }
+
+  plot.eventBus = function (value) {
+    if (!arguments.length) return eventBus;
+    eventBus = value;
     return plot
   }
 
