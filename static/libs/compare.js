@@ -24,6 +24,7 @@
 var comparisonRefresh = function () {
   var filterFormDiv = d3.select("div#filter-forms");
   var navDiv = d3.select("#scatter-content");
+  var spectratypeDiv = d3.select("#spectratype-content");
   var functDiv = d3.select("#functionality-content");
   var sharedClonesDiv = d3.select("#shared-clones-content");
   var clonofilterColors = d3.select("style#clonofilter-colors");
@@ -53,6 +54,7 @@ var comparisonRefresh = function () {
     drawScatterNav();
     drawFunctionality();
     drawSharedClones();
+    drawSpectratype();
   }
 
   var clearEventBus = function() {
@@ -268,6 +270,18 @@ var comparisonRefresh = function () {
       });
   }
 
+  var drawSpectratype = function () {
+    d3.json('/compare/'+comparisonId+'/spectratype_ajax', function(d) {
+      var specData = d;
+      spectratypeDiv.datum(d);
+
+      spectratypeDiv.html('');
+
+      var spectratypePlot = spectratype();
+      spectratypeDiv.call(spectratypePlot);
+    });
+  }
+
   var drawScatterNav = function() {
     var vdjFreq, vList, jList, sampleNames;
 
@@ -347,7 +361,7 @@ var comparisonRefresh = function () {
   var drawSharedClones = function () {
     d3.json('/compare/'+comparisonId+'/shared_clones_ajax', function(d) {
       var aminoAcids = d3.map(d['aminoAcids'])
-      var sampleNAmes = d['sampleNames']
+      var sampleNames = d['sampleNames']
 
       sharedClonesDiv.html('');
 
@@ -357,13 +371,17 @@ var comparisonRefresh = function () {
       sharedClonesDiv
       .datum(aminoAcids.entries())
       .call(mySharedClones);
-    });
 
-/*
-    $.get('/compare/'+comparisonId+'/shared_clones', function(d) {
-      sharedClonesDiv.append("div").html(d);
+      var sharedPage = 1;
+      var sharedPerPage = 10;
+      var sharedNumPages = d['numPages'];
+      var sharedCount = d['count'];
+
+      sharedClonesDiv.append('div')
+      .attr('class', 'shared-clones-nav')
+      .html('Page ' + sharedPage + 
+      ' of ' + sharedNumPages);
     });
-    */
   }
 
   var nameMap = function (n) {

@@ -7,8 +7,15 @@ from clonotypes.models import ClonoFilter, Recombination
 import json
 
 
+def spectratype_ajax(request, comparison_id):
+    '''
+    Returns cdr3 sums for spectratype via http request in json format
+    '''
+    comparison = Comparison.objects.get(id=comparison_id)
+    return HttpResponse(json.dumps(comparison.cdr3_length_sums()), mimetype='application/json')
+
+
 def shared_clones_ajax(request, comparison_id):
-    import json
     # Process get arguments defining page
     try:
         page = request.GET['page']

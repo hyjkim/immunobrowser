@@ -7,6 +7,18 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 class Comparison(models.Model):
     clonofilters = models.ManyToManyField(ClonoFilter)
 
+    def cdr3_length_sums(self):
+        '''
+        Calls clonofilter model method for all clonofilters in a comparison
+        and returns some json friendly stuff.
+        '''
+        clonofilters = self.clonofilters.all()
+        returnable = []
+        for cf in clonofilters:
+            returnable += cf.cdr3_length_sum_d3()
+
+        return returnable
+
     def vdj_freq(self):
         '''
         Returns a list of lists containing frequences of each

@@ -3,6 +3,7 @@
 
 {% block css %}
 <style type="text/css" id="clonofilter-colors">
+  body { overflow: hidden; }
   {% if comparison %}
   {% clonofilter_colors_tag comparison %}
   {% endif %}
@@ -12,6 +13,7 @@
 
 {% block extra_head %}
 <script type='text/javascript' src="{{ STATIC_URL }}libs/compare.js"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/spectratype.js"></script>
 <script type='text/javascript' src="{{ STATIC_URL }}libs/scatternav.js"></script>
 <script type='text/javascript' src="{{ STATIC_URL }}libs/functionality.js"></script>
 <script type='text/javascript' src="{{ STATIC_URL }}libs/sharedClones.js"></script>
@@ -45,36 +47,41 @@
 </div>
 
 <div id="subcontent" class="col-md-9 pre-scrollable">
-  <div id="tutorial">
-    Add a sample to get started!
+
+  <div id="spectratype-main" class ="col-md-12 view">
+    <div id="spectratype-header">
+      <h3>Spectratype <span class="glyphicon glyphicon-info-sign"></span></h3>
+    </div>
+    <div id="spectratype-content">
+      <img src="{{STATIC_URL}}img/ajax-loader.gif">
+    </div>
   </div>
-  <div class="col-md-3">
 
-    <div id="functionality-main" class ="row">
-      <div id="functionality-header" class="col-md-12">
-        <h3>Functionality <span class="glyphicon glyphicon-info-sign"></span></h3>
-      </div>
-      <div id="functionality-content">
-        <img src="{{STATIC_URL}}img/ajax-loader.gif">
-      </div>
+
+  <div id="functionality-main" class ="col-md-12 view">
+    <div id="functionality-header">
+      <h3>Functionality <span class="glyphicon glyphicon-info-sign"></span></h3>
     </div>
-
-    <div id="scatter-main" class="row">
-      <div id="scatter-header" class="col-md-12">
-        <h3>V-J usage <span class="glyphicon glyphicon-info-sign"></span></h3>
-      </div>
-      <div id="scatter-content" class="row">
-        <img src="{{STATIC_URL}}img/ajax-loader.gif">
-      </div>
+    <div id="functionality-content">
+      <img src="{{STATIC_URL}}img/ajax-loader.gif">
     </div>
+  </div>
 
-    <div id="shared-clones-main" class="row">
-      <div id="shared-clones-header" class="col-md-12">
-        <h3>Shared Clones <span class="glyphicon glyphicon-info-sign"></span></h3>
-      </div>
-      <div id="shared-clones-content" class="col-md-12">
-        <img src="{{STATIC_URL}}img/ajax-loader.gif">
-      </div>
+  <div id="scatter-main" class="col-md-12 view">
+    <div id="scatter-header">
+      <h3>V-J usage <span class="glyphicon glyphicon-info-sign"></span></h3>
+    </div>
+    <div id="scatter-content">
+      <img src="{{STATIC_URL}}img/ajax-loader.gif">
+    </div>
+  </div>
+
+  <div id="shared-clones-main" class="col-md-12 view">
+    <div id="shared-clones-header">
+      <h3>Shared Clones <span class="glyphicon glyphicon-info-sign"></span></h3>
+    </div>
+    <div id="shared-clones-content">
+      <img src="{{STATIC_URL}}img/ajax-loader.gif">
     </div>
   </div>
 
@@ -94,10 +101,10 @@
 
   // load filter forms loading closure
 
-$(function() {
+  $(function() {
     var test = comparisonRefresh();
     test.comparisonId({{comparison.id}});
     test();
-    });
-  </script>
-  {% endblock %}
+  });
+</script>
+{% endblock %}

@@ -510,9 +510,37 @@ class ClonoFilter(models.Model):
 
         return returnable
 
+    def cdr3_length_sum_d3(self):
+        '''
+        Takes in a clonofilter and returns an array of dicts.
+        Each dict contains a cdr3 length, sample, and frequency
+        '''
+        from django.db.models import Sum
+        returnable = []
+        counts = self.get_clonotypes().values(
+            'recombination__cdr3_length').annotate(Sum('copy')).order_by('recombination__cdr3_length')
+
+        for index, sum_counts in enumerate(counts):
+            if self.norm_factor:
+                freq = sum_counts['copy__sum'] / float(self.norm_factor)
+                returnable.append( {
+                    'length': sum_counts['recombination__cdr3_length'],
+                    'freq': freq,
+                    'cfid': self.id,
+                    })
+            else:
+                returnable.append( {
+                    'length': sum_counts['recombination__cdr3_length'],
+                    'freq': sum_counts['copy__sum'],
+                    'cfid': self.id,
+                    })
+
+        return returnable
+
+
     def cdr3_length_sum(self):
         ''' Takes in a clonofilter and returns a nested list of cdr3_length
-        and the number of coutns '''
+        and the number of coutns. Used in matplotlib'''
         from django.db.models import Sum
         returnable = []
         counts = self.get_clonotypes().values(

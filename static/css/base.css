@@ -16,7 +16,6 @@ html, body {
 
 body {
   padding-top:50px;
-  overflow: hidden;
 }
 
 #holder {
@@ -37,6 +36,11 @@ body {
 
 #sidenav {
   overflow; auto;
+}
+
+.view {
+  border: 1px solid #eee;
+
 }
 
 span.toggle, span.glyphicon-remove {
@@ -142,9 +146,18 @@ div.recombination {
     stroke-width: 0;
   }
 
-  path {
+  path.shared-clones {
     opacity:0.35;
   }
-  path.active {
+  path.shared-clones.active {
     opacity:0.75;
+  }
+
+ svg.spectraplot path {
+   stroke-width: 5px;
+
+ }
+
+  td.active {
+    background-color: lightgrey;
   }

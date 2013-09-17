@@ -49,7 +49,7 @@ function sharedClones() {
       .data(function(d) {return [d3.map(d.value['clonofilters']).entries()]});
 
       path.enter().append("path")
-      .attr("class", "line")
+      .attr("class", "line shared-clones")
       .attr("stroke-width", 1)
       .attr("stroke", "#000000")
       .attr("fill", "none");
@@ -111,7 +111,6 @@ function sharedClones() {
       .append('td')
       .text(function(d) {return d.value})
       .attr("class", function(d) {return 'cf-'+d.key});
-
 
       // Add interactivity to eventBus
       var classToggle = function (s, addOrRemove) {
