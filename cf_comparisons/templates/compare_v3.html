@@ -31,9 +31,9 @@
 {% block content %}
 <div id="sidenav" class="col-md-3 pre-scrollable">
   <div class="btn-group">
-      <button id="show-all" type="button" class="btn btn-default">Show All</button>
-      <button id="hide-all" type="button" class="btn btn-default">Hide All</button>
-      <button id="add-sample" type="button" class="btn btn-default">Add Sample</button>
+    <button id="show-all" type="button" class="btn btn-default">Show All</button>
+    <button id="hide-all" type="button" class="btn btn-default">Hide All</button>
+    <button id="add-sample" type="button" class="btn btn-default">Add Sample</button>
   </div>
   <div id="sample-compare" class="row text-center" style="display: none">
     {% sample_compare_tag sample_compare_form%}
@@ -50,7 +50,15 @@
 
   <div id="spectratype-main" class ="col-md-12 view">
     <div id="spectratype-header">
-      <h3>Spectratype <span class="glyphicon glyphicon-info-sign"></span></h3>
+      <h3>
+        Spectratype 
+        <button id="tooltip-spectratype" class="btn btn-default" data-container="body" data-toggle="popover" title
+          data-content="Information here"
+          data-placement="bottom"
+          data-original-title="header">
+          <span class="glyphicon glyphicon-info-sign"></span>
+        </button>
+      </h3>
     </div>
     <div id="spectratype-content">
       <img src="{{STATIC_URL}}img/ajax-loader.gif">
@@ -60,7 +68,16 @@
 
   <div id="functionality-main" class ="col-md-12 view">
     <div id="functionality-header">
-      <h3>Functionality <span class="glyphicon glyphicon-info-sign"></span></h3>
+      <h3>
+        Functionality 
+        <button id="tooltip-functionality" class="btn btn-default" data-container="body" data-toggle="popover" title
+          data-content="Information here"
+          data-placement="bottom"
+          data-original-title="header">
+
+        <span class="glyphicon glyphicon-info-sign"></span>
+      </button>
+      </h3>
     </div>
     <div id="functionality-content">
       <img src="{{STATIC_URL}}img/ajax-loader.gif">
@@ -69,7 +86,16 @@
 
   <div id="scatter-main" class="col-md-12 view">
     <div id="scatter-header">
-      <h3>V-J usage <span class="glyphicon glyphicon-info-sign"></span></h3>
+      <h3>
+        V-J usage 
+<button id="tooltip-scatter" class="btn btn-default" data-container="body" data-toggle="popover" title
+          data-content="Information here"
+          data-placement="bottom"
+          data-original-title="header">
+
+        <span class="glyphicon glyphicon-info-sign"></span>
+      </button>
+      </h3>
     </div>
     <div id="scatter-content">
       <img src="{{STATIC_URL}}img/ajax-loader.gif">
@@ -78,7 +104,16 @@
 
   <div id="shared-clones-main" class="col-md-12 view">
     <div id="shared-clones-header">
-      <h3>Shared Clones <span class="glyphicon glyphicon-info-sign"></span></h3>
+      <h3>
+        Shared Clones 
+<button id="tooltip-shared-clones" class="btn btn-default" data-container="body" data-toggle="popover" title
+          data-content="Information here"
+          data-placement="bottom"
+          data-original-title="header">
+
+        <span class="glyphicon glyphicon-info-sign"></span>
+      </button>
+      </h3>
     </div>
     <div id="shared-clones-content">
       <img src="{{STATIC_URL}}img/ajax-loader.gif">

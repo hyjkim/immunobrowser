@@ -44,7 +44,7 @@ var comparisonRefresh = function () {
     addSample();
     setupNav();
     setNavHeight();
-
+    enableTooltips();
   }
 
   var refresh = function() {
@@ -61,7 +61,6 @@ var comparisonRefresh = function () {
     unsubscribeTokens.forEach(function (token) {
       eventBus.unsubscribe(token);
     });
-
     unsubscribeTokens = [];
   }
 
@@ -140,6 +139,10 @@ var comparisonRefresh = function () {
 
     });
 
+  }
+
+  var enableTooltips = function () {
+  $('[id^=tooltip]').popover();
   }
 
   var clonofilterColorsRefresh = function () {
