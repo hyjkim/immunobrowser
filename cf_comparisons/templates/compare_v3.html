@@ -52,10 +52,20 @@
     <div id="spectratype-header">
       <h3>
         Spectratype 
-        <button id="tooltip-spectratype" class="btn btn-default" data-container="body" data-toggle="popover" title
-          data-content="Information here"
-          data-placement="bottom"
-          data-original-title="header">
+        <button id="tooltip-spectratype" class="btn btn-default" data-container="body" data-toggle="popover" title 
+          data-original-title="More Information about Spectratypes"
+          data-content="A spectratype shows the abundance of clonotypes
+          (Y-axis) based
+          on the nucleotide length (X-axis) of the recombined CDR3 sequence. In
+          a sample derived from the DNA of a healthy non-challenged individual, it is typical to see peaks at
+          lengths that are modal-3 (or every third length). Such a pattern is
+          occurs due to selection of protein-coding receptor sequences during T-cell
+          developement. It is also typical to see peaks that are normally
+          distributed in healthy individuals. Non-normal distributions often
+          indicate an active expansion of clonotypes that often occurs during
+          the adaptive immune response. 
+          "
+          data-placement="bottom">
           <span class="glyphicon glyphicon-info-sign"></span>
         </button>
       </h3>
@@ -71,9 +81,16 @@
       <h3>
         Functionality 
         <button id="tooltip-functionality" class="btn btn-default" data-container="body" data-toggle="popover" title
-          data-content="Information here"
-          data-placement="bottom"
-          data-original-title="header">
+          data-original-title="More Information about the Functionality plot"
+          data-content="During the formation of a T-cell receptor, the VDJ
+          recombination 
+          process generates new nucleotide sequences that define the protein
+          structure of the receptor itself. However, this process does not
+          guarantee that each newly-generated receptor will produce a
+          functional protein. A generated protein sequence can be: functional,
+          contain a stop codon, or is out-of-frame. Generally samples from RNA
+          will contain more functional receptors than a DNA sample."
+          data-placement="bottom">
 
         <span class="glyphicon glyphicon-info-sign"></span>
       </button>
@@ -89,9 +106,15 @@
       <h3>
         V-J usage 
 <button id="tooltip-scatter" class="btn btn-default" data-container="body" data-toggle="popover" title
-          data-content="Information here"
-          data-placement="bottom"
-          data-original-title="header">
+          data-original-title="More Information about the V-J Usage scatterplot"
+          data-content="VDJ recombination is a combinatorial process that
+          randomly joins V, D and J gene segments to produce a final T-cell
+          receptor. This plot shows the frequencies of each V-J pair. Larger
+          circles indicate higher frequencies for that pair. Histograms to the
+          right and below the scatter plot are histograms showing usage of
+          V or J genes. Highlighting a V or J gene label will the J or V usage
+          of that particular gene."
+          data-placement="bottom">
 
         <span class="glyphicon glyphicon-info-sign"></span>
       </button>
@@ -107,10 +130,11 @@
       <h3>
         Shared Clones 
 <button id="tooltip-shared-clones" class="btn btn-default" data-container="body" data-toggle="popover" title
-          data-content="Information here"
-          data-placement="bottom"
-          data-original-title="header">
-
+          data-original-title="More Information about Shared Clones"
+          data-content="Multiple samples can share the same CDR3 sequence. Here
+          we show the frequencies of identical amino acid sequences between
+          samples."
+          data-placement="bottom">
         <span class="glyphicon glyphicon-info-sign"></span>
       </button>
       </h3>

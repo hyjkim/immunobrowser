@@ -43,6 +43,11 @@ body {
 
 }
 
+.popover {
+  max-width: 500px;
+
+}
+
 span.toggle, span.glyphicon-remove {
   color: grey;
 }
