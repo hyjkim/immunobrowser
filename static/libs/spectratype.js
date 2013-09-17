@@ -1,5 +1,5 @@
 function spectratype() {
-  var margin = {top: 20, right: 20, bottom: 60, left: 20},
+  var margin = {top: 20, right: 20, bottom: 60, left: 40},
   width = 600,
   height = 400,
   x = d3.scale.linear(),
@@ -41,15 +41,42 @@ function spectratype() {
       .attr('class', 'inner')
       .attr('transform','translate('+margin.top+', '+margin.left+')');
       
+
+      // plot the lines
       var samplePath = gInner.selectAll('path').data(freqByCfid.entries());
       samplePath.enter().append('path')
       .attr('class', function (d) {return "cf-" + d.key})
+      .classed('spectraplot', true)
       .attr("fill", "none")
       .attr('d', function(d) {return line(d.value)});
       ;
 
+      // plot the circles
+      var circles = gInner.selectAll('circle').data(data);
+      circles.enter().append('circle')
+      .attr('class', function (d) { return 'cf-'+d.cfid })
+      .attr('cx', function(d) {return x(d.length)})
+      .attr('cy', function(d){return y(d.freq)})
+      .attr('r', 5);
 
+      // plot the axes
+      var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
 
+      gInner.append("g")
+        .attr("class", "axis xAxis")
+        .attr("transform", "translate(0," + (d3.max(y.range()) + ")"))
+        .call(xAxis);
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+      gInner.append("g")
+        .attr("class", "axis yAxis")
+        .attr("transform", "translate("+margin.left+",0)")
+        .call(yAxis);
     });
   }
 

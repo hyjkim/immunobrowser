@@ -153,11 +153,6 @@ div.recombination {
     opacity:0.75;
   }
 
- svg.spectraplot path {
-   stroke-width: 5px;
-
- }
-
   td.active {
     background-color: lightgrey;
   }
