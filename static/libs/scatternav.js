@@ -114,6 +114,14 @@ function scatterNav2() {
 
       jHistInner.call(jHist);
       vHistInner.call(vHist);
+
+    cfids.forEach(function (cfid) {
+      cfelements = selection.selectAll('.cf-'+cfid)
+      eventBus.subscribe('activate cf-'+cfid, classToggle(cfelements, true));
+      eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfelements, false));
+    });
+
+
     });
   };
 
@@ -172,12 +180,6 @@ function scatterNav2() {
     selection.append("g")
     .attr("class", "axis yAxis")
     .call(yAxis);
-
-    cfids.forEach(function (cfid) {
-      cfelements = selection.selectAll('circle.cf-'+cfid)
-      eventBus.subscribe('activate cf-'+cfid, classToggle(cfelements, true));
-      eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfelements, false));
-    });
 
   };
 
@@ -320,28 +322,27 @@ function scatterNav2() {
 
     // Make the actual lines
     var vPath = selection.selectAll(".line")
-    .data(vSeries, 
-      function(d) {return d.key}
-    );
+    .data(vSeries, function(d) {return d.key});
 
-    vPath.exit().remove();
+    vPath.exit().style('visibility', 'hidden');
 
     vPath.enter()
     .append("path")
     .attr("stroke-width", 1)
-    .attr("fill", "none");
+    .attr("fill", "none")
+    .attr('class', function(d) {return "cf-"+d.key})
+    .classed('line', true);
 
     // Update the lines
     vPath
-    .attr("d", function(d) {return vLine(d.values)})
-    .attr('class', function(d) {return "cf-"+d.key})
-    .classed('line', true);
+    .style('visibility', 'visible')
+    .attr("d", function(d) {return vLine(d.values)});
 
     // Add some points
     var vG = selection.selectAll("g.points")
     .data(vSeries, function(d) {return d.key} );
 
-    vG.exit().remove();
+//    vG.exit().remove();
 
     vG.enter()
     .append("g")
@@ -356,8 +357,8 @@ function scatterNav2() {
       function(d) {return [d.group, d.sample]}
     );
 
-    // Delete old circles
-    vPoints.exit().remove();
+    // hide old circles
+    vPoints.exit().style('visibility', 'hidden');
 
     // Create new circles
     vPoints
@@ -367,6 +368,7 @@ function scatterNav2() {
 
     // Plot the circles
     selection.selectAll("circle")
+    .style('visibility', 'visible')
     .attr("cx", function(d) { return vScale(d.group)})
     .attr("cy", function(d,i ) { return vHistScale(d.freq)})
     .attr('class', function(d) {return "cf-"+d.sample});
@@ -385,12 +387,14 @@ function scatterNav2() {
     }
     gAxis.call(yAxis);
 
+/*
     // events
     cfids.forEach(function (cfid) {
       cfelements = selection.selectAll('.cf-'+cfid)
       eventBus.subscribe('activate cf-'+cfid, classToggle(cfelements, true));
       eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfelements, false));
     });
+    */
 
   };
 
@@ -416,31 +420,31 @@ function scatterNav2() {
 
     // Make the actual lines
     var jPath = selection.selectAll(".line")
-    .data(jSeries,
-      function(d) {return d.key} 
-    );
+    .data(jSeries, function(d) {return d.key} );
 
-    // remove old lines
-    jPath.exit().remove();
+    // hide old lines
+    jPath.exit().style('visibility', 'visible');
 
     // create new lines
-    jPath
-    .enter()
+    jPath.enter()
     .append("path")
     .attr("stroke-width", 1)
-    .attr("fill", "none");
+    .attr("fill", "none")
+    .attr('class', function(d) {return "cf-"+d.key})
+    .classed('line', true);
 
     // update lines
     jPath
-    .attr("d", function(d) {return jLine(d.values)})
-    .attr('class', function(d) {return "cf-"+d.key})
-    .classed('line', true);
+    .style('visibilty', 'visible')
+    .attr("d", function(d) {return jLine(d.values)});
 
     // set up groups to hold circles
     var jG = selection.selectAll("g.points")
     .data(jSeries,
       function(d) {return d.key}
     );
+
+//  jG.exit.remove();
 
     jG.enter()
     .append("g")
@@ -455,8 +459,8 @@ function scatterNav2() {
     function(d) {return [d.group, d.sample]}
     );
 
-    // Delete old circles
-    jPoints.exit().remove();
+    // Hide old circles
+    jPoints.exit().style('visibilty', 'hidden');
 
     // Create new circles
     jPoints
@@ -466,6 +470,7 @@ function scatterNav2() {
 
     // Plot the circles
     selection.selectAll("circle")
+    .style('visibility', 'visible')
     .attr("cy", function(d) { return jScale(d.group)})
     .attr("cx", function(d,i ) { return jHistScale(d.freq)})
     .attr('class', function(d) {return "cf-"+d.sample});
@@ -486,12 +491,14 @@ function scatterNav2() {
 
     gAxis  .attr("transform", "translate(0," + (d3.max(jScale.range()) + ")"))
 
+/*
     // events
     cfids.forEach(function (cfid) {
       cfelements = selection.selectAll('.cf-'+cfid)
       eventBus.subscribe('activate cf-'+cfid, classToggle(cfelements, true));
       eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfelements, false));
     });
+    */
 
   }
 
