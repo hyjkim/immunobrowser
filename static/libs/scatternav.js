@@ -9,7 +9,8 @@ function scatterNav2() {
   eventBus = EventBus.newEventBus(),
   rScale = d3.scale.linear(),
   vScale = d3.scale.ordinal(),
-  jScale = d3.scale.ordinal();
+  jScale = d3.scale.ordinal(),
+  cfids;
 
   var plot = function(selection) {
     if (typeof tooltip ==='undefined') {
@@ -35,6 +36,8 @@ function scatterNav2() {
       .key(function(d) {return d[0]})
       .sortKeys(d3.ascending)
       .entries(data);
+
+      cfids = nestedData.map(function(d) {return d.key});
 
       // add the svg and create it if it doesn't exist
       var svg = d3.select(this).selectAll("svg#scatter").data([nestedData]);
@@ -111,35 +114,15 @@ function scatterNav2() {
 
       jHistInner.call(jHist);
       vHistInner.call(vHist);
-
-
-      // Add eventBus listeners to highlight all elements related
-      // to a sample
-      eventBus.subscribe('activate', function(selection) {
-        selection.classed('active', true);
-      });
-
-      eventBus.subscribe('inactivate', function(selection) {
-        selection.classed('active', false);
-      });
-
-      //subscribe all samples
-      var cfids = nestedData.map(function(d) {return d.key});
-      cfids.forEach(function (cfid) {
-        cfcircles = selection.selectAll('.cf-'+cfid)
-        var classToggle = function (selection, addOrRemove) {
-          var cfcircles = selection;
-          return function () {
-            cfcircles.classed('active', addOrRemove);
-          }
-        }
-        eventBus.subscribe('activate cf-'+cfid, classToggle(cfcircles, true));
-        eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfcircles, false));
-
-      });
     });
-
   };
+
+  var classToggle = function (selection, addOrRemove) {
+    var cfelements = selection;
+    return function () {
+      cfelements.classed('active', addOrRemove);
+    }
+  }
 
   var scatter = function(selection){
     var sampleRows = selection.selectAll("g")
@@ -189,6 +172,13 @@ function scatterNav2() {
     selection.append("g")
     .attr("class", "axis yAxis")
     .call(yAxis);
+
+    cfids.forEach(function (cfid) {
+      cfelements = selection.selectAll('circle.cf-'+cfid)
+      eventBus.subscribe('activate cf-'+cfid, classToggle(cfelements, true));
+      eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfelements, false));
+    });
+
   };
 
   var circleTooltips = function(selection, data) {
@@ -394,6 +384,14 @@ function scatterNav2() {
       .attr("class", "axis yAxis");
     }
     gAxis.call(yAxis);
+
+    // events
+    cfids.forEach(function (cfid) {
+      cfelements = selection.selectAll('.cf-'+cfid)
+      eventBus.subscribe('activate cf-'+cfid, classToggle(cfelements, true));
+      eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfelements, false));
+    });
+
   };
 
   var jHist = function(selection) {
@@ -488,6 +486,12 @@ function scatterNav2() {
 
     gAxis  .attr("transform", "translate(0," + (d3.max(jScale.range()) + ")"))
 
+    // events
+    cfids.forEach(function (cfid) {
+      cfelements = selection.selectAll('.cf-'+cfid)
+      eventBus.subscribe('activate cf-'+cfid, classToggle(cfelements, true));
+      eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfelements, false));
+    });
 
   }
 
