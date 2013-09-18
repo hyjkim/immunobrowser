@@ -70,7 +70,7 @@ function scatterNav2() {
         var circles = selection.selectAll("circle")
         .filter(function(d) {return d[1] == thisData});
         label.on("mouseover", function () {
-          label.attr("fill", "blue");
+          label.style("font-weight", "bold");
           circles.classed("active", true);
           var filteredTestData = data.filter(function (d) {
             return d[1] == thisData;
@@ -79,7 +79,7 @@ function scatterNav2() {
           vHistInner.datum(filteredTestData).call(vHist);
         })
         .on("mouseout", function () {
-          label.attr("fill", null);
+          label.style("font-weight", null);
           circles.classed("active", false);
           vHistInner.datum(data).call(vHist);
         });
@@ -93,7 +93,7 @@ function scatterNav2() {
         var circles = selection.selectAll("circle")
         .filter(function(d) {return d[0] == thisData});
         label.on("mouseover", function () {
-          label.attr("fill", "blue");
+          label.style("font-weight", "bold");
           circles.classed("active", true);
           var filteredTestData = data.filter(function (d) {
             return d[0] == thisData;
@@ -102,7 +102,7 @@ function scatterNav2() {
           jHistInner.datum(filteredTestData).call(jHist);
         })
         .on("mouseout", function () {
-          label.attr("fill", null);
+          label.style("font-weight", null);
           circles.classed("active", false);
           jHistInner.datum(data).call(jHist);
         });
@@ -274,6 +274,17 @@ function scatterNav2() {
       });
 
       tooltip.style("visibility", "visible");
+
+      // highlight associated axis label
+      // This is hugely inefficient
+      selection.selectAll("g.xAxis g.tick")
+      .filter(function (d) { return d == thisV;})
+      .style("font-weight", "bold");
+
+      selection.selectAll("g.yAxis g.tick")
+      .filter(function (d) {  return d == thisJ;})
+      .style("font-weight", "bold");
+
     })
     .on("mousemove", function() {
       tooltip
@@ -284,6 +295,13 @@ function scatterNav2() {
       tooltip.html("");
       sampleCircles
       .classed("active", false);
+
+      selection.selectAll("g.xAxis g.tick")
+      .style("font-weight", null);
+
+      selection.selectAll("g.yAxis g.tick")
+      .style("font-weight", null);
+
     });
 
 

@@ -310,7 +310,7 @@ var comparisonRefresh = function () {
         return d[2];
       })
       ])
-      .range([0, 24]);
+      .range([0, 40]);
 
       my_names = nameMap(sampleNames);
 
