@@ -19,7 +19,7 @@ function scatterNav2() {
       .style("z-index", "10")
       .style("position", "absolute")
       .style("background", "white")
-      .style("class", "scatter-tooltip")
+      .attr("class", "scatter-tooltip")
       ;
     }
 
@@ -208,7 +208,7 @@ function scatterNav2() {
 
     var sampleTooltips = selection
     .append("g")
-    .attr("class", "tooltips")
+    .attr("class", "tooltip")
     .selectAll("g")
     .data(tooltipData)
     .enter()
@@ -276,9 +276,9 @@ function scatterNav2() {
       tooltip.style("visibility", "visible");
     })
     .on("mousemove", function() {
-      return tooltip.style("top",
-        (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
-
+      tooltip
+      .style("top",(d3.mouse(this)[1]+ 125)+"px")
+      .style("left",(d3.mouse(this)[0]+125)+"px");
     })
     .on("mouseout", function() {
       tooltip.html("");

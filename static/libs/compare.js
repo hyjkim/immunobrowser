@@ -314,12 +314,6 @@ var comparisonRefresh = function () {
 
       my_names = nameMap(sampleNames);
 
-      var my_nav = scatterNav()
-      .x(my_xScale)
-      .y(my_yScale)
-      .r(my_rScale)
-      .sampleName(my_names);
-
       navDiv.html('');
 
       var scatNav2 = scatterNav2()
