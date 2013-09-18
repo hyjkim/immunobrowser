@@ -11,4 +11,4 @@ def blast(blast_query, query):
     fasta.write(query)
     fasta.close()
     # Call external script
-    os.system('python external/blast_placeholder.py %s %s' % (blast_query.fasta_path(), blast_query.result_path()))
+    os.system('external/litSearch/gfClient localhost 8001 external/litSearch %s %s' % (blast_query.fasta_path(), blast_query.result_path()))
