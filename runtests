@@ -1,3 +1,4 @@
 #!/usr/bin/bash
 
-python manage.py test {clonotypes,samples,patients,cf_comparisons,dashboard,index} --traceback
+python manage.py test
+{clonotypes,samples,patients,cf_comparisons,dashboard,index,lit_search} --traceback

@@ -7,13 +7,47 @@
 
 {% block content %}
 <div class="col-md-12">
-Results for Blat Query {{blat_query.id}}<br />
+Results for Blat Query: {{blat_query.id}}<br />
 
 Original Submission  <a href="/{{blat_query.fasta_path}}"><span class="glyphicon
+    glyphicon-download"></span></a>
+Raw results <a href="/{{blat_query.result_path}}"><span class="glyphicon
     glyphicon-download"></span></a><br />
-Download results html <a href="/{{blat_query.result_path}}"><span class="glyphicon
-    glyphicon-download"></span></a><br />
-<iframe src="/{{blat_query.result_path}}">
-</iframe>
+{% for hit in blat_query.hits %}
+<div class="blat-hit">
+  Hit #{{forloop.counter}} <br />
+  Query: {{hit.q_name}} <br />
+  Target: <a href="{{hit.article.fulltext_url}}">{{hit.article.title}}</a>
+
+  <table class='table'>
+    <tr>
+      <td>
+        {{hit.q_start}}
+      </td>
+      <td>
+        {{hit.q_seq}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        {{hit.t_start}}
+      </td>
+      <td>
+        {{hit.t_seq}}
+      </td>
+    </tr>
+
+    <tr>
+      <td>{{hit.q_prot}}
+      </td>
+    </tr>
+    <tr>
+      <td>{{hit.t_prot}}
+      </td>
+    </tr>
+  </table>
+  Matched bases: {{hit.match}} <br />
+</div>
+{% endfor %}
 </div>
 {% endblock %}

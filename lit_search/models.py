@@ -1,4 +1,5 @@
 from django.db import models
+import os
 import gzip
 import csv
 import time
@@ -6,11 +7,56 @@ from utils.text_manipulation import convert
 from utils.utils import sub_dict_remove_strict
 from celery.result import AsyncResult
 from lit_search.tasks import blat
+from Bio.Seq import Seq
+from Bio.Alphabet import generic_dna
 
-# Create your models here.
+
+class BlatHitException(Exception):
+    pass
+
+def prot_seq(sequence):
+    # strip non base characters
+
+#    sequence = sequence.translate(None, '[^acgtACGT]')
+    print sequence
+    overflow = len(sequence) % 3
+    sequence = sequence[:-overflow]
+    return Seq(sequence, generic_dna).translate()
+
+class BlatHit():
+    '''
+    BlatHist contains all the fields of a pslx file (output from blat)
+    '''
+    article = None
+    fields = ['match', 'mismatch', 'rep_match', 'n', 'q_gap_count',
+              'q_gap_bases', 't_gap_count', 't_gap_bases', 'strand',
+              'q_name', 'q_size', 'q_start', 'q_end', 't_name', 't_size', 't_start',
+              't_end', 'block_count', 'block_sizes', 'q_starts', 't_starts',
+              'q_seq', 't_seq']
+
+    def __init__(self, *args):
+        if len(args) > 1:
+            raise BlatHitException('Expected single argument to init BlatHit')
+        result_string = args[0]
+        if not (isinstance(result_string, str)):
+            raise BlatHitException('Expected String, found %s' % (type(result_string)))
+        result_list = result_string.split('\t')
+        if not (len(result_list) == len(self.fields)):
+            raise BlatHitException('Expected %s fields, found %s' %(len(self.fields), len(result_list)))
+        for key, value in dict(zip(self.fields, result_list)).iteritems():
+            setattr(self, key, value)
+
+
+    def q_prot(self):
+        sequences = self.q_seq.split(',')
+        return prot_seq(sequences[0])
+
+    def t_prot(self):
+        sequences = self.t_seq.split(',')
+        return prot_seq(sequences[0])
+
 class BlatQuery(models.Model):
     task_id = models.CharField(max_length=36, null=True)
-
 
     def ready(self):
         '''
@@ -25,7 +71,7 @@ class BlatQuery(models.Model):
         Fasta files for queries are stored in media/lit_search/
         as '%s.fa'%(self.id)
         '''
-        return 'media/lit_search/%s.fa'%(self.id)
+        return 'media/lit_search/%s.fa' % (self.id)
 
     def result_path(self):
         '''
@@ -33,7 +79,55 @@ class BlatQuery(models.Model):
         Fasta files for queries are stored in media/lit_search/
         as '%s.html'%(self.id)
         '''
-        return 'media/lit_search/%s.psl'%(self.id)
+        return 'media/lit_search/%s.pslx' % (self.id)
+
+    def hits_safe(self):
+        '''
+        Returns a list of BlatHit objects and assigns the article field.
+        Hits the database once for each article, but can handle cases
+        where the article does not exist in the database
+        '''
+        blathits = []
+        # open result file
+        result_file = open(self.result_path(), 'r')
+        # skip first 5 lines (header lines)
+        for _ in xrange(5):
+            next(result_file)
+        # create a new hit file for each line
+        for line in result_file:
+            hit = BlatHit(line)
+            blathits.append(hit)
+            try:
+                hit.article = Article.objects.get(id=hit.t_name[:9])
+            except:
+                pass
+        # return list of BlatHit
+        return blathits
+
+    def hits(self):
+        '''
+        Returns a list of BlatHit objects and assigns the article field.
+        Tries to use an in_bulk query in order to minimize database hits
+        but this only works if sequences in fasta files are guaranteed
+        to be in the database
+        '''
+        blathits = []
+        # open result file
+        result_file = open(self.result_path(), 'r')
+        # skip first 5 lines (header lines)
+        for _ in xrange(5):
+            next(result_file)
+        # create a new hit file for each line
+        for line in result_file:
+            blathits.append(BlatHit(line))
+        # Get article objects
+        article_ids = [hit.t_name[:10] for hit in blathits]
+        articles = Article.objects.in_bulk(article_ids)
+        # add articles id with Article models
+        for hit in blathits:
+            hit.article = articles[hit.t_name[:10]]
+        # return list of BlatHit
+        return blathits
 
     @staticmethod
     def new_query(query):
@@ -51,17 +145,15 @@ class BlatQuery(models.Model):
 
         return blat_query
 
-# Create your models here.
 class Article(models.Model):
     '''
     Stores a paper from Max's literature mining pipeline
     '''
-    article_id = models.BigIntegerField()
+    id = models.CharField(max_length=12, primary_key=True)
     external_id = models.CharField(max_length=255)
     source = models.CharField(null=True, max_length=255)
     orig_file = models.CharField(null=True, max_length=30)
     journal = models.TextField(null=True)
-    print_issn = models.CharField(null=True, max_length=9)
     e_issn = models.CharField(null=True, max_length=9)
     journal_unique_id = models.CharField(null=True, max_length=30)
     year = models.IntegerField(null=True)
@@ -90,7 +182,7 @@ class Article(models.Model):
         num_to_insert = 500
         article_list = []
         article_cols = [
-            'article_id',
+            'id',
             'external_id',
             'source',
             'orig_file',
@@ -126,7 +218,7 @@ class Article(models.Model):
                     headers = row
                     headers = map(convert, headers)
                     if (headers[0] == '#article_id'):
-                        headers[0] = 'article_id'
+                        headers[0] = 'id'
                 elif len(article_list) >= num_to_insert:
                     Article.objects.bulk_create(article_list)
                     print "bulk updating %s articles" % (len(article_list))
@@ -139,7 +231,7 @@ class Article(models.Model):
                     if line_dict:
                         raise Exception('Unidentified column in file')
                     # convert int columns from string to int
-                    ints  = ['article_id', 'year', 'page', 'pmid', 'pmc_id']
+                    ints = ['year', 'page', 'pmid', 'pmc_id']
                     for field in ints:
                         if (article_dict[field] == ''):
                             article_dict[field] = None
@@ -151,8 +243,9 @@ class Article(models.Model):
                         if (article_dict['time'] == ''):
                             article_dict['time'] = None
                         else:
-                            article_dict['time'] = time.strftime("%Y-%m-%d %T",time.strptime(article_dict['time']))
+                            article_dict['time'] = time.strftime("%Y-%m-%d %T", time.strptime(article_dict['time']))
                     except Exception as e:
+                        print e
                         print article_dict['time']
                     # append article to list to be bulk created
                     count += 1

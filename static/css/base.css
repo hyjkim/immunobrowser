@@ -166,3 +166,11 @@ div.recombination {
     background-color: lightgrey;
   }
 
+  div.blat-hit {
+    border-radius:6px;
+    padding: 10px;
+    background-color: #f6f6f6;
+    margin: 10px;
+
+  }
+

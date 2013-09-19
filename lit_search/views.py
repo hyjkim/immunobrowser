@@ -43,8 +43,9 @@ def result(request, query_id):
         if blat_query.ready():
             return render(request, 'result.html', context)
         else:
-            return render(request, 'processing.html',context)
+            return render(request, 'processing.html', context)
     except Exception as e:
+        print type(e)
         print e
         return result_not_found(request)
 
