@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block nav %}
+{% load dashboard_tags %}
+{% menu_tag 'lit_search.views.new' %}
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12">
+  Enter your query in FASTA format:
+
+  <form action="{% url 'lit_search.views.submit' %}" method="post">
+    {% csrf_token %}
+    {{blat_form.as_p}}
+    <input type="Submit" value="Blat" class="btn btn-default" id="compare-update"/>
+  </form>
+</div>
+{% endblock %}

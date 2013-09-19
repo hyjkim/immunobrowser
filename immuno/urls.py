@@ -71,9 +71,9 @@ urlpatterns = patterns('',
                        url(r'^compare/samples', 'cf_comparisons.views.sample_compare'),
                        url(r'^compare_v2/?(\d+)?$', 'dashboard.views.compare_v2'),
 
-                       url(r'^blast$', 'pub_blast.views.new'),
-                       url(r'^blast/submit$', 'pub_blast.views.submit'),
-                       url(r'^blast/(\d+)$', 'pub_blast.views.result'),
+                       url(r'^lit_search$', 'lit_search.views.new'),
+                       url(r'^lit_search/submit$', 'lit_search.views.submit'),
+                       url(r'^lit_search/(\d+)$', 'lit_search.views.result'),
 
                        # api
                         url(r'^api/', include(v1_api.urls)),

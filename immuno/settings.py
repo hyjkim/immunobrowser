@@ -158,7 +158,7 @@ INSTALLED_APPS = (
     'cf_comparisons',
     'dashboard',
     'index',
-    'pub_blast',
+    'lit_search',
 )
 # Required by django-registration
 ACCOUNT_ACTIVATION_DAYS=1 # 24 hour activation window

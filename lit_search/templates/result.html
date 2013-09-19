@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block nav %}
+{% load dashboard_tags %}
+{% menu_tag 'lit_search.views.new' %}
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12">
+Results for Blat Query {{blat_query.id}}<br />
+
+Original Submission  <a href="/{{blat_query.fasta_path}}"><span class="glyphicon
+    glyphicon-download"></span></a><br />
+Download results html <a href="/{{blat_query.result_path}}"><span class="glyphicon
+    glyphicon-download"></span></a><br />
+<iframe src="/{{blat_query.result_path}}">
+</iframe>
+</div>
+{% endblock %}

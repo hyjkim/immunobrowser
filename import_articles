@@ -1,0 +1,5 @@
+#!/bin/bash
+for i in `ls external/litSearch/data/*.articles.gz`
+do 
+./manage.py import_articles $i
+done
