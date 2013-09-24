@@ -26,6 +26,8 @@ urlpatterns = patterns('',
 
                        url(r'^/?$', 'dashboard.views.home'),
                        # Dynamic
+                       url(r'^help$', 'dashboard.views.help'),
+
                        url(r'^patients/(\d+)/$', 'patients.views.patient_summary'),
 
                        url(r'^search$', 'dashboard.views.search'),

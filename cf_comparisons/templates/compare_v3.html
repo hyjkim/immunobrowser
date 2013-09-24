@@ -2,8 +2,10 @@
 {% load comparison_tags %}
 
 {% block css %}
-<style type="text/css" id="clonofilter-colors">
+<style type="text/css">
   body { overflow: hidden; }
+</style>
+<style type="text/css" id="clonofilter-colors">
   {% if comparison %}
   {% clonofilter_colors_tag comparison %}
   {% endif %}
@@ -49,8 +51,7 @@
 <div id="subcontent" class="col-md-9 pre-scrollable">
 
   <div id="spectratype-main" class ="col-md-12 view">
-    <div id="spectratype-header">
-      <h3>
+      <h3 class="view-title">
         Spectratype 
         <button id="tooltip-spectratype" class="btn btn-default" data-container="body" data-toggle="popover" title 
           data-original-title="More Information about Spectratypes"
@@ -69,16 +70,14 @@
           <span class="glyphicon glyphicon-info-sign"></span>
         </button>
       </h3>
-    </div>
-    <div id="spectratype-content">
+    <div id="spectratype-content" class='view-content'>
       <img src="{{STATIC_URL}}img/ajax-loader.gif">
     </div>
   </div>
 
 
   <div id="functionality-main" class ="col-md-12 view">
-    <div id="functionality-header">
-      <h3>
+      <h3 class='view-title'>
         Functionality 
         <button id="tooltip-functionality" class="btn btn-default" data-container="body" data-toggle="popover" title
           data-original-title="More Information about the Functionality plot"
@@ -95,15 +94,13 @@
         <span class="glyphicon glyphicon-info-sign"></span>
       </button>
       </h3>
-    </div>
-    <div id="functionality-content">
+    <div id="functionality-content" class='view-content'>
       <img src="{{STATIC_URL}}img/ajax-loader.gif">
     </div>
   </div>
 
   <div id="scatter-main" class="col-md-12 view">
-    <div id="scatter-header">
-      <h3>
+      <h3 class='view-title'>
         V-J usage 
 <button id="tooltip-scatter" class="btn btn-default" data-container="body" data-toggle="popover" title
           data-original-title="More Information about the V-J Usage scatterplot"
@@ -119,15 +116,13 @@
         <span class="glyphicon glyphicon-info-sign"></span>
       </button>
       </h3>
-    </div>
-    <div id="scatter-content">
+    <div id="scatter-content" class='view-content'>
       <img src="{{STATIC_URL}}img/ajax-loader.gif">
     </div>
   </div>
 
   <div id="shared-clones-main" class="col-md-12 view">
-    <div id="shared-clones-header">
-      <h3>
+      <h3 class='view-title'>
         Shared Clones 
 <button id="tooltip-shared-clones" class="btn btn-default" data-container="body" data-toggle="popover" title
           data-original-title="More Information about Shared Clones"
@@ -138,8 +133,7 @@
         <span class="glyphicon glyphicon-info-sign"></span>
       </button>
       </h3>
-    </div>
-    <div id="shared-clones-content">
+    <div id="shared-clones-content" class='view-content'>
       <img src="{{STATIC_URL}}img/ajax-loader.gif">
     </div>
   </div>

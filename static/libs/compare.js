@@ -209,7 +209,7 @@ var comparisonRefresh = function () {
         $('.filter-form').each(function () {
           var cfid = $(this).attr('id').replace('filter-','');
           var glyph = $(this).find('span.toggle');
-          var inner = $(this).find('div.filter-form-inner');
+          var inner = $(this).find('div.filter-body');
 
           unsubscribeTokens.push(eventBus.subscribe('hide ' + cfid, hideFilter($(this), glyph, inner)));
           unsubscribeTokens.push(eventBus.subscribe('hide all', hideFilter($(this), glyph, inner)));

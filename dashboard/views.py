@@ -10,6 +10,13 @@ from cf_comparisons.models import Comparison
 from dashboard.forms import SearchForm
 
 
+def help(request):
+    '''
+    A static view that is used to describe TCR-receptor sequencing technology,
+    its applications and describes the utility of the immunobrowser
+    '''
+    return render (request, 'help.html', {})
+
 def search(request):
     '''
     Reads a search term in from uri (via get or urlrouter) and returns

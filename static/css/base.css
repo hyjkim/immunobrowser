@@ -1,13 +1,13 @@
 html, body, table, th, label {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    outline: 0;
-    font-weight: 300;
-    font-style: normal;
-    font-size: 100%;
-    font-family:  "Helvetica Neue", 'Open Sans', Helvetica, Arial, sans-serif;
-    vertical-align: baseline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 100%;
+  font-family:  "Helvetica Neue", 'Open Sans', Helvetica, Arial, sans-serif;
+  vertical-align: baseline;
 }
 
 html, body {
@@ -38,14 +38,8 @@ body {
   overflow; auto;
 }
 
-.view {
-  border: 1px solid #eee;
-
-}
-
 .popover {
   max-width: 500px;
-
 }
 
 span.toggle, span.glyphicon-remove {
@@ -122,55 +116,68 @@ div.recombination {
 }
 
 .filter-form {
-  margin-right: 15px;
-  padding: 15px 15px 15px 15px;
-  border: 1px solid
+  padding: 10px;
+  border-radius:6px;
+  border: 1px solid;
+}
+.filter-expand {
+  float: left;
+}
+.filter-close {
+  float: right;
 }
 
- .axis path,
-  .axis line {
-    fill: none;
-    stroke: black;
-    shape-rendering: crispEdges;
-    opacity: 0.3;
-  }
-  .axis text {
-    font-size: 13px;
-  }
-  .tooltip {
-    position: absolute;
-    z-index: 10;
-  }
 
-  .grid .tick {
-    stroke: lightgrey;
-    opacity: 0.7;
-  }
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+  opacity: 0.3;
+}
+.axis text {
+  font-size: 13px;
+}
+.tooltip {
+  position: absolute;
+  z-index: 10;
+}
 
-  .grid .path {
-    stroke-width: 0;
-  }
+.grid .tick {
+  stroke: lightgrey;
+  opacity: 0.7;
+}
 
-  path.shared-clones {
-    opacity:0.35;
-  }
-  path.shared-clones.active {
-    opacity:0.75;
-  }
+.grid .path {
+  stroke-width: 0;
+}
 
-  path.active {
-    stroke-width: 3px;
-  }
+path.shared-clones {
+  opacity:0.35;
+}
+path.shared-clones.active {
+  opacity:0.75;
+}
 
-  td.active {
-    background-color: lightgrey;
-  }
+path.active {
+  stroke-width: 3px;
+}
 
-  div.blat-hit {
-    border-radius:6px;
-    padding: 10px;
-    background-color: #f6f6f6;
-    margin: 10px;
+td.active {
+  background-color: lightgrey;
+}
 
-  }
+.view {
+  border-radius:6px;
+  border: 1px solid rgb(231, 231, 231);
+  padding: 0px;
+  margin: 10px;
+}
 
+h3.view-title {
+  background-color: #f8f8f8;
+  border-bottom: 1px solid rgb(231, 231, 231);
+  margin: 0px;
+  padding: 10px;
+  padding-left: 15px;
+}

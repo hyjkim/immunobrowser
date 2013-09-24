@@ -14,7 +14,7 @@ Original Submission  <a href="/{{blat_query.fasta_path}}"><span class="glyphicon
 Raw results <a href="/{{blat_query.result_path}}"><span class="glyphicon
     glyphicon-download"></span></a><br />
 {% for hit in blat_query.hits %}
-<div class="blat-hit">
+<div class="view">
   Hit #{{forloop.counter}} <br />
   Query: {{hit.q_name}} <br />
   Target: <a href="{{hit.article.fulltext_url}}">{{hit.article.title}}</a>
