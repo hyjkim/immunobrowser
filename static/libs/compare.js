@@ -22,6 +22,7 @@
 //     I may remove the data requirement on the call back
 //     for now or make it optional
 var comparisonRefresh = function () {
+  var ajaxLoader = "/static/img/ajax-loader.gif";
   var filterFormDiv = d3.select("div#filter-forms");
   var navDiv = d3.select("#scatter-content");
   var spectratypeDiv = d3.select("#spectratype-content");
@@ -41,6 +42,7 @@ var comparisonRefresh = function () {
   // update the forms
   var init = function() {
     if (comparisonId) refresh();
+    else $('.view').hide();
     addSample();
     setupNav();
     setNavHeight();
@@ -49,6 +51,8 @@ var comparisonRefresh = function () {
 
   var refresh = function() {
     clearEventBus(); // Should clear eventBus of events that will disappear
+    $('#compare-intro').hide();
+    showComparisonViews();
     filterFormRefresh();
     clonofilterColorsRefresh();
     drawScatterNav();
@@ -56,6 +60,10 @@ var comparisonRefresh = function () {
     drawSharedClones();
     drawSpectratype();
   }
+
+  var showComparisonViews = function () {
+  $(".view").show();
+  };
 
   var clearEventBus = function() {
     unsubscribeTokens.forEach(function (token) {
@@ -274,6 +282,7 @@ var comparisonRefresh = function () {
   }
 
   var drawSpectratype = function () {
+    navDiv.html('<img src="'+ajaxLoader+'">');
     d3.json('/compare/'+comparisonId+'/spectratype_ajax', function(d) {
       var specData = d;
       spectratypeDiv.datum(d);
@@ -287,6 +296,7 @@ var comparisonRefresh = function () {
 
   var drawScatterNav = function() {
     var vdjFreq, vList, jList, sampleNames;
+    navDiv.html('<img src="'+ajaxLoader+'">');
 
     d3.json('/compare/'+comparisonId+'/vdj_freq_ajax', function(d) {
       vdjFreq = d['vdjFreq'];
@@ -332,6 +342,7 @@ var comparisonRefresh = function () {
   }
 
   var drawFunctionality = function () {
+    functDiv.html('<img src="'+ajaxLoader+'">');
     d3.json('/compare/'+comparisonId+'/functionality_ajax', function(d) {
       var functData = d['functionality'];
       var sampleNames = d['sampleNames'];
@@ -351,6 +362,7 @@ var comparisonRefresh = function () {
   }
 
   var drawSharedClones = function () {
+    sharedClonesDiv.html('<img src="'+ajaxLoader+'">');
     d3.json('/compare/'+comparisonId+'/shared_clones_ajax', function(d) {
       var aminoAcids = d3.map(d['aminoAcids'])
       var sampleNames = d['sampleNames']
