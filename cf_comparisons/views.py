@@ -100,7 +100,7 @@ def vdj_freq_ajax(request, comparison_id):
             }
     return HttpResponse(json.dumps(data), mimetype='application/json')
 
-def compare_v3(request, comparison_id):
+def compare_v3(request, comparison_id = None):
     from cf_comparisons.forms import SampleCompareForm
     sample_compare_form = SampleCompareForm()
     try:

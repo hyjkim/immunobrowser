@@ -1,26 +1,3 @@
-// Todo: change all events to use an eventBus
-//   subscribe all common events to the same name
-//   see if you need data
-//   call change events on various listeners
-//   call revert events on mouseout
-//     data could be useful for call to
-//     revert changes onto to specific items
-//     and call only a subset of subscriptions
-//     or data could be used as the selector
-//     onto which the activation or deactivation
-//     is applied.
-
-//     now i have nav.activate and nav.inactivate
-//     these take in a selection
-//     and i could pass these data to it in order
-//     for them to be uncalled
-
-//     or i could just specify the callback to call
-//     on the selection to begin with. still data
-//     might be useful elsewhere.
-
-//     I may remove the data requirement on the call back
-//     for now or make it optional
 var comparisonRefresh = function () {
   var ajaxLoader = "/static/img/ajax-loader.gif";
   var filterFormDiv = d3.select("div#filter-forms");
@@ -39,6 +16,14 @@ var comparisonRefresh = function () {
   var unsubscribeTokens = [];
   var eventBus = EventBus.newEventBus();
 
+
+  // Function to get search terms from url
+  
+  function getURLParameter(name) {
+    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+  }
+
+
   // update the forms
   var init = function() {
     if (comparisonId) refresh();
@@ -47,6 +32,9 @@ var comparisonRefresh = function () {
     setupNav();
     setNavHeight();
     enableTooltips();
+
+    // Enables back button for navigation
+    //    window.addEventListener("popstate", function(e) { loadPage(location.pathname); });
   }
 
   var refresh = function() {
@@ -62,7 +50,7 @@ var comparisonRefresh = function () {
   }
 
   var showComparisonViews = function () {
-  $(".view").show();
+    $(".view").show();
   };
 
   var clearEventBus = function() {
@@ -150,7 +138,7 @@ var comparisonRefresh = function () {
   }
 
   var enableTooltips = function () {
-  $('[id^=tooltip]').popover();
+    $('[id^=tooltip]').popover();
   }
 
   var clonofilterColorsRefresh = function () {
@@ -362,8 +350,20 @@ var comparisonRefresh = function () {
   }
 
   var drawSharedClones = function () {
+    // Load shared clones info from url
+    //
+    var sharedPage = getURLParameter('shared_page') || 1;
+    var sharedPerPage = getURLParameter('shared_perpage') || 10;
+    var sharedParams = $.param({
+      'page': sharedPage,
+      'per_page': sharedPerPage,
+    });
+    var url = '/compare/'+comparisonId+'/shared_clones_ajax?'+sharedParams;
     sharedClonesDiv.html('<img src="'+ajaxLoader+'">');
-    d3.json('/compare/'+comparisonId+'/shared_clones_ajax', function(d) {
+    console.log(url);
+
+    // Make ajax query
+    d3.json(url, function(d) {
       var aminoAcids = d3.map(d['aminoAcids'])
       var sampleNames = d['sampleNames']
 
@@ -376,15 +376,36 @@ var comparisonRefresh = function () {
       .datum(aminoAcids.entries())
       .call(mySharedClones);
 
-      var sharedPage = 1;
-      var sharedPerPage = 10;
+      // draw Shared Clones navigation
       var sharedNumPages = d['numPages'];
       var sharedCount = d['count'];
 
-      sharedClonesDiv.append('div')
-      .attr('class', 'shared-clones-nav')
+      var sharedClonesNav = sharedClonesDiv.append('div')
+      .attr('id', 'shared-clones-nav');
+
+      if (sharedPage > 1) {
+        var prev_params = $.param({
+          'shared_page': (sharedPage - 1),
+          'shared_perpage': sharedPerPage,
+        });
+        sharedClonesNav.append('span')
+        .html('<a href="?'+prev_params+'">Prev</a> ');
+      }
+
+      sharedClonesNav.append('span')
       .html('Page ' + sharedPage + 
       ' of ' + sharedNumPages);
+
+    if (sharedPage < sharedNumPages) {
+      var next_params = $.param({
+        'shared_page': (sharedPage + 1),
+        'shared_perpage': sharedPerPage,
+      });
+
+      sharedClonesNav.append('span')
+      .html(' <a href="?'+next_params+'">Next</a>');
+    }
+
     });
   }
 
