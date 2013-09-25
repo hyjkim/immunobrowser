@@ -111,7 +111,7 @@ class ComparsionModelMethodsTest(TestCase):
         '''
         from clonotypes.models import AminoAcid, ClonoFilter
 
-        shared_amino_acids = self.comparison.get_shared_amino_acids_counts()
+        shared_amino_acids, num_pages, count = self.comparison.get_shared_amino_acids_counts()
         self.assertIsInstance(shared_amino_acids, dict)
         self.assertNotEqual(shared_amino_acids, {})
         for aa_id, values in shared_amino_acids.iteritems():
@@ -122,7 +122,7 @@ class ComparsionModelMethodsTest(TestCase):
 
     def test_get_shared_amino_acids_counts_are_paginated(self):
         from django.core.paginator import Paginator
-        shared_amino_acids = self.comparison.get_shared_amino_acids_counts(per_page=1, page=1)
+        shared_amino_acids, num_pages, count = self.comparison.get_shared_amino_acids_counts(per_page=1, page=1)
         self.assertEqual(len(shared_amino_acids), 1)
 
     def test_get_shared_recombinations_counts_returns_a_nested_dict_of_floats(self):

@@ -8,18 +8,6 @@ class DashboardMenuTagTests(TestCase):
     Tests menu tag for correct activation
     '''
 
-    def test_menu_displays_link_to_logout_if_user_is_logged_in(self):
-        from test_utils.factories import UserFactory
-        from django.core.urlresolvers import reverse
-        password = 'incrediblysecurepassword'
-        user = UserFactory(password=password)
-        self.client.login(username=user.username, password=password)
-
-        url = reverse('django.contrib.auth.views.logout')
-        response = self.client.get(reverse('dashboard.views.home'))
-        self.assertIn(url, response.content)
-        self.fail('refactor')
-
     def test_menu_tag_should_display_search_query_when_passed_a_search_form(self):
         form_data = {'query': 'test123'}
         search_form = SearchForm(data=form_data)

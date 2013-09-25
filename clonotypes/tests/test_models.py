@@ -8,9 +8,6 @@ from test_utils.factories import AminoAcidFactory, SampleFactory, ClonotypeFacto
 
 
 class ClonotypeTest(TestCase):
-    def test_clonotype_belonging_to_a_private_sample_is_not_viewable(self):
-        self.fail('todo')
-
     def test_clonotypes_have_these_required_fields(self):
         s = SampleFactory()
         r = RecombinationFactory()
@@ -36,9 +33,6 @@ class ClonotypeTest(TestCase):
 
 
 class RecombinationModelTest(TestCase):
-
-    def test_recombination_belonging_to_only_to_a_private_clonotype_is_not_viewable(self):
-        self.fail('todo')
 
     def test_recombinations_have_an_optional_amino_acid(self):
         aa = AminoAcidFactory()
@@ -176,9 +170,6 @@ class AminoAcidModelTest(TestCase):
         AminoAcidFactory(sequence="CASSS")
         self.assertEqual(1, len(AminoAcid.objects.search(['cAS'])))
 
-    def test_amino_acid_belonging_to_only_to_a_private_recombination_is_not_viewable(self):
-        self.fail('todo')
-
     def test_amino_acid_should_have_amino_acid_sequence(self):
         data = {'sequence': 'CASS'}
         aa = AminoAcid()
@@ -281,7 +272,6 @@ class ClonoFilterModelTest(TestCase):
         aggregate = Clonotype.objects.aggregate(Min('copy'))
         min_copy = aggregate['copy__min']
         self.assertEqual(self.f.min_copy, min_copy)
-        self.fail('todo')
 
     def test_css_class_returns_clonofilter_class_string(self):
         self.assertEqual(self.f.css_class(), "cf-1")

@@ -28,7 +28,7 @@ class SharedClonotypesTagTests(TestCase):
         self.assertIn('td class="cf', self.t.render(self.c))
 
     def test_compare_shared_clonotypes_tag_passes_shared_amino_acid_counts_to_context_as_json(self):
-        shared_amino_acids_counts = self.comparison.get_shared_amino_acids_counts()
+        shared_amino_acids_counts, num_pages, count = self.comparison.get_shared_amino_acids_counts()
         context = shared_clones_tag(self.comparison)
         self.assertEqual(shared_amino_acids_counts, context['amino_acids'])
 
