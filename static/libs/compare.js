@@ -18,7 +18,6 @@ var comparisonRefresh = function () {
 
 
   // Function to get search terms from url
-  
   function getURLParameter(name) {
     return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
   }
@@ -352,8 +351,8 @@ var comparisonRefresh = function () {
   var drawSharedClones = function () {
     // Load shared clones info from url
     //
-    var sharedPage = getURLParameter('shared_page') || 1;
-    var sharedPerPage = getURLParameter('shared_perpage') || 10;
+    var sharedPage = parseInt(getURLParameter('shared_page')) || 1;
+    var sharedPerPage = parseInt(getURLParameter('shared_perpage')) || 10;
     var sharedParams = $.param({
       'page': sharedPage,
       'per_page': sharedPerPage,
