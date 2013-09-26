@@ -41,6 +41,7 @@ def result(request, query_id):
         blat_query = BlatQuery.objects.get(id=query_id)
         context = {'blat_query': blat_query}
         if blat_query.ready():
+            context.update({'hits_by_article': blat_query.hits_by_article()})
             return render(request, 'result.html', context)
         else:
             return render(request, 'processing.html', context)

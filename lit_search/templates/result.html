@@ -13,11 +13,12 @@ Original Submission  <a href="/{{blat_query.fasta_path}}"><span class="glyphicon
     glyphicon-download"></span></a>
 Raw results <a href="/{{blat_query.result_path}}"><span class="glyphicon
     glyphicon-download"></span></a><br />
-{% for hit in blat_query.hits %}
+{% for article, hits in hits_by_article.items %}
 <div class="view">
+  Target: <a href="{{article.fulltext_url}}">{{article.title}}</a>
+{% for hit in hits %}
   Hit #{{forloop.counter}} <br />
   Query: {{hit.q_name}} <br />
-  Target: <a href="{{hit.article.fulltext_url}}">{{hit.article.title}}</a>
 
   <table class='table'>
     <tr>
@@ -39,6 +40,7 @@ Raw results <a href="/{{blat_query.result_path}}"><span class="glyphicon
 
   </table>
   Matched bases: {{hit.match}} <br />
+{% endfor %}
 </div>
 {% endfor %}
 </div>

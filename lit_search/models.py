@@ -104,6 +104,19 @@ class BlatQuery(models.Model):
         # return list of BlatHit
         return blathits
 
+    def hits_by_article(self):
+        '''
+        Returns a dict of BlatHit objects where an article is the key
+        '''
+        from collections import defaultdict
+        from utils.utils import undefaulted
+
+        hit_dict = defaultdict(list)
+        hits = self.hits();
+        for hit in hits:
+            hit_dict[hit.article].append(hit);
+        return undefaulted(hit_dict)
+
     def hits(self):
         '''
         Returns a list of BlatHit objects and assigns the article field.
