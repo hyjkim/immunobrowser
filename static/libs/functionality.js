@@ -1,22 +1,42 @@
 function functionality2() {
-  var margin = {top: 10, right: 10, bottom: 20, left: 10},
+  var margin = {top: 30, right: 10, bottom: 10, left: 10},
   width = 800,
-  height = 200,
+  height,
   heightScale = 40,
   plotWidth = 400,
   labelWidth = 200,
-  legendWidth = 200,
+  legendHeightScale= 20,
+  xAxisHeight = 60,
+  tooltip,
   colorScale = d3.scale.ordinal(),
   nameMap = function(d) {return d},
   eventBus = EventBus.newEventBus();
 
   function plot (selection) {
+    if (typeof tooltip ==='undefined') {
+      tooltip = selection
+      .append("div")
+      .style("visibility", "hidden")
+      .style("z-index", "10")
+      .style("position", "absolute")
+      .style("background", "white")
+      .attr("class", "functionality-tooltip")
+      ;
+    }
+
     selection.each (function (data) {
       // Get sample IDs
       var sampleIds = data.map(function (d) {return d.key});
 
-      // Scale height 
-      height = sampleIds.length * heightScale + margin.bottom + margin.top;
+      // get set of productivity statuses
+      var prodStatuses = d3.set([].concat.apply([],data.map(function (d) {
+        return d3.map(d.values).keys();
+      }))).values();
+      var legendHeight = prodStatuses.length * legendHeightScale;
+      var legendScale = d3.scale.ordinal().domain(prodStatuses).rangeRoundBands([0,legendHeight]);
+
+      // Set height based on data 
+      height = sampleIds.length * heightScale + margin.bottom + margin.top + legendHeight + xAxisHeight;
 
       // Make svg and set some attributes
 
@@ -31,10 +51,10 @@ function functionality2() {
       .attr("transform", 'translate(' + (margin.left + labelWidth) + ',' + (margin.top) +')');
 
 
-      // get set of productivity statuses
-      var prodStatuses = d3.set([].concat.apply([],data.map(function (d) {
-        return d3.map(d.values).keys();
-      }))).values();
+      // draw legend with set of productivity statuses
+
+
+
 
       // map data such that each productivity status has a sample id and a
       // percentage
@@ -59,7 +79,7 @@ function functionality2() {
 
         var y = d3.scale.ordinal()
         .domain(sampleIds)
-        .rangeRoundBands([0, height - margin.top - margin.bottom], 0.1);
+        .rangeRoundBands([0, height - margin.top - margin.bottom - legendHeight - xAxisHeight], 0.1);
         //.rangeRoundBands([0, width - margin.left - margin.right]);
 
         var x = d3.scale.linear()
@@ -80,19 +100,16 @@ function functionality2() {
         .enter()
         .append('g')
         .attr('class', function (d) {return 'layer ' + d.key})
-        .style("fill", function(d, i) { return color(i); });
+        .style("fill", function(d,i) { return color(i); });
 
         var rects = layers.selectAll('rect')
         .data(function (d) {return d.values})
         .enter()
         .append('rect')
         .attr('x', function(d) {return x(d.y0 + d.y)})
-        //.attr('y', function(d) {return y(d.y)})
         .attr("y", function(d) { return y(d.x); })
         .attr('height', y.rangeBand())
-        .attr('width', function(d) { return x(d.y0) - x(d.y0 + d.y); });
-        //.attr("height", function(d) { return y(d.y); });
-
+        .attr('width', function(d) { return x(d.y0) - x(d.y0 + d.y); })
 
         // draw an y axis
         var gAxis = svg.append("g").attr('class', 'axis');
@@ -103,10 +120,16 @@ function functionality2() {
         .tickPadding(0)
         .orient('left');
 
-        gAxis.append('g')
+        var gYAxis = gAxis.append('g')
         .attr('class', 'y axis')
         .attr('transform', 'translate('+(margin.left+labelWidth)+','+margin.top+')')
         .call(yAxis);
+
+        // add y axis title
+        gYAxis.append('text')
+        .attr('class', 'title')
+        .text('Sample Names')
+        .attr('text-anchor', 'end');
 
         // Convert the sample id to sample names
         gAxis.selectAll('g .axis .tick text')
@@ -120,11 +143,37 @@ function functionality2() {
         .scale(x)
         .orient('bottom');
 
-        gAxis.append('g')
+        var gXAxis =gAxis.append('g')
         .attr('class', 'x axis')
         .call(xAxis)
-        .attr('transform', 'translate('+(margin.left+labelWidth)+','+(margin.top+sampleIds.length * heightScale)+')')
-        ;
+        .attr('transform', 'translate('+(margin.left+labelWidth)+','+(height-legendHeight - xAxisHeight)+')');
+
+        // draw x axis lable
+        gXAxis.append('text')
+        .attr('class', 'title')
+        .attr('x', 0)
+        .attr('y', 40)
+        .text('Fraction of all reads');
+
+        // draw the legend
+        var gLegend = svg.append('g').attr('class', 'legend')
+        .attr('transform', 'translate('+(margin.left + labelWidth)+','+ (margin.top + heightScale * sampleIds.length+xAxisHeight) + ')');
+
+        var legendBoxes = gLegend.selectAll('rect').data(prodStatuses)
+        .enter()
+        .append('rect')
+        .attr('height', 10)
+        .attr('width', 10)
+        .attr('x', 0)
+        .attr('y', function(d) {return legendScale(d)})
+        .style('fill', function(d,i) {return color(i)});
+
+        var legendText = gLegend.selectAll('text').data(prodStatuses)
+        .enter()
+        .append('text')
+        .attr('x', 20)
+        .attr('y', function(d) {return legendScale(d)+10})
+        .text(function(d) {return d});
         
 
     });

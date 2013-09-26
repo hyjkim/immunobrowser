@@ -135,8 +135,14 @@ div.recombination {
   shape-rendering: crispEdges;
   opacity: 0.3;
 }
-.axis text {
+.axis text,
+.legend text{
   font-size: 13px;
+}
+
+.axis text.title {
+  font-weight: bold;
+
 }
 .tooltip {
   position: absolute;
