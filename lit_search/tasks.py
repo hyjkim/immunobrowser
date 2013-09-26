@@ -12,4 +12,4 @@ def blat(blat_query, query):
     fasta.write(query)
     fasta.close()
     # Call external script
-    os.system('external/litSearch/gfClient -out=pslx localhost 8001 external/litSearch %s %s' % (blat_query.fasta_path(), blat_query.result_path()))
+    os.system('external/litSearch/gfClient -t=dnax -q=prot -out=pslx -minScore=0 localhost 8001 external/litSearch %s %s' % (blat_query.fasta_path(), blat_query.result_path()))
