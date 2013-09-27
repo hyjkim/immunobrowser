@@ -70,20 +70,6 @@ def search(request):
 
     return render(request, 'search.html', context)
 
-def remove_clonofilter(request):
-    '''
-    Given a comparison id and a clonofilter id from post
-    get or create a comparison without the specified clonofilter.
-    Returns updated comparison id via http response.
-    '''
-    if request.method == "POST":
-        comp = Comparison.objects.get(id=request.POST['comparison'])
-        cfs = [cf for cf in comp.clonofilters_all() if cf.id != int(request.POST['clonofilter'])]
-        new_comp, created = Comparison.get_or_create_from_clonofilters(cfs)
-        return HttpResponse(new_comp.id)
-    else:
-        return HttpResponseRedirect(reverse('cf_comparisons.views.compare_v3'))
-
 def home(request):
     context = {}
     return render(request, 'home.html', context)

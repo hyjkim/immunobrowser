@@ -126,36 +126,12 @@ class DashboardViewUnitTest(TestCase):
         self.assertEqual('sample_%s' % (str(s.id)), menu[0]['children'][0]['id'])
         self.assertEqual('sample_%s' % (str(s2.id)), menu[0]['children'][1]['id'])
 
-    def test_dashboard_should_show_all_patients_and_samples_in_hierarchical_sidebar(self):
-        pass
-
-
-
 
 class DashboardViewIntegrationTest(TestCase):
     ''' For testing dashboard stuff that requires calling the call stack '''
     def DONTtest_explorer_url_is_valid(self):
         ''' Not tested because other tests do the same thing '''
         self.client.get(reverse('dashboard.views.explorer'))
-
-    def test_remove_clonofilter_removes_a_clonofilter_from_a_comparison(self):
-        comp = ComparisonFactory()
-        cfs = list(comp.clonofilters_all())
-        del_cf = cfs.pop()
-
-        url = reverse('dashboard.views.remove_clonofilter')
-        post_data = {'comparison': comp.id, 'clonofilter': del_cf.id}
-        response = self.client.post(url, data=post_data)
-        self.assertNotEqual(comp.id, response.content)
-        new_comp = Comparison.objects.get(id=response.content)
-        self.assertEqual([cf.id for cf in cfs], [cf.id for cf in new_comp.clonofilters_all()])
-
-    def test_compare_v2_shows_sample_select_template_tag(self):
-        url = reverse('dashboard.views.compare_v2')
-        response = self.client.get(url)
-        ComparisonFactory()
-        comp = Comparison.objects.get()
-        self.assertIn('<select multiple="multiple" id="id_samples"', response.content)
 
     def test_explorer_should_pass_patients_to_template_via_context(self):
         from patients.models import Patient
@@ -206,41 +182,3 @@ class DashboardViewIntegrationTest(TestCase):
                               args=[sample.id]), response.content)
 
 
-class UserUnitTest(TestCase):
-    '''
-    Testing mockable portions of the views
-    '''
-
-    def setUp(self):
-        self.renderPatch = patch('dashboard.views.render', render_echo)
-        self.renderPatch.start()
-        self.request = FakeRequestFactory()
-
-    def tearDown(self):
-        self.renderPatch.stop()
-
-class UserIntegrationTest(TestCase):
-    '''
-    For testing user interaction tests
-    '''
-
-    def test_compare_v2_does_not_display_link_to_login_if_user_is_logged_in(self):
-        password = 'incrediblysecurepassword'
-        user = UserFactory(password=password)
-        self.client.login(username=user.username, password=password)
-
-        response = self.client.get(reverse('dashboard.views.compare_v2'))
-        self.assertNotIn(reverse('django.contrib.auth.views.login'), response.content)
-
-
-    def test_compare_v2_has_link_to_create_a_new_user(self):
-        response = self.client.get(reverse('django.contrib.auth.views.login'))
-        self.assertIn(reverse('registration_register'), response.content)
-
-    def test_compare_v2_has_link_to_login(self):
-        response = self.client.get(reverse('django.contrib.auth.views.login'))
-        self.assertIn(reverse('django.contrib.auth.views.login'), response.content)
-
-    def test_login_page_exists(self):
-        response = self.client.get(reverse('django.contrib.auth.views.login'))
-        self.assertTrue(response.content)

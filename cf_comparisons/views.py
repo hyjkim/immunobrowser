@@ -8,6 +8,20 @@ from samples.models import Sample
 import json
 
 
+def remove_clonofilter(request):
+    '''
+    Given a comparison id and a clonofilter id from post
+    get or create a comparison without the specified clonofilter.
+    Returns updated comparison id via http response.
+    '''
+    if request.method == "POST":
+        comp = Comparison.objects.get(id=request.POST['comparison'])
+        cfs = [cf for cf in comp.clonofilters_all() if cf.id != int(request.POST['clonofilter'])]
+        new_comp, created = Comparison.get_or_create_from_clonofilters(cfs)
+        return HttpResponse(new_comp.id)
+    else:
+        return HttpResponseRedirect(reverse('cf_comparisons.views.compare_v3'))
+
 def add_samples_v2(request):
     '''
     This should be moved to cf_comparisons

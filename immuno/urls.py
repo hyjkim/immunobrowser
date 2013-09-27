@@ -36,7 +36,6 @@ urlpatterns = patterns('',
                        url(r'^dashboard/compare/(\d+)?$', 'dashboard.views.dashboard_comparison'),
                        url(r'^dashboard/menu.json$', 'dashboard.views.menu_json'),
                        url(r'^dashboard/add_samples$', 'dashboard.views.add_samples'),
-                       url(r'^dashboard/remove_clonofilter$', 'dashboard.views.remove_clonofilter'),
 
                        url(r'^amino_acid/(\d+)?$', 'clonotypes.views.amino_acid_detail'),
 
@@ -54,6 +53,7 @@ urlpatterns = patterns('',
 
                        url(r'^clonotype/(\d+)$', 'clonotypes.views.detail'),
 
+                       url(r'^compare/remove_clonofilter$', 'cf_comparisons.views.remove_clonofilter'),
                        url(r'^compare/add_samples_v2$', 'cf_comparisons.views.add_samples_v2'),
                        url(r'^compare/?(\d+)?/scatter_nav', 'cf_comparisons.views.scatter_nav'),
                        url(r'^compare/(\d+)/clonofilter_colors', 'cf_comparisons.views.clonofilter_colors'),

@@ -132,6 +132,18 @@ class ComparisonsViewIntegrationTest(TestCase):
         make_fake_comparison_with_2_samples()
         self.comparison = Comparison.objects.get()
 
+    def test_remove_clonofilter_removes_a_clonofilter_from_a_comparison(self):
+        comp = ComparisonFactory()
+        cfs = list(comp.clonofilters_all())
+        del_cf = cfs.pop()
+
+        url = reverse('cf_comparisons.views.remove_clonofilter')
+        post_data = {'comparison': comp.id, 'clonofilter': del_cf.id}
+        response = self.client.post(url, data=post_data)
+        self.assertNotEqual(comp.id, response.content)
+        new_comp = Comparison.objects.get(id=response.content)
+        self.assertEqual([cf.id for cf in cfs], [cf.id for cf in new_comp.clonofilters_all()])
+
     def DONTtest_clonotype_tracking_view_reads_comparison_and_amino_acid_sequences_from_post(self):
         self.fail('todo')
 
@@ -228,13 +240,6 @@ class ComparisonsViewIntegrationTest(TestCase):
         response = self.client.post(url, {'update': json.dumps(update_dict)})
         self.assertNotEqual(str(self.comparison.id), response)
         self.assertEqual(response.content, '2')
-
-    def test_comparison_has_links_to_clonofilters_within_comparison(self):
-        response = self.client.get(
-            reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
-        for clonofilter in self.comparison.clonofilters_all():
-            url = "%s?clonofilter=%d" % (reverse('samples.views.summary', args=[clonofilter.sample.id]), clonofilter.id)
-            self.assertIn(url, response.content)
 
     def test_comparison_view_shows_a_table_of_raw_and_normalized_sample_sizes(self):
         response = self.client.get(

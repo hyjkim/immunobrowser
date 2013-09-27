@@ -154,7 +154,7 @@ var comparisonRefresh = function () {
     cfId = $(this).attr('id').match(/\d+/)[0];
     postData = [{'name':'comparison', 'value': comparisonId},
     {'name':'clonofilter', 'value': cfId}];
-    $.post('/dashboard/remove_clonofilter',
+    $.post('/compare/remove_clonofilter',
       postData, function (compId) {
         comparisonId = compId;
         window.history.pushState(null, '', '/compare/' + compId);
