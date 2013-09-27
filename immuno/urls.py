@@ -32,11 +32,6 @@ urlpatterns = patterns('',
 
                        url(r'^search$', 'dashboard.views.search'),
 
-                       url(r'^dashboard$', 'dashboard.views.explorer'),
-                       url(r'^dashboard/compare/(\d+)?$', 'dashboard.views.dashboard_comparison'),
-                       url(r'^dashboard/menu.json$', 'dashboard.views.menu_json'),
-                       url(r'^dashboard/add_samples$', 'dashboard.views.add_samples'),
-
                        url(r'^amino_acid/(\d+)?$', 'clonotypes.views.amino_acid_detail'),
 
                        url(r'^clonofilter/(\d+)/domination.png', 'clonotypes.views.domination_graph'),
@@ -72,7 +67,6 @@ urlpatterns = patterns('',
                        url(r'^compare/?$', 'cf_comparisons.views.compare_v3'),
                        url(r'^compare/(\d+)?/', 'cf_comparisons.views.compare_v3'),
                        url(r'^compare/samples', 'cf_comparisons.views.sample_compare'),
-                       url(r'^compare_v2/?(\d+)?$', 'dashboard.views.compare_v2'),
 
                        url(r'^lit_search$', 'lit_search.views.new'),
                        url(r'^lit_search/submit$', 'lit_search.views.submit'),
