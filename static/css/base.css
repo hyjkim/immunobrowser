@@ -196,33 +196,33 @@ span[class|="aa"] {
 }
 
 span.aa-blue {
-background:#197FE5;
+background:rgba(25, 127, 229, 0.4);
 }
 
 span.aa-red {
-background:#E53319;
+background:rgba(229, 51, 25, 0.4);
 }
 
 span.aa-green {
-background:#19CC19;
+background:rgba(25, 204, 25, 0.4);
 }
 
 span.aa-pink {
-background:#E57F7F;
+background:rgba(229, 127, 127, 0.4);
 }
 
 span.aa-magenta {
-background:#CC4CCC;
+background:rgba(204, 76, 204, 0.4);
 }
 
 span.aa-orange {
-background:#E5994C;
+background:rgba(229, 153, 76, 0.4);
 }
 
 span.aa-cyan {
-background:#19B2B2;
+background:rgba(25, 178, 178, 0.4);
 }
 
 span.aa-yellow {
-background:#B0B000;
+background:rgba(176, 176, 0, 0.4);
 }

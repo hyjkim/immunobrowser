@@ -295,6 +295,7 @@ class ClonoFilter(models.Model):
         # The following is my hacky way to grab a default clonofilter
         # with no filter values applied without creating a new object
         # for each request
+
         cf_dict = model_to_dict(cf)
         cf_dict['sample'] = sample
         cf_dict['norm_factor'] = cf.size()

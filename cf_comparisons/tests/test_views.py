@@ -1,11 +1,11 @@
 from django.test import TestCase
-from test_utils.factories import render_echo, FakeRequestFactory
+from test_utils.factories import render_echo, FakeRequestFactory, ComparisonFactory
 from django.core.urlresolvers import reverse
 from mock import patch
 from test_utils.ghetto_factory import make_fake_comparison_with_2_samples
 from cf_comparisons.models import Comparison
 from samples.models import Sample
-from cf_comparisons.views import compare, bubble, sample_compare, scatter_nav, shared_clones, background_colors, compare_v3
+from cf_comparisons.views import compare, bubble, sample_compare, scatter_nav, shared_clones, background_colors, compare_v3, add_samples_v2
 from cf_comparisons.forms import SampleCompareForm
 
 
@@ -148,6 +148,33 @@ class ComparisonsViewIntegrationTest(TestCase):
                     self.comparison.id]),
             response.content)
 
+    def test_comparison_view_renders_comparison_template(self):
+        from test_utils.ghetto_factory import make_fake_comparison_with_2_samples
+        from cf_comparisons.models import Comparison
+        make_fake_comparison_with_2_samples()
+        comparison = Comparison.objects.get()
+        response = self.client.get(reverse('dashboard.views.dashboard_comparison', args=[comparison.id]))
+        self.assertTemplateUsed(response, 'dashboard_comparison.html')
+
+    def test_add_samples_v2_adds_new_samples_to_existing_in_comparison_and_returns_new_comp_id(self):
+        from test_utils.factories import SampleFactory
+        comp = ComparisonFactory()
+        sample = SampleFactory()
+
+        old_cfs = comp.clonofilters_all()
+        old_sample_set = set([cf.sample for cf in comp.clonofilters_all()])
+
+        url = reverse('cf_comparisons.views.add_samples_v2')
+        post_data = {'comparison': comp.id, 'samples': [sample.id]}
+        response = self.client.post(url,
+                                    data=post_data)
+
+        new_comp_id = response.content
+        new_comp = Comparison.objects.get(id=new_comp_id)
+        new_sample_set = set([cf.sample for cf in new_comp.clonofilters_all()])
+        self.assertTrue(sample in new_sample_set)
+        self.assertTrue(old_sample_set.issubset(new_sample_set))
+
     def test_shared_clone_view_renders_the_same_as_template_tag(self):
         from django.template import Template, Context
         t = Template(
@@ -179,7 +206,7 @@ class ComparisonsViewIntegrationTest(TestCase):
     def test_update_view_takes_in_a_dict_with_string_ids_from_post_and_returns_a_new_comparison_id(self):
         import json
         url = reverse('cf_comparisons.views.update', args=[self.comparison.id])
-        cfs = self.comparison.clonofilters.all()
+        cfs = self.comparison.clonofilters_all()
 
         update_dict = {}
         for cf in cfs:
@@ -192,7 +219,7 @@ class ComparisonsViewIntegrationTest(TestCase):
     def test_update_view_takes_in_a_request_from_post_and_returns_json_with_comparison_id(self):
         import json
         url = reverse('cf_comparisons.views.update', args=[self.comparison.id])
-        cfs = self.comparison.clonofilters.all()
+        cfs = self.comparison.clonofilters_all()
 
         update_dict = {}
         for cf in cfs:
@@ -205,7 +232,7 @@ class ComparisonsViewIntegrationTest(TestCase):
     def test_comparison_has_links_to_clonofilters_within_comparison(self):
         response = self.client.get(
             reverse('cf_comparisons.views.compare', args=[self.comparison.id]))
-        for clonofilter in self.comparison.clonofilters.all():
+        for clonofilter in self.comparison.clonofilters_all():
             url = "%s?clonofilter=%d" % (reverse('samples.views.summary', args=[clonofilter.sample.id]), clonofilter.id)
             self.assertIn(url, response.content)
 
@@ -215,7 +242,7 @@ class ComparisonsViewIntegrationTest(TestCase):
         self.assertIn("Number of Recombinations", response.content)
         self.assertIn("Raw Counts", response.content)
         self.assertIn("Normalized Counts", response.content)
-        for clonofilter in self.comparison.clonofilters.all():
+        for clonofilter in self.comparison.clonofilters_all():
             self.assertIn(str(clonofilter.sample), response.content)
 
     def test_compare_shared_clonotypes_should_link_to_clonotype_detail(self):
@@ -304,7 +331,7 @@ class ComparisonsViewIntegrationTest(TestCase):
             response.content)
 
     def test_compare_view_shows_filters_for_all_clonofilters(self):
-        clonofilters = self.comparison.clonofilters.all()
+        clonofilters = self.comparison.clonofilters_all()
         samples = [clonofilter.sample for clonofilter in clonofilters]
         response = self.client.get(reverse('cf_comparisons.views.compare',
                                            args=[self.comparison.id]))

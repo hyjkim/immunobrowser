@@ -4,6 +4,7 @@
 # http://chase-seibert.github.com/blog/2012/07/27/faster-django-view-unit-tests-with-mocks.html
 
 import factory
+import json
 #from mock import patch
 from django.http import HttpRequest
 from django.contrib.auth.models import User
@@ -171,10 +172,8 @@ class ComparisonFactory(factory.Factory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         comp = super(ComparisonFactory, cls)._prepare(create, **kwargs)
-        comp.clonofilters = [
+        comp._clonofilters = json.dumps([
                 ClonoFilterFactory().id,
                 ClonoFilterFactory().id
-                ]
+                ])
         return comp
-
-

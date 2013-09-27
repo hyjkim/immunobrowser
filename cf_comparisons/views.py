@@ -4,8 +4,32 @@ from django.core.urlresolvers import reverse
 from cf_comparisons.models import Comparison
 from clonotypes.forms import ClonoFilterForm
 from clonotypes.models import ClonoFilter, Recombination
+from samples.models import Sample
 import json
 
+
+def add_samples_v2(request):
+    '''
+    This should be moved to cf_comparisons
+    Processes an ajax request.
+    Given an array of sampleId's, returns an array of
+    clonofilter forms. The clonofilter forms are then
+    submitted to generate a new comparison id which is
+    used to generate all interactive dataplots.
+    '''
+    if request.method  == "POST":
+        sample_ids = [int(i) for i in request.POST.getlist('samples')]
+        samples = Sample.objects.filter(id__in=sample_ids)
+        # See if there is an existing sample
+        try:
+            old_comparison = Comparison.objects.get(id=request.POST['comparison'])
+            comparison = old_comparison.add_samples(samples)
+        except:
+            comparison = Comparison.default_from_samples(samples)
+
+        return HttpResponse(comparison.id)
+    else:
+        return HttpResponseRedirect(reverse('cf_comparisons.views.compare_v3'))
 
 def spectratype_ajax(request, comparison_id):
     '''
@@ -40,7 +64,7 @@ def shared_clones_ajax(request, comparison_id):
 def functionality_ajax(request, comparison_id):
     comparison = Comparison.objects.get(id=comparison_id)
     comp_functionality = []
-    for cf in comparison.clonofilters.all():
+    for cf in comparison.clonofilters_all():
         cf_functionality = {}
         values = {}
         for key, value in cf.functionality_dict().iteritems():
@@ -49,7 +73,7 @@ def functionality_ajax(request, comparison_id):
         cf_functionality['values'] = values
         comp_functionality.append(cf_functionality)
 
-    sample_names = dict([(clonofilter.id,str(clonofilter.sample)) for clonofilter in comparison.clonofilters.all()])
+    sample_names = dict([(clonofilter.id,str(clonofilter.sample)) for clonofilter in comparison.clonofilters_all()])
 
     data = {'functionality':  comp_functionality,
             'sampleNames': sample_names,
@@ -62,7 +86,7 @@ def update_clonofilters(request, comparison_id):
     comparison = Comparison.objects.get(id=comparison_id)
     if request.method == 'POST':
 #        num_forms = int(request.POST['num_forms'])
-        cfids = [cf.id for cf in comparison.clonofilters.all()]
+        cfids = [cf.id for cf in comparison.clonofilters_all()]
 
         cf_forms = [ClonoFilterForm(request.POST, prefix=str(x))
                     for x in cfids]
@@ -89,7 +113,7 @@ def clonofilter_colors(request, comparison_id):
 
 def vdj_freq_ajax(request, comparison_id):
     comparison = Comparison.objects.get(id=comparison_id)
-    clonofilters = sorted(comparison.clonofilters.all())
+    clonofilters = sorted(comparison.clonofilters_all())
 
     sample_names = dict([(clonofilter.id,str(clonofilter.sample)) for clonofilter in clonofilters])
 
@@ -166,7 +190,7 @@ def d3_test(request, comparison_id):
     from django.utils import simplejson as json
     from matplotlib.colors import rgb2hex
     comparison = Comparison.objects.get(id=comparison_id)
-    clonofilters = sorted(comparison.clonofilters.all())
+    clonofilters = sorted(comparison.clonofilters_all())
     sample_names = dict([(clonofilter.id,str(clonofilter.sample)) for clonofilter in clonofilters])
     vj_counts_dict_dict= dict([(clonofilter.id, clonofilter.vj_counts_dict())
                       for clonofilter in clonofilters])
@@ -321,13 +345,13 @@ def spectratype(request, comparison_id):
 
     # Get average cdr3 sums
     average = defaultdict(lambda: 0)
-    for clonofilter in comp.clonofilters.all():
+    for clonofilter in comp.clonofilters_all():
         cdr3_sums = array(clonofilter.cdr3_length_sum())
         for x, y in cdr3_sums:
             average[x] += y
 
     # scale the average
-    averaged_values = array(average.values()) / len(comp.clonofilters.all())
+    averaged_values = array(average.values()) / len(comp.clonofilters_all())
     ax.plot(average.keys(), averaged_values, color="grey")
 
 
@@ -359,7 +383,7 @@ def bubble(request, comparison_id):
     import numpy as np
 
     comparison = Comparison.objects.get(id=comparison_id)
-    clonofilters = sorted(comparison.clonofilters.all())
+    clonofilters = sorted(comparison.clonofilters_all())
     response = HttpResponse(content_type='image/png')
     fig = Figure()
     canvas = FigureCanvas(fig)

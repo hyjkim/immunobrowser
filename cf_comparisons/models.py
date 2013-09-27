@@ -2,17 +2,18 @@ from django.db import models
 from clonotypes.models import ClonoFilter, Recombination
 from utils.utils import undefaulted
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+import json
 
 
 class Comparison(models.Model):
-    clonofilters = models.ManyToManyField(ClonoFilter)
+    _clonofilters = models.TextField(null=True, db_column='clonofilters_list')
 
     def cdr3_length_sums(self):
         '''
         Calls clonofilter model method for all clonofilters in a comparison
         and returns some json friendly stuff.
         '''
-        clonofilters = self.clonofilters.all()
+        clonofilters = self.clonofilters_all()
         returnable = []
         for cf in clonofilters:
             returnable += cf.cdr3_length_sum_d3()
@@ -24,7 +25,7 @@ class Comparison(models.Model):
         Returns a list of lists containing frequences of each
         v_family-j_gene pair and the clonofilter id
         '''
-        clonofilters = sorted(self.clonofilters.all())
+        clonofilters = sorted(self.clonofilters_all())
         vj_counts_dict_dict= dict([(clonofilter.id, clonofilter.vj_counts_dict())
                         for clonofilter in clonofilters])
 
@@ -57,7 +58,7 @@ class Comparison(models.Model):
         Given an array of sample ids, add them to the current comparison
         and then return a new comparison
         '''
-        cfs = list(self.clonofilters.all())
+        cfs = list(self.clonofilters_all())
 
         new_cfs = [ClonoFilter.default_from_sample(sample)
                                 for sample in samples]
@@ -75,7 +76,7 @@ class Comparison(models.Model):
         'key' contains the clonofilter id and 'values' stores a dictionary
         with filter parameters.
         '''
-        cfs = self.clonofilters.all()
+        cfs = self.clonofilters_all()
         colors = self.colors()
         new_colors = {}
         new_cfs = []
@@ -123,7 +124,7 @@ class Comparison(models.Model):
         from matplotlib import cm
         from matplotlib.colors import rgb2hex
         returnable = {}
-        cfs = self.clonofilters.all()
+        cfs = self.clonofilters_all()
         cf_colors = ComparisonColor.objects.filter(comparison=self, clonofilter__in=cfs).all()
         for cf_color in cf_colors:
             try:
@@ -163,7 +164,7 @@ class Comparison(models.Model):
         '''
         from clonotypes.forms import ClonoFilterForm
 
-        clonofilters = self.clonofilters.all()
+        clonofilters = self.clonofilters_all()
         filter_forms = {}
         for clonofilter in clonofilters:
             filter_forms[clonofilter] = ClonoFilterForm(initial=ClonoFilter.objects.filter(
@@ -176,7 +177,7 @@ class Comparison(models.Model):
         '''
         from clonotypes.forms import ClonoFilterForm
 
-        clonofilters = self.clonofilters.all()
+        clonofilters = self.clonofilters_all()
         filter_forms = []
         for index, clonofilter in enumerate(clonofilters):
             filter_forms.append(ClonoFilterForm(initial=ClonoFilter.objects.filter(
@@ -190,7 +191,7 @@ class Comparison(models.Model):
         '''
         import pylab
         cm = pylab.get_cmap('gist_rainbow')
-        clonofilters = sorted(self.clonofilters.all())
+        clonofilters = sorted(self.clonofilters_all())
         returnable = [cm(1. * i / len(clonofilters))
                       for i in range(len(clonofilters))]
         return returnable
@@ -203,7 +204,7 @@ class Comparison(models.Model):
         import pylab
 
         returnable = {}
-        clonofilters = sorted(self.clonofilters.all())
+        clonofilters = sorted(self.clonofilters_all())
         cm = pylab.get_cmap('gist_rainbow')
         for index, clonofilter in enumerate(clonofilters):
             returnable[clonofilter] = cm(1. * index / len(clonofilters))
@@ -214,7 +215,7 @@ class Comparison(models.Model):
         Returns a queryset of samples associated with this comparsion
         '''
         samples = [
-            clonofilter.sample for clonofilter in self.clonofilters.all()]
+            clonofilter.sample for clonofilter in self.clonofilters_all()]
         return samples
 
     def get_amino_acids(self):
@@ -239,7 +240,7 @@ class Comparison(models.Model):
         '''
         from clonotypes.models import Clonotype
         returnable = Clonotype.objects.none()
-        for clonofilter in self.clonofilters.all():
+        for clonofilter in self.clonofilters_all():
             returnable |= clonofilter.get_clonotypes()
 
         return returnable
@@ -335,7 +336,7 @@ class Comparison(models.Model):
         from django.db.models import Q
 
         # Get a list of clonofilters
-        clonofilters = self.clonofilters.all()
+        clonofilters = self.clonofilters_all()
         # Get a list of sample ids
         samples = self.get_samples()
         # Get a dict of sample id to clonofilter ids
@@ -392,7 +393,7 @@ class Comparison(models.Model):
         returnable = defaultdict(lambda: defaultdict(lambda: .0))
 
         # Get a list of clonofilters
-        clonofilters = self.clonofilters.all()
+        clonofilters = self.clonofilters_all()
         # Get a list of sample ids
         samples = self.get_samples()
 
@@ -427,7 +428,7 @@ class Comparison(models.Model):
         shared_clonotypes = [[]]
         # Get a list of sample ids
         samples = [
-            clonofilter.sample for clonofilter in self.clonofilters.all()]
+            clonofilter.sample for clonofilter in self.clonofilters_all()]
         # Get all nucleotide_sequences belonging to samples and then only report those
         # that have at least len(samples) shared clonotypes
         returnable = defaultdict(list)
@@ -463,7 +464,7 @@ class Comparison(models.Model):
         shared_clonotypes = [[]]
         # Get a list of sample ids
         samples = [
-            clonofilter.sample for clonofilter in self.clonofilters.all()]
+            clonofilter.sample for clonofilter in self.clonofilters_all()]
         # Get all nucleotide_sequences belonging to samples and then only report those
         # that have at least len(samples) shared clonotypes
         returnable = defaultdict(list)
@@ -498,8 +499,33 @@ class Comparison(models.Model):
 
         return comparison
 
+    def clonofilters_all(self):
+        jsonDec = json.decoder.JSONDecoder()
+        try:
+            cfids = jsonDec.decode(self._clonofilters)
+            if len(cfids):
+                return ClonoFilter.objects.filter(id__in=cfids)
+        except:
+            return []
+
     @staticmethod
     def get_or_create_from_clonofilters(clonofilters):
+        '''
+        Given a list of clonofilters, checks to see if there is a comparison
+        instance with exactly that list of clonofilters. If there is not one,
+        create a new comparison instance with that exact list
+        '''
+        cfids = [cf.id for cf in clonofilters]
+        if len(cfids):
+            cfids.sort()
+            comparison, created = Comparison.objects.get_or_create(_clonofilters=json.dumps(cfids))
+            return comparison, created
+        else:
+            comparison, created = Comparison.objects.get_or_create(_clonofilters='[]')
+            return comparison, created
+
+    @staticmethod
+    def get_or_create_from_clonofilters_defunct(clonofilters):
         '''
         Given a list of clonofilters, checks to see if there is a comparison
         instance with exactly that list of clonofilters. If there is not one,
@@ -530,7 +556,7 @@ class Comparison(models.Model):
         '''
         Returns a dictionary of sample names indexed by clonofilter id
         '''
-        return dict([(clonofilter.id,str(clonofilter.sample)) for clonofilter in self.clonofilters.all()])
+        return dict([(clonofilter.id,str(clonofilter.sample)) for clonofilter in self.clonofilters_all()])
 
 
 class ComparisonColor(models.Model):

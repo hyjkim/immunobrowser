@@ -78,34 +78,11 @@ def remove_clonofilter(request):
     '''
     if request.method == "POST":
         comp = Comparison.objects.get(id=request.POST['comparison'])
-        cfs = [cf.id for cf in comp.clonofilters.all() if cf.id != int(request.POST['clonofilter'])]
+        cfs = [cf for cf in comp.clonofilters_all() if cf.id != int(request.POST['clonofilter'])]
         new_comp, created = Comparison.get_or_create_from_clonofilters(cfs)
         return HttpResponse(new_comp.id)
     else:
-        return HttpResponseRedirect(reverse('dashboard.views.compare_v2'))
-
-def add_samples_v2(request):
-    '''
-    This should be moved to cf_comparisons
-    Processes an ajax request.
-    Given an array of sampleId's, returns an array of
-    clonofilter forms. The clonofilter forms are then
-    submitted to generate a new comparison id which is
-    used to generate all interactive dataplots.
-    '''
-    if request.method  == "POST":
-        sample_ids = [int(i) for i in request.POST.getlist('samples')]
-        samples = Sample.objects.filter(id__in=sample_ids)
-        # See if there is an existing sample
-        try:
-            old_comparison = Comparison.objects.get(id=request.POST['comparison'])
-            comparison = old_comparison.add_samples(samples)
-        except:
-            comparison = Comparison.default_from_samples(samples)
-
-        return HttpResponse(comparison.id)
-    else:
-        return HttpResponseRedirect(reverse('dashboard.views.compare_v2'))
+        return HttpResponseRedirect(reverse('cf_comparisons.views.compare_v3'))
 
 def home(request):
     context = {}

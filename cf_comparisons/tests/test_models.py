@@ -29,7 +29,7 @@ class ComparsionModelMethodsTest(TestCase):
         sample = SampleFactory()
         comp = self.comparison.add_samples([sample])
         self.assertEqual(len(Comparison.objects.all()), 2)
-        self.assertTrue(sample in set([cf.sample for cf in comp.clonofilters.all()]))
+        self.assertTrue(sample in set([cf.sample for cf in comp.clonofilters_all()]))
 
     def test_update_comparison_preserves_colors(self):
         from django.forms import model_to_dict
@@ -87,7 +87,7 @@ class ComparsionModelMethodsTest(TestCase):
             self.comparison.colors_dict().keys()[0], ClonoFilter)
 
     def test_get_shared_amino_acids_returns_a_list_of_shared_amino_acids(self):
-        samples = [clonofilter.sample for clonofilter in self.comparison.clonofilters.all()]
+        samples = [clonofilter.sample for clonofilter in self.comparison.clonofilters_all()]
         shared_amino_acid = reduce(lambda q, s: q.filter(recombination__clonotype__sample=s), samples, self.comparison.get_amino_acids())
         self.assertEqual(set(
             shared_amino_acid), set(self.comparison.get_shared_amino_acids()))
@@ -167,7 +167,7 @@ class ComparsionModelMethodsTest(TestCase):
         from test_utils.factories import SampleFactory, ClonotypeFactory
         from clonotypes.models import Clonotype
 
-        cfs = self.comparison.clonofilters.all()
+        cfs = self.comparison.clonofilters_all()
         qs_union = cfs[0].get_clonotypes() | cfs[1].get_clonotypes()
         self.assertEqual(map(repr, qs_union),
                          map(repr, self.comparison.get_clonotypes()))
@@ -306,27 +306,7 @@ class ComparisonModelTest(TestCase):
 
         cf = ClonoFilter.objects.get()
 
-        self.assertEqual(set([cf]), set(comp.clonofilters.all()))
-
-    def test_comparison_stores_many_clonofilters(self):
-        """
-        Test that a comparison object can story many clonofilters
-        """
-
-        cf_1 = ClonoFilter(sample=self.s)
-        cf_1.save()
-
-        cf_2 = ClonoFilter(sample=self.s)
-        cf_2.save()
-
-        comp = Comparison()
-        comp.save()
-
-        comp.clonofilters.add(cf_1)
-        comp.clonofilters.add(cf_2)
-
-        self.assertEqual(set([cf_1, cf_2]), set(comp.clonofilters.all()))
-
+        self.assertEqual(set([cf]), set(comp.clonofilters_all()))
 
 
 class ComparisonColorModelTest(TestCase):
@@ -350,7 +330,7 @@ class ComparisonColorModelTest(TestCase):
 
     def test_colors_automagically_assigns_colors_if_they_dont_exist(self):
         color_dict = self.comp.colors()
-        cfs = self.comp.clonofilters.all()
+        cfs = self.comp.clonofilters_all()
         for cf in cfs:
             self.assertNotEqual(color_dict[cf.id], None)
 

@@ -48,7 +48,7 @@ def comparison_tag(comparison):
 def scatter_nav_tag(comparison):
     from clonotypes.models import Recombination
     import json
-    clonofilters = sorted(comparison.clonofilters.all())
+    clonofilters = sorted(comparison.clonofilters_all())
     vj_counts_dict_dict= dict([(clonofilter.id, clonofilter.vj_counts_dict())
                       for clonofilter in clonofilters])
 

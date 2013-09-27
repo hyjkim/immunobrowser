@@ -108,8 +108,9 @@ var comparisonRefresh = function () {
 
       sampleCompareDiv.hide();
       addSampleToggle.prop('disabled', false);
+      console.log(postData);
 
-      $.post('/dashboard/add_samples_v2',
+      $.post('/compare/add_samples_v2',
         postData, function (compId) {
 
           // Load filter forms
@@ -241,6 +242,7 @@ var comparisonRefresh = function () {
               postData, function (compId) {
                 console.log(compId);
                 comparisonId = compId;
+                window.history.pushState(null, '', '/compare/' + compId);
 
                 refresh();
               });

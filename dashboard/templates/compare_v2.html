@@ -137,7 +137,7 @@ window.eventBus = EventBus.newEventBus()
 
     console.log(postData);
 
-    $.post('{% url 'dashboard.views.add_samples_v2' %}',
+    $.post('{% url 'cf_comparisons.views.add_samples_v2' %}',
     postData, function (compId) {
 
     // Load filter forms

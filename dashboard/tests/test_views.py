@@ -1,7 +1,7 @@
 from django.test import TestCase
 from test_utils.factories import render_echo, FakeRequestFactory, PatientFactory, SampleFactory, ComparisonFactory
 from mock import patch
-from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, compare_v2, add_samples_v2, search
+from dashboard.views import explorer, menu_json, add_samples, dashboard_comparison, compare_v2, search
 from django.core.urlresolvers import reverse
 from cf_comparisons.models import Comparison
 import simplejson as json
@@ -140,7 +140,7 @@ class DashboardViewIntegrationTest(TestCase):
 
     def test_remove_clonofilter_removes_a_clonofilter_from_a_comparison(self):
         comp = ComparisonFactory()
-        cfs = list(comp.clonofilters.all())
+        cfs = list(comp.clonofilters_all())
         del_cf = cfs.pop()
 
         url = reverse('dashboard.views.remove_clonofilter')
@@ -148,26 +148,7 @@ class DashboardViewIntegrationTest(TestCase):
         response = self.client.post(url, data=post_data)
         self.assertNotEqual(comp.id, response.content)
         new_comp = Comparison.objects.get(id=response.content)
-        self.assertEqual([cf.id for cf in cfs], [cf.id for cf in new_comp.clonofilters.all()])
-
-    def test_add_samples_v2_adds_new_samples_to_existing_in_comparison_and_returns_new_comp_id(self):
-        from test_utils.factories import SampleFactory
-        comp = ComparisonFactory()
-        sample = SampleFactory()
-
-        old_cfs = comp.clonofilters.all()
-        old_sample_set = set([cf.sample for cf in comp.clonofilters.all()])
-
-        url = reverse('dashboard.views.add_samples_v2')
-        post_data = {'comparison': comp.id, 'samples': [sample.id]}
-        response = self.client.post(url,
-                                    data=post_data)
-
-        new_comp_id = response.content
-        new_comp = Comparison.objects.get(id=new_comp_id)
-        new_sample_set = set([cf.sample for cf in new_comp.clonofilters.all()])
-        self.assertTrue(sample in new_sample_set)
-        self.assertTrue(old_sample_set.issubset(new_sample_set))
+        self.assertEqual([cf.id for cf in cfs], [cf.id for cf in new_comp.clonofilters_all()])
 
     def test_compare_v2_shows_sample_select_template_tag(self):
         url = reverse('dashboard.views.compare_v2')
@@ -175,14 +156,6 @@ class DashboardViewIntegrationTest(TestCase):
         ComparisonFactory()
         comp = Comparison.objects.get()
         self.assertIn('<select multiple="multiple" id="id_samples"', response.content)
-
-    def test_comparison_view_renders_comparison_template(self):
-        from test_utils.ghetto_factory import make_fake_comparison_with_2_samples
-        from cf_comparisons.models import Comparison
-        make_fake_comparison_with_2_samples()
-        comparison = Comparison.objects.get()
-        response = self.client.get(reverse('dashboard.views.dashboard_comparison', args=[comparison.id]))
-        self.assertTemplateUsed(response, 'dashboard_comparison.html')
 
     def test_explorer_should_pass_patients_to_template_via_context(self):
         from patients.models import Patient
