@@ -23,6 +23,43 @@ def prot_seq(sequence):
     sequence = sequence[:-overflow]
     return Seq(sequence, generic_dna).translate()
 
+def colorize(sequence):
+    '''
+    Given a protein sequence, wrap each amino acid
+    in a span that colorizes it
+    '''
+    COLORS = {
+        'W': 'blue',
+        'L': 'blue',
+        'V': 'blue',
+        'I': 'blue',
+        'M': 'blue',
+        'F': 'blue',
+        'A': 'blue',
+        'C': 'blue',
+        'K': 'red',
+        'R': 'red',
+        'T': 'green',
+        'S': 'green',
+        'N': 'green',
+        'Q': 'green',
+        'C': 'pink',
+        'D': 'magenta',
+        'E': 'magenta',
+        'G': 'orange',
+        'H': 'cyan',
+        'Y': 'cyan',
+        'P': 'yellow',
+    }
+    color_seq = ''
+    for aa in sequence:
+        if aa in COLORS:
+            color_seq += '<span class="aa-%s">%s</span>' % (COLORS[aa], aa)
+        else:
+            color_seq += aa
+    return color_seq
+
+
 class BlatHit():
     '''
     BlatHist contains all the fields of a pslx file (output from blat)
@@ -54,6 +91,15 @@ class BlatHit():
     def t_prot(self):
         sequences = self.t_seq.split(',')
         return prot_seq(sequences[0])
+
+    def html_alignment(self):
+        '''
+        Outputs an alignment of target vs query and colorizes amino
+        acids based on clustal/pfam colors obtained from
+        http://ekhidna.biocenter.helsinki.fi/pfam2/clustal_colours
+        '''
+        return colorize(self.t_seq) + '<br />' + colorize(self.q_seq)
+
 
 class BlatQuery(models.Model):
     task_id = models.CharField(max_length=36, null=True)

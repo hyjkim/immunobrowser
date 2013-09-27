@@ -7,41 +7,50 @@
 
 {% block content %}
 <div class="col-md-12">
-Results for Blat Query: {{blat_query.id}}<br />
+  Results for Blat Query: {{blat_query.id}}<br />
 
-Original Submission  <a href="/{{blat_query.fasta_path}}"><span class="glyphicon
-    glyphicon-download"></span></a>
-Raw results <a href="/{{blat_query.result_path}}"><span class="glyphicon
-    glyphicon-download"></span></a><br />
-{% for article, hits in hits_by_article.items %}
-<div class="view">
-  Target: <a href="{{article.fulltext_url}}">{{article.title}}</a>
-{% for hit in hits %}
-  Hit #{{forloop.counter}} <br />
-  Query: {{hit.q_name}} <br />
+  Original Submission  <a href="/{{blat_query.fasta_path}}"><span class="glyphicon
+      glyphicon-download"></span></a>
+  Raw results <a href="/{{blat_query.result_path}}"><span class="glyphicon
+      glyphicon-download"></span></a><br />
+  {% for article, hits in hits_by_article.items %}
+  <div class="view">
+    <h3 class="view-title">
+      {% if hits|length > 1 %} {{hits | length}} hits {%endif%}
+      {% if hits|length == 1 %} 1 hit {%endif%}
+      to <a href="{{article.fulltext_url}}">{{article.title}}</a>
+    </h3>
+    <div class="view-content">
+      {% for hit in hits %}
+      Hit #{{forloop.counter}} <br />
+      Query: {{hit.q_name}} <br />
 
-  <table class='table'>
-    <tr>
-      <td>
-        {{hit.q_start}}
-      </td>
-      <td>
-        {{hit.q_seq}}
-      </td>
-    </tr>
-    <tr>
-      <td>
-        {{hit.t_start}}
-      </td>
-      <td>
-        {{hit.t_seq}}
-      </td>
-    </tr>
+      <table class='table'>
+        <tr>
+          <td>
+            {{hit.q_start}}
+          </td>
+          <td>
+            {{hit.q_seq}}
+          </td>
+        </tr>
+        <tr>
+          <td>
+            {{hit.t_start}}
+          </td>
+          <td>
+            {{hit.t_seq}}
+          </td>
+        </tr>
+        {% autoescape off %}
+        {{hit.html_alignment}}
+        {% endautoescape %}
 
-  </table>
-  Matched bases: {{hit.match}} <br />
-{% endfor %}
-</div>
-{% endfor %}
+      </table>
+      Matched bases: {{hit.match}} <br />
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}

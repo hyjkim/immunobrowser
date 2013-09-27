@@ -55,8 +55,7 @@ th {
 }
 
 .nucleotide {
-  font-family: "Lucida Console", Monaco, monospace
-
+  font-family: "Lucida Console", Monaco, monospace;
 }
 
 div.v_gene {
@@ -186,4 +185,44 @@ h3.view-title {
   margin: 0px;
   padding: 10px;
   padding-left: 15px;
+}
+
+.view-content {
+  padding: 10px;
+}
+
+span[class|="aa"] {
+  font-family: "Lucida Console", Monaco, monospace;
+}
+
+span.aa-blue {
+background:#197FE5;
+}
+
+span.aa-red {
+background:#E53319;
+}
+
+span.aa-green {
+background:#19CC19;
+}
+
+span.aa-pink {
+background:#E57F7F;
+}
+
+span.aa-magenta {
+background:#CC4CCC;
+}
+
+span.aa-orange {
+background:#E5994C;
+}
+
+span.aa-cyan {
+background:#19B2B2;
+}
+
+span.aa-yellow {
+background:#B0B000;
 }
