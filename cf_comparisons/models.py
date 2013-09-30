@@ -276,14 +276,13 @@ class Comparison(models.Model):
         ''' Returns a list of amino acids shared by the clonofilters
         defined in a comparison. Uses indexes to reduce joining time.
         '''
-        from index.models import SampleToAmino
+        from index.models import ClonoFilterToAmino
         from clonotypes.models import AminoAcid
+        cfs = self.clonofilters_all()
 
-        samples = self.get_samples()
-        if len(samples) > 1:
-            s2a_tuples = [SampleToAmino.objects.get_or_create(
-                sample=sample) for sample in samples]
-            amino_acids = [s2a.amino_acids for s2a, created in s2a_tuples]
+        if len(cfs) > 1:
+            cf2a_tuples = [ClonoFilterToAmino.objects.get_or_create(clonofilter=cf) for cf in cfs]
+            amino_acids = [cf2a.amino_acids for cf2a, created in cf2a_tuples]
             shared_amino_acids_pks = set.intersection(*map(set, amino_acids))
             return AminoAcid.objects.filter(id__in=shared_amino_acids_pks)
         else:

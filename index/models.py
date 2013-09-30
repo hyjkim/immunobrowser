@@ -1,6 +1,6 @@
 from django.db import models
 from samples.models import Sample
-from clonotypes.models import AminoAcid
+from clonotypes.models import AminoAcid, ClonoFilter
 import json
 
 class SampleToAmino(models.Model):
@@ -36,3 +36,33 @@ class SampleToAmino(models.Model):
 #        super(SampleToAmino, self).__init__(*args, **kwargs)
 #        self.update_amino_acids()
 #        print "Creating S2a for %s" %(self.sample)
+
+class ClonoFilterToAmino(models.Model):
+    '''
+    Table that stores a clonofilter and blob containing a python list
+    of amino acid primary keys
+    '''
+    clonofilter = models.ForeignKey(ClonoFilter, unique=True)
+    _amino_acids = models.TextField(null=True, db_column='amino_acids')
+
+    def get_amino_acids(self):
+        jsonDec = json.decoder.JSONDecoder()
+        try:
+            return jsonDec.decode(self._amino_acids)
+        except:
+            return []
+
+    def update_amino_acids(self):
+        amino_acid_keys = [aa.id for aa in AminoAcid.objects.filter(recombination__clonotype__in=self.clonofilter.get_clonotypes())]
+        self._amino_acids = json.dumps(amino_acid_keys)
+        self.save()
+
+    amino_acids = property(get_amino_acids)
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            super(ClonoFilterToAmino, self).save(*args, **kwargs)
+            self.update_amino_acids()
+        else:
+            super(ClonoFilterToAmino, self).save(*args, **kwargs)
+
