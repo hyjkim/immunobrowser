@@ -303,6 +303,8 @@ class ClonoFilter(models.Model):
         cf_dict['max_copy'] = cf.get_clonotypes().aggregate(Max('copy'))['copy__max']
         cf_dict['min_length'] = cf.get_clonotypes().aggregate(Min('recombination__cdr3_length'))['recombination__cdr3_length__min']
         cf_dict['max_length'] = cf.get_clonotypes().aggregate(Max('recombination__cdr3_length'))['recombination__cdr3_length__max']
+        cf_dict['j_gene_name'] = ''
+        cf_dict['v_family_name'] = ''
         del cf_dict['id']
 
         cf, created = ClonoFilter.objects.get_or_create(**cf_dict)
