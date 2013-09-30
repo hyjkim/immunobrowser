@@ -6,60 +6,65 @@
       <input type="button" value="Update" class="btn btn-default btn-lg" id="compare-update"/>
       {% csrf_token %}
       <input type="hidden" name="num_forms" value="{{ num_forms }}">
-      {% for clonofilter, filter_form in filter_forms.iteritems %}
+      {% for filter_form_tuple in filter_forms %}
       <div class="row">
-        <div class="filter-form accordian col-md-12 {{clonofilter.css_class}}"
-          id="filter-cf-{{clonofilter.id}}">
+        <div class="filter-form accordian col-md-12 {{filter_form_tuple.0.css_class}}"
+          id="filter-cf-{{filter_form_tuple.0.id}}">
           <div class="filter-head">
-              <div class="filter-expand"><span id="toggle-cf-{{clonofilter.id}}" class="toggle glyphicon glyphicon-chevron-down"></span>
+              <div class="filter-expand"><span
+                  id="toggle-cf-{{filter_form_tuple.0.id}}" class="toggle glyphicon glyphicon-chevron-down"></span>
               </div>
             <div class="filter-close">
-              <span id="remove-{{clonofilter.id}}" class="glyphicon glyphicon-remove"></span>
+              <span id="remove-{{filter_form_tuple.0.id}}" class="glyphicon glyphicon-remove"></span>
             </div>
 
             <!--<a class="accordion-toggle" data-toggle="collapse"
-              data-parent="filter-cf-{{clonofilter.id}}" href="#collapse-cf-{{clonofilter.id}}"> -->
-            {{ clonofilter.sample }}
+              data-parent="filter-cf-{{filter_form_tuple.0.id}}" href="#collapse-cf-{{filter_form_tuple.0.id}}"> -->
+            {{ filter_form_tuple.0.sample }}
               <!-- </a> -->
           </div>
-          <div id="collapse-cf-{{clonofilter.id}}" class="filter-body accordion-body in" style="height: auto;">
-            {{ filter_form.non_field_errors }}
-            <input type="hidden" name="{{clonofilter.id}}-sample" id="id_{{clonofilter.id}}-sample"
-            value="{{clonofilter.sample.id}}">
+          <div id="collapse-cf-{{filter_form_tuple.0.id}}" class="filter-body accordion-body in" style="height: auto;">
+            {{ filter_form_tuple.1.non_field_errors }}
+            <!--
+            <input type="hidden" name="{{filter_form_tuple.0.id}}-sample" id="id_{{filter_form_tuple.0.id}}-sample"
+            -->
+            <input type="hidden" name="{{forloop.counter0}}-sample"
+            id="id_{{forloop.counter0}}-sample"
+            value="{{filter_form_tuple.0.sample.id}}">
             <div class="fieldWrapper">
-              {{ filter_form.min_copy.errors }}
-              <label for="id_{{clonofilter.id}}-min_copy">Min Copy:</label>
-              {{ filter_form.min_copy }}
+              {{ filter_form_tuple.1.min_copy.errors }}
+              <label for="id_{{filter_form_tuple.0.id}}-min_copy">Min Copy:</label>
+              {{ filter_form_tuple.1.min_copy }}
             </div>
             <div class="fieldWrapper">
-              {{ filter_form.max_copy.errors }}
-              <label for="id_{{clonofilter.id}}-max_copy">Max Copy:</label>
-              {{ filter_form.max_copy }}
+              {{ filter_form_tuple.1.max_copy.errors }}
+              <label for="id_{{filter_form_tuple.0.id}}-max_copy">Max Copy:</label>
+              {{ filter_form_tuple.1.max_copy }}
             </div>
             <div class="fieldWrapper">
-              {{ filter_form.min_length.errors }}
-              <label for="id_{{clonofilter.id}}-min_length">Min Length:</label>
-              {{ filter_form.min_length }}
+              {{ filter_form_tuple.1.min_length.errors }}
+              <label for="id_{{filter_form_tuple.0.id}}-min_length">Min Length:</label>
+              {{ filter_form_tuple.1.min_length }}
             </div>
             <div class="fieldWrapper">
-              {{ filter_form.max_length.errors }}
-              <label for="id_{{clonofilter.id}}-max_length">Max Length:</label>
-              {{ filter_form.max_length}}
+              {{ filter_form_tuple.1.max_length.errors }}
+              <label for="id_{{filter_form_tuple.0.id}}-max_length">Max Length:</label>
+              {{ filter_form_tuple.1.max_length}}
             </div>
             <div class="fieldWrapper">
-              {{ filter_form.norm_factor.errors }}
-              <label for="id_{{clonofilter.id}}-norm_factor">Normalization Factor:</label>
-              {{ filter_form.norm_factor }}
+              {{ filter_form_tuple.1.norm_factor.errors }}
+              <label for="id_{{filter_form_tuple.0.id}}-norm_factor">Normalization Factor:</label>
+              {{ filter_form_tuple.1.norm_factor }}
             </div>
             <div class="fieldWrapper">
-              {{ filter_form.v_family_name.errors }}
-              <label for="id_{{clonofilter.id}}-v_family_name">V Family Name:</label>
-              {{ filter_form.v_family_name}}
+              {{ filter_form_tuple.1.v_family_name.errors }}
+              <label for="id_{{filter_form_tuple.0.id}}-v_family_name">V Family Name:</label>
+              {{ filter_form_tuple.1.v_family_name}}
             </div>
             <div class="fieldWrapper">
-              {{ filter_form.j_gene_name.errors }}
-              <label for="id_{{clonofilter.id}}-j_gene_name">J Gene Name:</label>
-              {{ filter_form.j_gene_name }}
+              {{ filter_form_tuple.1.j_gene_name.errors }}
+              <label for="id_{{filter_form_tuple.0.id}}-j_gene_name">J Gene Name:</label>
+              {{ filter_form_tuple.1.j_gene_name }}
             </div>
 
           </div>

@@ -100,10 +100,8 @@ def update_clonofilters(request, comparison_id):
     comparison = Comparison.objects.get(id=comparison_id)
     if request.method == 'POST':
 #        num_forms = int(request.POST['num_forms'])
-        cfids = [cf.id for cf in comparison.clonofilters_all()]
-
         cf_forms = [ClonoFilterForm(request.POST, prefix=str(x))
-                    for x in cfids]
+                    for x in range(len(comparison.clonofilters_all()))]
         if all([cf_form.is_valid() for cf_form in cf_forms]):
             clonofilters = []
             for cf_form in cf_forms:

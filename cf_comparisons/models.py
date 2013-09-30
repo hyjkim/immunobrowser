@@ -171,6 +171,21 @@ class Comparison(models.Model):
                 id=clonofilter.id).values()[0], prefix=str(clonofilter.id))
         return filter_forms
 
+    def filter_forms(self):
+        '''
+        Returns a list of tuples including clonofilter and filter form
+        for individual clonofilters
+        '''
+        from clonotypes.forms import ClonoFilterForm
+
+        clonofilters = self.clonofilters_all()
+        filter_forms = []
+        for index, clonofilter in enumerate(clonofilters):
+            filter_forms.append((clonofilter, ClonoFilterForm(initial=ClonoFilter.objects.filter(
+                id=clonofilter.id).values()[0], prefix=str(index))))
+        return filter_forms
+
+
     def filter_forms_list(self):
         '''
         Returns a list of filter forms for individual clonofilters
@@ -483,6 +498,19 @@ class Comparison(models.Model):
 
         return dict(returnable)
 
+    def clonofilters_all(self):
+        '''
+        Converts the JSON-ified list of clonofilters into a list of
+        ClonoFilter objects then returns the new list
+        '''
+        jsonDec = json.decoder.JSONDecoder()
+        try:
+            cfids = jsonDec.decode(self._clonofilters)
+            if len(cfids):
+                return [ClonoFilter.objects.get(id=cfid) for cfid in cfids]
+        except:
+            return []
+
     @staticmethod
     def default_from_samples(samples):
         '''
@@ -498,15 +526,6 @@ class Comparison(models.Model):
             default_clonofilters)
 
         return comparison
-
-    def clonofilters_all(self):
-        jsonDec = json.decoder.JSONDecoder()
-        try:
-            cfids = jsonDec.decode(self._clonofilters)
-            if len(cfids):
-                return ClonoFilter.objects.filter(id__in=cfids)
-        except:
-            return []
 
     @staticmethod
     def get_or_create_from_clonofilters(clonofilters):
