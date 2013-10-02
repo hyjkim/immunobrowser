@@ -5,6 +5,7 @@ import csv
 from utils.utils import sub_dict_remove_strict
 from django.db.models.query import QuerySet
 from django.db.models import Sum, Min, Max
+from django.utils.safestring import mark_safe
 
 # Create your models here.
 
@@ -41,6 +42,44 @@ class AminoAcidManager(models.Manager):
 class AminoAcid(models.Model):
     sequence = models.CharField(max_length=300)
     objects = AminoAcidManager()
+
+    def colorize(self):
+        '''
+        Given a protein sequence, wrap each amino acid
+        in a span that colorizes it
+        '''
+        COLORS = {
+            'W': 'blue',
+            'L': 'blue',
+            'V': 'blue',
+            'I': 'blue',
+            'M': 'blue',
+            'F': 'blue',
+            'A': 'blue',
+            'C': 'blue',
+            'K': 'red',
+            'R': 'red',
+            'T': 'green',
+            'S': 'green',
+            'N': 'green',
+            'Q': 'green',
+            'C': 'pink',
+            'D': 'magenta',
+            'E': 'magenta',
+            'G': 'orange',
+            'H': 'cyan',
+            'Y': 'cyan',
+            'P': 'yellow',
+        }
+        color_seq = ''
+        print self.sequence
+        for aa in self.sequence:
+            if aa in COLORS:
+                color_seq += '<span class="aa-%s">%s</span>' % (COLORS[aa], aa)
+            else:
+                color_seq += aa
+        return mark_safe(color_seq)
+
 
 class RecombinationQuerySet(QuerySet):
     def search(self, terms):
@@ -107,7 +146,6 @@ class Recombination(models.Model):
         It is worth noting that n2 additions actually appear before n1 in the
         nucleotide string. This reflects the biology where the dj junction is
         joined before the vj junction'''
-        from django.utils.safestring import mark_safe
 
         nucleotide = str(self.nucleotide)
 
