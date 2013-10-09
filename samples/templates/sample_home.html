@@ -27,7 +27,7 @@
         <td>{{ sample.patient.disease }}</td>
         <td>{{ sample.draw_date }}</td>
         <td>{{ sample.cell_type }}</td>
-        <td><a href="{% url 'samples.views.summary' sample.id %}">Summary</a></td>
+        <td><a href="{% url 'samples.views.summary_to_comparison' sample.id %}">Summary</a></td>
       </tr>
       {% endfor %}
     </tbody>

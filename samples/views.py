@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from samples.models import Sample
 from clonotypes.models import ClonoFilter
 from clonotypes.forms import ClonoFilterForm
+from cf_comparisons.models import Comparison
 from django.forms.models import model_to_dict
 
 
@@ -11,6 +12,13 @@ def home(request):
     context = {'samples': Sample.objects.all()}
     return render(request, 'sample_home.html', context)
 
+def summary_to_comparison(request, sample_id):
+    '''
+    Given a sample id, create a comparison and foward user to comparison view
+    '''
+    s = Sample.objects.get(id=sample_id)
+    comp = Comparison.default_from_samples([s])
+    return HttpResponseRedirect(reverse('cf_comparisons.views.compare_v3', args=[comp.id]))
 
 def summary(request, sample_id):
     ''' summary takes in a request and a sample id and
