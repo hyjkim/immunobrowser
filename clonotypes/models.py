@@ -396,6 +396,19 @@ class ClonoFilter(models.Model):
             id__in=clonotypes.values('recombination_id'))
         return recombinations
 
+    def get_amino_acids(self):
+        '''
+        Returns a queryset of amino acids
+        '''
+        amino_acids =  AminoAcid.objects.filter(recombination__clonotype__in=self.get_clonotypes())
+        return amino_acids
+
+    def amino_count(self):
+        '''
+        Returns the number of unique amino acid sequences in a clonofilter
+        '''
+        return self.get_amino_acids().count()
+
     def count(self):
         '''
         Returns the number of recombinations in a clonofilter

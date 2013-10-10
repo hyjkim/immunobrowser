@@ -5,6 +5,51 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
 
 
+def clonotypes(request):
+    VALID_SORTS = {
+            'copy': 'copy',
+            'copyd': '-copy',
+            'freq': 'raw_frequency',
+            'freqd': '-raw_frequency',
+            'ncopy': 'normalized_copy',
+            'ncopyd': '-normalized_copy',
+            'nfreq': 'normalized_frequency',
+            'nfreqd': '-normalized_frequency',
+            }
+    context = {}
+    try:
+        sort_by = VALID_SORTS[request.GET.get('sort')]
+    except:
+        sort_by = VALID_SORTS['copyd']
+    try:
+        cfid = request.GET['cf']
+        cf = ClonoFilter.objects.get(id=cfid)
+        cts = cf.get_clonotypes()
+        context.update({'cf': cf})
+    except:
+        cts = Clonotype.objects.all()
+
+    paginator = Paginator(cts, 25)
+    page = request.GET.get('page')
+
+    try:
+        clonotypes = paginator.page(page)
+    except PageNotAnInteger:
+        clonotypes = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        clonotypes = paginator.page(paginator.num_pages)
+        page = paginator.num_pages
+
+    context.update( {
+               'clonotypes': clonotypes,
+               'valid_sorts': VALID_SORTS.keys(),
+               'page': page,
+              })
+    return render(request, 'clonotypes.html', context)
+
+
+
 def domination_graph(request, clonofilter_id):
     '''
     Returns a PNG of the domination of a repertoire by a few highly expanded clones

@@ -45,6 +45,35 @@ def add_samples_v2(request):
     else:
         return HttpResponseRedirect(reverse('cf_comparisons.views.compare_v3'))
 
+def sample_names_ajax(request, comparison_id):
+    '''
+    returns a json object containing a mapping of clonofilter id to sample name
+    '''
+    comparison = Comparison.objects.get(id=comparison_id)
+    return HttpResponse(json.dumps(comparison.sample_names()), mimetype='application/json')
+
+def summary_ajax(request, comparison_id):
+    '''
+    Returns a set of summary statistics for each clonofilter including
+    number of sequenced reads, number of unique recombinations,
+    number of amino acids
+    '''
+    comparison = Comparison.objects.get(id=comparison_id)
+    cfs = comparison.clonofilters_all()
+    summary = {}
+    for cf in cfs:
+        cf_summary = {}
+        cf_summary['reads'] = cf.size()
+        cf_summary['recombinations'] = cf.count()
+        cf_summary['aminoAcids'] = cf.amino_count()
+        summary[cf.id] = cf_summary
+    data = {
+            'sampleNames': comparison.sample_names(),
+            'summary': summary
+            }
+    return HttpResponse(json.dumps(data), mimetype='application/json')
+
+
 def spectratype_ajax(request, comparison_id):
     '''
     Returns cdr3 sums for spectratype via http request in json format
