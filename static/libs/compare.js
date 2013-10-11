@@ -285,8 +285,12 @@ var comparisonRefresh = function () {
     summaryDiv.html('<img src="'+ajaxLoader+'">');
     d3.json('/compare/'+comparisonId+'/summary_ajax', function(d) {
       summaryDiv.html('');
-      summaryDiv.datum(d);
-      var summary = summaryTable();
+      summaryDiv.datum(d['summary']);
+      console.log(d);
+
+      var summary = summaryTable()
+      .sampleName(nameMap(d['sampleNames']))
+      .eventBus(eventBus);
       summaryDiv.call(summary);
     });
   };
