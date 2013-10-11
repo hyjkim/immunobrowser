@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>All clonotypes for {{ sample.patient.name }}</h1>
+
+sort by
+{% for sort in valid_sorts %}
+{% if cf %}
+<a href="{% url 'clonotypes.views.clonotypes' %}?cf={{cf.id}}&sort={{ sort }}&page={{ page }}">{{sort}}</a>
+{% else  %}
+<a href="{% url 'clonotypes.views.clonotypes' %}?sort={{ sort }}&page={{ page }}">{{sort}}</a>
+{% endif %}
+{% endfor %}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Nucleotide</th>
+      <th>Amino Acid</th>
+      <th>Normalized Frequency</th>
+      <th>Normalized Count</th>
+      <th>Raw Frequency</th>
+      <th>Count</th>
+      <th>V family</th>
+      <th>V gene</th>
+      <th>D gene</th>
+      <th>J gene</th>
+      <th>Sequence Status</th>
+      <th>Details</td>
+
+    </tr>
+  </thead>
+  <tbody>
+    {% for clonotype in clonotypes %}
+    <tr>
+      <td>{{ clonotype.recombination.parsed_nucleotide }}</td>
+      <td>{{ clonotype.recombination.amino_acid.sequence}}</td>
+      <td>{{ clonotype.normalized_frequency }}</td>
+      <td>{{ clonotype.normalized_copy}}</td>
+      <td>{{ clonotype.raw_frequency}}</td>
+      <td>{{ clonotype.copy}}</td>
+      <td>{{ clonotype.recombination.v_family_name }}</td>
+      <td>{{ clonotype.recombination.v_gene_name }}</td>
+      <td>{{ clonotype.recombination.d_gene_name }}</td>
+      <td>{{ clonotype.recombination.j_gene_name }}</td>
+      <td>{{ clonotype.recombination.sequence_status }}</td>
+      <td><a href="{% url 'clonotypes.views.detail' clonotype.id %}">More
+          Info</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="pagination">
+  <span class="step-links">
+    {% if clonotypes.has_previous %}
+    <a href="?page={{ clonotypes.previous_page_number }}">previous</a>
+    {% endif %}
+
+    <span class="current">
+      Page {{ clonotypes.number }} of {{ clonotypes.paginator.num_pages }}.
+    </span>
+
+    {% if clonotypes.has_next %}
+    <a href="?page={{ clonotypes.next_page_number }}">next</a>
+    {% endif %}
+  </span>
+</div>
+
+{% endblock %}

@@ -1,12 +1,126 @@
 {% extends 'base.html' %}
+{% block extra_head %}
+    <link href="{{ STATIC_URL }}css/help.css" rel="stylesheet"
+    type="text/css" media="screen"/>
+{% endblock %}
 {% block nav %}
 {% load dashboard_tags %}
 {% menu_tag 'dashboard.views.help' %}
 {% endblock %}
 
 {% block content %}
+<div class="col-md-3">
+  <div class="bs-sidebar hidden-print affix" role="complementary">
+    <ul class="nav bs-sidenav">
+      <li>
+      <a href="#adaptive-immunity">
+        Adaptive Immunity
+      </a>
+      <ul class="nav">
+        <li>
+        <a href="#adaptive-overview">
+          Overview
+        </a>
+        </li>
+        <li>
+        <a href="#adaptive-presentation">
+          Peptide Presentation
+        </a>
+        </li>
+        <li>
+        <a href="#adaptive-recognition">
+          Antigen Recognition
+        </a>
+        </li>
+      </ul>
+      </li>
+      <li>
+      <a href="#immunobrowser">
+        Immunobrowser
+      </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="col-md-9" role="main">
+  <div class="page-header">
+  <h1 id="adaptive-immunity">Adaptive Immunity</h1>
+</div>
+  <h2 id="adaptive-overview">Overview</h2>
+ set nopaste 
+ set nopaste Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras nec sem sed erat
+ faucibus tempor at nec augue. Suspendisse in ultricies purus, ac volutpat mi.
+ Aenean velit diam, consectetur nec ornare sodales, venenatis in elit. Duis
+ pellentesque pretium massa sed convallis. Cras lobortis cursus lacinia.
+ Vivamus vel augue nec turpis viverra dictum ac quis dui. Nunc in euismod nibh,
+ sit amet porttitor felis.
+
+ Morbi a dapibus ante. Curabitur a nunc augue. Praesent quis diam vel dolor
+ placerat sollicitudin eget id velit. Nullam ut pulvinar risus. Nunc in nibh
+ ante. Nullam a posuere tortor. Praesent pharetra vestibulum augue. Aenean
+ ornare nisl non ante mattis, vel convallis lorem tincidunt. Morbi ornare,
+ justo ac iaculis tempor, dolor ipsum molestie nunc, a tincidunt purus magna
+ non dui. Etiam lobortis auctor enim, a consectetur metus posuere id. Fusce
+ iaculis, enim sit amet laoreet cursus, diam nulla euismod turpis, eu feugiat
+ urna lacus porttitor odio. Duis non quam id velit fringilla lacinia ut a
+ metus.
+
+ Maecenas ac nisl hendrerit, pellentesque nibh a, rhoncus arcu. Nunc hendrerit
+ augue at ipsum vulputate tristique. Cras nec sodales ante, non tincidunt orci.
+ Nam fringilla velit at neque vestibulum lacinia. Quisque in odio luctus, porta
+ leo eget, fringilla augue. Etiam tincidunt vestibulum quam posuere convallis.
+ In lobortis neque nec metus congue cursus. Vivamus mi massa, tincidunt a ante
+ sit amet, consequat tincidunt diam. Duis molestie dui eu interdum semper.
+
+ Duis vehicula eget turpis sed posuere. Phasellus a ligula purus. Nunc elit
+ nulla, vestibulum quis arcu vel, gravida ultricies eros. Maecenas vel faucibus
+ est. Cras pulvinar, nunc quis imperdiet placerat, nisi dolor ultricies leo, in
+ lobortis mauris est at lorem. Praesent a lorem quis nibh eleifend posuere ac a
+ lorem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec luctus
+ aliquet ligula, vitae rutrum dui imperdiet a. Vivamus venenatis risus id
+ mauris sodales ornare. Duis varius volutpat hendrerit. Donec libero nulla,
+ sodales id ultrices sit amet, ultrices at magna. In at nisi sem. Nullam
+ imperdiet est non orci placerat fringilla. Donec malesuada lobortis orci,
+ cursus vestibulum elit dapibus in.
+
+ Donec in semper dolor. Morbi consectetur placerat ipsum, vitae sagittis erat
+ porttitor sollicitudin. Vivamus ut auctor velit. Donec scelerisque, tortor nec
+ ornare dapibus, leo augue molestie turpis, hendrerit tincidunt diam sapien
+ facilisis velit. Aliquam sit amet purus a odio pharetra rhoncus. Donec vel
+ quam cursus, aliquam augue quis, accumsan turpis. Cras tincidunt pulvinar leo
+ ac tincidunt. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices
+ posuere cubilia Curae; Suspendisse lobortis massa ut leo convallis dignissim.
+ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras nec sem sed erat faucibus tempor at nec augue. Suspendisse in ultricies purus, ac volutpat mi. Aenean velit diam, consectetur nec ornare sodales, venenatis in elit. Duis pellentesque pretium massa sed convallis. Cras lobortis cursus lacinia. Vivamus vel augue nec turpis viverra dictum ac quis dui. Nunc in euismod nibh, sit amet porttitor felis.
+
+Morbi a dapibus ante. Curabitur a nunc augue. Praesent quis diam vel dolor placerat sollicitudin eget id velit. Nullam ut pulvinar risus. Nunc in nibh ante. Nullam a posuere tortor. Praesent pharetra vestibulum augue. Aenean ornare nisl non ante mattis, vel convallis lorem tincidunt. Morbi ornare, justo ac iaculis tempor, dolor ipsum molestie nunc, a tincidunt purus magna non dui. Etiam lobortis auctor enim, a consectetur metus posuere id. Fusce iaculis, enim sit amet laoreet cursus, diam nulla euismod turpis, eu feugiat urna lacus porttitor odio. Duis non quam id velit fringilla lacinia ut a metus.
+
+Maecenas ac nisl hendrerit, pellentesque nibh a, rhoncus arcu. Nunc hendrerit augue at ipsum vulputate tristique. Cras nec sodales ante, non tincidunt orci. Nam fringilla velit at neque vestibulum lacinia. Quisque in odio luctus, porta leo eget, fringilla augue. Etiam tincidunt vestibulum quam posuere convallis. In lobortis neque nec metus congue cursus. Vivamus mi massa, tincidunt a ante sit amet, consequat tincidunt diam. Duis molestie dui eu interdum semper.
+
+Duis vehicula eget turpis sed posuere. Phasellus a ligula purus. Nunc elit nulla, vestibulum quis arcu vel, gravida ultricies eros. Maecenas vel faucibus est. Cras pulvinar, nunc quis imperdiet placerat, nisi dolor ultricies leo, in lobortis mauris est at lorem. Praesent a lorem quis nibh eleifend posuere ac a lorem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec luctus aliquet ligula, vitae rutrum dui imperdiet a. Vivamus venenatis risus id mauris sodales ornare. Duis varius volutpat hendrerit. Donec libero nulla, sodales id ultrices sit amet, ultrices at magna. In at nisi sem. Nullam imperdiet est non orci placerat fringilla. Donec malesuada lobortis orci, cursus vestibulum elit dapibus in.
+
+Donec in semper dolor. Morbi consectetur placerat ipsum, vitae sagittis erat porttitor sollicitudin. Vivamus ut auctor velit. Donec scelerisque, tortor nec ornare dapibus, leo augue molestie turpis, hendrerit tincidunt diam sapien facilisis velit. Aliquam sit amet purus a odio pharetra rhoncus. Donec vel quam cursus, aliquam augue quis, accumsan turpis. Cras tincidunt pulvinar leo ac tincidunt. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Suspendisse lobortis massa ut leo convallis dignissim.
+  <h2 id="adaptive-presentation">Peptide Presentation</h2>
+  pDuis vehicula eget turpis sed posuere. Phasellus a ligula purus. Nunc elit nulla, vestibulum quis arcu vel, gravida ultricies eros. Maecenas vel faucibus est. Cras pulvinar, nunc quis imperdiet placerat, nisi dolor ultricies leo, in lobortis mauris est at lorem. Praesent a lorem quis nibh eleifend posuere ac a lorem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec luctus aliquet ligula, vitae rutrum dui imperdiet a. Vivamus venenatis risus id mauris sodales ornare. Duis varius volutpat hendrerit. Donec libero nulla, sodales id ultrices sit amet, ultrices at magna. In at nisi sem. Nullam imperdiet est non orci placerat fringilla. Donec malesuada lobortis orci, cursus vestibulum elit dapibus in.
+
+  <h2 id="adaptive-recognition">Antigen Recognition</h2>
+Duis vehicula eget turpis sed posuere. Phasellus a ligula purus. Nunc elit nulla, vestibulum quis arcu vel, gravida ultricies eros. Maecenas vel faucibus est. Cras pulvinar, nunc quis imperdiet placerat, nisi dolor ultricies leo, in lobortis mauris est at lorem. Praesent a lorem quis nibh eleifend posuere ac a lorem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec luctus aliquet ligula, vitae rutrum dui imperdiet a. Vivamus venenatis risus id mauris sodales ornare. Duis varius volutpat hendrerit. Donec libero nulla, sodales id ultrices sit amet, ultrices at magna. In at nisi sem. Nullam imperdiet est non orci placerat fringilla. Donec malesuada lobortis orci, cursus vestibulum elit dapibus in.
+
+<div class="page-header">
+  <h1 id="immunobrowser">Immunobrowser</h1>
+
+</div>
+
+</div>
+
+
+
+<!--Notes below -->
+
 <h1>Help</h1>
-Background
+Adaptive Immunity
 <ul>
   <li>
   The adaptive immune system overview
@@ -61,4 +175,55 @@ Browser documentation
   </li>
 </ul>
 
+<script>
+  // Copy-pasted from twitter bootstrap docs
+  !function ($) {
+    $(function(){
+
+      var $window = $(window)
+      var $body   = $(document.body)
+
+      var navHeight = $('.navbar').outerHeight(true) + 10
+
+      $body.scrollspy({
+        target: '.bs-sidebar',
+        offset: navHeight
+      })
+
+      $window.on('load', function () {
+        $body.scrollspy('refresh')
+      })
+
+      $('.bs-docs-container [href=#]').click(function (e) {
+        e.preventDefault()
+      })
+
+      // back to top
+      setTimeout(function () {
+        var $sideBar = $('.bs-sidebar')
+
+        $sideBar.affix({
+          offset: {
+            top: function () {
+              var offsetTop      = $sideBar.offset().top
+              var sideBarMargin  = parseInt($sideBar.children(0).css('margin-top'), 10)
+              var navOuterHeight = $('.bs-docs-nav').height()
+
+              return (this.top = offsetTop - navOuterHeight - sideBarMargin)
+            }
+            , bottom: function () {
+              return (this.bottom = $('.bs-footer').outerHeight(true))
+            }
+          }
+        })
+      }, 100)
+
+      setTimeout(function () {
+        $('.bs-top').affix()
+      }, 100)
+
+    })
+
+  }(window.jQuery)
+</script>
 {% endblock %}
