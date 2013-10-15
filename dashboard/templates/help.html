@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block extra_head %}
-    <link href="{{ STATIC_URL }}css/help.css" rel="stylesheet"
-    type="text/css" media="screen"/>
+<link href="{{ STATIC_URL }}css/help.css" rel="stylesheet"
+type="text/css" media="screen"/>
 {% endblock %}
 {% block nav %}
 {% load dashboard_tags %}
@@ -9,34 +9,99 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="col-md-3">
   <div class="bs-sidebar hidden-print affix" role="complementary">
     <ul class="nav bs-sidenav">
       <li>
-      <a href="#adaptive-immunity">
-        Adaptive Immunity
+      <a href="#overview">
+        Overview
+      </a>
+      </li>
+      <li>
+      <a href="#immune-system">
+        Immune System
       </a>
       <ul class="nav">
         <li>
-        <a href="#adaptive-overview">
-          Overview
+        <a href="#adaptive-immunity">
+          Adaptive Immunity
         </a>
         </li>
         <li>
-        <a href="#adaptive-presentation">
-          Peptide Presentation
+        <a href="#t-cells">
+          T-Cells
+        </a>
+        </li>
+
+        <li>
+        <a href="#tcr">
+          T-Cell Receptor
+        </a>
+        </li>
+
+        <li>
+        <a href="#vdj-recombination">
+          VDJ Recombination
         </a>
         </li>
         <li>
-        <a href="#adaptive-recognition">
-          Antigen Recognition
+        <a href="#mhc">
+          MHC/HLA
+        </a>
+        </li>
+        <li>
+        <a href="#repertoire">
+          Shaping the Repertoire
         </a>
         </li>
       </ul>
       </li>
       <li>
+      <a href="sequencing">
+        Sequencing
+      </a>
+
+      <ul class="nav">
+        <li>
+        <a href="#cell-isolation">
+          Cell Isolation
+        </a>
+        </li>
+        <li>
+        <a href="#amplification">
+          TCR Amplification
+        </a>
+        </li>
+        <li>
+        <a href="#sequencing">
+          High Throughput Sequencing
+        </a>
+        </li>
+      </ul>
+      </li>
+
+      <li>
       <a href="#immunobrowser">
         Immunobrowser
+      </a>
+      </li>
+
+      <li>
+      <a href="#contact">
+        Contact
+      </a>
+      </li>
+
+      <li>
+      <a href="#citing">
+        Citations and Copyright
+      </a>
+      </li>
+
+      <li>
+      <a href="#references">
+        References
       </a>
       </li>
     </ul>
@@ -45,80 +110,221 @@
 
 
 <div class="col-md-9" role="main">
+
   <div class="page-header">
-  <h1 id="adaptive-immunity">Adaptive Immunity</h1>
-</div>
-  <h2 id="adaptive-overview">Overview</h2>
- set nopaste 
- set nopaste Lorem ipsum dolor sit amet, consectetur adipiscing elit.
- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras nec sem sed erat
- faucibus tempor at nec augue. Suspendisse in ultricies purus, ac volutpat mi.
- Aenean velit diam, consectetur nec ornare sodales, venenatis in elit. Duis
- pellentesque pretium massa sed convallis. Cras lobortis cursus lacinia.
- Vivamus vel augue nec turpis viverra dictum ac quis dui. Nunc in euismod nibh,
- sit amet porttitor felis.
+    <h1 id="overview">Overview</h1>
+  </div>
+  <!-- Overview text -->
+  <p>
+  The UCSC Immunobrowser enables powerful insights into the current state of an
+  individual’s adaptive immune system. Populations of T-cells can be tracked by
+  the unique genetic sequence signature present in the Beta chain of the
+  specialized T-cell Receptor (TCRB). These signatures are extracted from blood
+  samples using state of the art sequencing techniques. Billions of datapoints
+  are transformed into a concise and interactive browser that provides repertoire
+  level snapshots of an individual, while also preserving the power to
+  interrogate individual TCRB sequences. It is capable of identifying immunogenic
+  challenges in an individual, identifying the populations of T-cells actively
+  fighting infection and leverages the entire expanse of scientific literature
+  for clues to its function.
+  </p>
 
- Morbi a dapibus ante. Curabitur a nunc augue. Praesent quis diam vel dolor
- placerat sollicitudin eget id velit. Nullam ut pulvinar risus. Nunc in nibh
- ante. Nullam a posuere tortor. Praesent pharetra vestibulum augue. Aenean
- ornare nisl non ante mattis, vel convallis lorem tincidunt. Morbi ornare,
- justo ac iaculis tempor, dolor ipsum molestie nunc, a tincidunt purus magna
- non dui. Etiam lobortis auctor enim, a consectetur metus posuere id. Fusce
- iaculis, enim sit amet laoreet cursus, diam nulla euismod turpis, eu feugiat
- urna lacus porttitor odio. Duis non quam id velit fringilla lacinia ut a
- metus.
+  <div class="page-header">
+    <h1 id="immune-system">Immune System</h1>
+  </div>
+  <p>
+  The immune system fights off foreign invaders using two components: the
+  innate immune system and the adaptive immune system. The innate immune
+  response is the first line of defense during an infection. Its specialized
+  proteins and cells target pathogen-associated molecular patterns (PAMPs)
+  which are shared by common infectious agents. The innate immune response is
+  rapid and targets the same PAMPs during each challenge. The adaptive immune
+  response generates a response specific to each invading pathogen. Subsequent
+  infections with the same pathogen will illicit a stronger and faster adaptive
+  response.
+  </p>
 
- Maecenas ac nisl hendrerit, pellentesque nibh a, rhoncus arcu. Nunc hendrerit
- augue at ipsum vulputate tristique. Cras nec sodales ante, non tincidunt orci.
- Nam fringilla velit at neque vestibulum lacinia. Quisque in odio luctus, porta
- leo eget, fringilla augue. Etiam tincidunt vestibulum quam posuere convallis.
- In lobortis neque nec metus congue cursus. Vivamus mi massa, tincidunt a ante
- sit amet, consequat tincidunt diam. Duis molestie dui eu interdum semper.
+  <table class="table">
+    <tr>
+      <th>
+        Property
+      </th>
+      <th>
+        Innate
+      </th>
+      <th>
+        Adaptive
+      </th>
+    </tr>
+    <tr>
+      <th>
+        Response Time
+      </th>
+      <td>
+        Instant
+      </td>
+      <td>
+        <ul>
+          <li>
+          Initial: 5-7 days
+          </li>
+          <li>
+          Reinfection: 2-3 days
+          </li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        Specificity
+      </th>
+      <td>
+        Pathogen-associated moleculare patterns (PAMPs) shared by common
+        infectious agents
+      </td>
+      <td>
+        Targets only invading pathogen
+      </td>
+    </tr>
+    <tr>
+      <th>
+        Memory
+      </th>
+      <td>
+        No memory-- same response to each infection
+      </td>
+      <td>
+        Reactivation of specific response
+      </td>
+    </tr>
+    <tr>
+      <th>
+        Cell Types
+      </th>
+      <td>
+        <ul>
+          <li>
+          Natural Killer Cells
+          </li>
+          <li>
+          Monocytes
+          </li>
+          <li>
+          Macrophages
+          </li>
+          <li>
+          Neutrophils
+          </li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>
+          B-cells
+          </li>
+          <li>
+          Helper T-cells (CD4+)
+          </li>
+          <li>
+          Cytotoxic T-cells (CD8+)
+          </li>
+        </ul>
+      </td>
+    </tr>
 
- Duis vehicula eget turpis sed posuere. Phasellus a ligula purus. Nunc elit
- nulla, vestibulum quis arcu vel, gravida ultricies eros. Maecenas vel faucibus
- est. Cras pulvinar, nunc quis imperdiet placerat, nisi dolor ultricies leo, in
- lobortis mauris est at lorem. Praesent a lorem quis nibh eleifend posuere ac a
- lorem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec luctus
- aliquet ligula, vitae rutrum dui imperdiet a. Vivamus venenatis risus id
- mauris sodales ornare. Duis varius volutpat hendrerit. Donec libero nulla,
- sodales id ultrices sit amet, ultrices at magna. In at nisi sem. Nullam
- imperdiet est non orci placerat fringilla. Donec malesuada lobortis orci,
- cursus vestibulum elit dapibus in.
+  </table>
 
- Donec in semper dolor. Morbi consectetur placerat ipsum, vitae sagittis erat
- porttitor sollicitudin. Vivamus ut auctor velit. Donec scelerisque, tortor nec
- ornare dapibus, leo augue molestie turpis, hendrerit tincidunt diam sapien
- facilisis velit. Aliquam sit amet purus a odio pharetra rhoncus. Donec vel
- quam cursus, aliquam augue quis, accumsan turpis. Cras tincidunt pulvinar leo
- ac tincidunt. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices
- posuere cubilia Curae; Suspendisse lobortis massa ut leo convallis dignissim.
- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras nec sem sed erat faucibus tempor at nec augue. Suspendisse in ultricies purus, ac volutpat mi. Aenean velit diam, consectetur nec ornare sodales, venenatis in elit. Duis pellentesque pretium massa sed convallis. Cras lobortis cursus lacinia. Vivamus vel augue nec turpis viverra dictum ac quis dui. Nunc in euismod nibh, sit amet porttitor felis.
+  <h2 id="adaptive-immunity">Adaptive Immunity</h2>
+  <p>
+  Specificity, diversity, memory and self-nonself recognition are the
+  cornerstones of the adaptive immune system. The adaptive immune system is
+  capable of generating a specific response to a diverse array of foreign
+  invaders. A foreign invader that is recognized by the adaptive immune system is
+  known as an antigen and can be bacterial, viral or of other origin. In addition
+  to the ability to specifically recognize antigens rather than common molecular
+  patterns, the adaptive immune system has a memory of past antigens. The
+  adaptive immune system generally takes from 5-7 days to begin its response to a
+  foreign antigen. However, upon second exposure of an antigen, the reaction can
+  occur in as little as 2-3 days and the response is greater in intensity. Given
+  the ability of the adaptive immune system to mount effective antigen-specific
+  responses, it is amazing that the immune system can recognize and avoid the
+  large number of self-antigens present within the human body. 
+  </p>
 
-Morbi a dapibus ante. Curabitur a nunc augue. Praesent quis diam vel dolor placerat sollicitudin eget id velit. Nullam ut pulvinar risus. Nunc in nibh ante. Nullam a posuere tortor. Praesent pharetra vestibulum augue. Aenean ornare nisl non ante mattis, vel convallis lorem tincidunt. Morbi ornare, justo ac iaculis tempor, dolor ipsum molestie nunc, a tincidunt purus magna non dui. Etiam lobortis auctor enim, a consectetur metus posuere id. Fusce iaculis, enim sit amet laoreet cursus, diam nulla euismod turpis, eu feugiat urna lacus porttitor odio. Duis non quam id velit fringilla lacinia ut a metus.
+  <p>
+  Although many cell types are involved in the adaptive immune response, B-cells and
+  T-cells play major roles in the adaptive immune system. Each B-cell and T-cell
+  produces a receptor with highly variable structures that have the capacity to
+  bind selectively to an antigen. B-cells are responsible for humoral immunity,
+  i.e. they produce antibodies that can neutralize invaders and mark them for
+  phagocytosis by other leukocytes. T-cells are a major player in cell-mediated
+  immunity. 
+  </p>
 
-Maecenas ac nisl hendrerit, pellentesque nibh a, rhoncus arcu. Nunc hendrerit augue at ipsum vulputate tristique. Cras nec sodales ante, non tincidunt orci. Nam fringilla velit at neque vestibulum lacinia. Quisque in odio luctus, porta leo eget, fringilla augue. Etiam tincidunt vestibulum quam posuere convallis. In lobortis neque nec metus congue cursus. Vivamus mi massa, tincidunt a ante sit amet, consequat tincidunt diam. Duis molestie dui eu interdum semper.
+  <h2 id="t-cells">T-cells</h2>
+  <p>
+T-cells are restricted to binding to peptide-MHC complex and are divided into
+two major populations: T-helper cells (TH) and Cytotoxic T-cells (TC). TH
+cells express CD4, a receptor that binds to MHC class II peptides when
+presented on specialized antigen presenting cells (APC) such as B-cells,
+dendritic cells and macrophages. TH cells activate B-cells and regulate the
+immune response by producing cytokines. TC cells express CD8, a receptor that
+binds to MHC class I peptides when presented on most nucleated cells. TC cells
+kill self cells that have been infected by pathogens, such as viruses or
+bacteria. Both T cells and B cells recognize specific antigens through their
+receptors which share many similarities. 
+</p>
 
-Duis vehicula eget turpis sed posuere. Phasellus a ligula purus. Nunc elit nulla, vestibulum quis arcu vel, gravida ultricies eros. Maecenas vel faucibus est. Cras pulvinar, nunc quis imperdiet placerat, nisi dolor ultricies leo, in lobortis mauris est at lorem. Praesent a lorem quis nibh eleifend posuere ac a lorem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec luctus aliquet ligula, vitae rutrum dui imperdiet a. Vivamus venenatis risus id mauris sodales ornare. Duis varius volutpat hendrerit. Donec libero nulla, sodales id ultrices sit amet, ultrices at magna. In at nisi sem. Nullam imperdiet est non orci placerat fringilla. Donec malesuada lobortis orci, cursus vestibulum elit dapibus in.
+  <h2 id="tcr">T-cell Receptor</h2>
+  <div class="thumbnail">
+    <a href="{{STATIC_URL}}/img/help/1tcr.gif"><img src="{{STATIC_URL}}/img/help/1tcrs.gif"></a>
+    <div class="caption">
+      <h3>T Cell Receptor Structure</h3>
+      <p>Figure Legend</p>
+    </div>
+  </div>
 
-Donec in semper dolor. Morbi consectetur placerat ipsum, vitae sagittis erat porttitor sollicitudin. Vivamus ut auctor velit. Donec scelerisque, tortor nec ornare dapibus, leo augue molestie turpis, hendrerit tincidunt diam sapien facilisis velit. Aliquam sit amet purus a odio pharetra rhoncus. Donec vel quam cursus, aliquam augue quis, accumsan turpis. Cras tincidunt pulvinar leo ac tincidunt. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Suspendisse lobortis massa ut leo convallis dignissim.
-  <h2 id="adaptive-presentation">Peptide Presentation</h2>
-  pDuis vehicula eget turpis sed posuere. Phasellus a ligula purus. Nunc elit nulla, vestibulum quis arcu vel, gravida ultricies eros. Maecenas vel faucibus est. Cras pulvinar, nunc quis imperdiet placerat, nisi dolor ultricies leo, in lobortis mauris est at lorem. Praesent a lorem quis nibh eleifend posuere ac a lorem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec luctus aliquet ligula, vitae rutrum dui imperdiet a. Vivamus venenatis risus id mauris sodales ornare. Duis varius volutpat hendrerit. Donec libero nulla, sodales id ultrices sit amet, ultrices at magna. In at nisi sem. Nullam imperdiet est non orci placerat fringilla. Donec malesuada lobortis orci, cursus vestibulum elit dapibus in.
 
-  <h2 id="adaptive-recognition">Antigen Recognition</h2>
-Duis vehicula eget turpis sed posuere. Phasellus a ligula purus. Nunc elit nulla, vestibulum quis arcu vel, gravida ultricies eros. Maecenas vel faucibus est. Cras pulvinar, nunc quis imperdiet placerat, nisi dolor ultricies leo, in lobortis mauris est at lorem. Praesent a lorem quis nibh eleifend posuere ac a lorem. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec luctus aliquet ligula, vitae rutrum dui imperdiet a. Vivamus venenatis risus id mauris sodales ornare. Duis varius volutpat hendrerit. Donec libero nulla, sodales id ultrices sit amet, ultrices at magna. In at nisi sem. Nullam imperdiet est non orci placerat fringilla. Donec malesuada lobortis orci, cursus vestibulum elit dapibus in.
+  <h2 id="vdj-recombination">VDJ Recombination</h2>
 
-<div class="page-header">
-  <h1 id="immunobrowser">Immunobrowser</h1>
+  <h2 id="mhc">MHC/HLA</h2>
+  <h2 id="repertoire">Shaping the TCR Repertoire</h2>
 
-</div>
 
+  <div class="page-header">
+    <h1 id="sequencing">Sequencing</h1>
+  </div>
+
+  <h2 id="cell-isolation">Cell Isolation</h2>
+
+  <h2 id="amplification">TCR Amplification</h2>
+
+  <h2 id="hts">High Throughput Sequencing</h2>
+
+
+  <div class="page-header">
+    <h1 id="immunobrowser">Immunobrowser</h1>
+  </div>
+
+
+  <div class="page-header">
+    <h1 id="contact">Contact</h1>
+  </div>
+
+  <div class="page-header">
+    <h1 id="citing">Citations and Copyright</h1>
+  </div>
+
+  <div class="page-header">
+    <h1 id="references">References</h1>
+  </div>
 </div>
 
 
 
 <!--Notes below -->
 
+<!--
 <h1>Help</h1>
 Adaptive Immunity
 <ul>
@@ -175,6 +381,7 @@ Browser documentation
   </li>
 </ul>
 
+-->
 <script>
   // Copy-pasted from twitter bootstrap docs
   !function ($) {
