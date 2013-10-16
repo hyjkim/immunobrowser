@@ -1,6 +1,8 @@
 <div>
-  <h3>{{amino_acid.colorize}}</h3>
-  
+  <h2>{{amino_acid.colorize}}</h2>
+  <p>
+  <a href="{% url 'lit_search.views.new'%}?aa={{amino_acid.id}}">Search literature for this sequence</a>
+  </p>
 </div>
 <h4>Shared Amino Acids</h4>
 <table class="table">

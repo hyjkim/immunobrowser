@@ -97,9 +97,10 @@ function sharedClones() {
       table.data(selection.data(), function(d) {
       return d;
       });
-      var aminoAcidRows = table.selectAll('tr').data(function(d){return d}).enter()
+      var aminoAcidRows = table.selectAll('tr.aa').data(function(d){return d}).enter()
       .append('tr')
       .attr('class', function(d) {return 'aa-'.concat(d.key)})
+      .classed('aa', true);
 
       var aminoAcidCells =  aminoAcidRows.append('td')
       .html(function(d) {

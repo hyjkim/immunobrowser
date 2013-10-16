@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from lit_search.forms import BlatForm
 from lit_search.models import BlatQuery
+from clonotypes.models import AminoAcid
 
 
 def new(request, **kwargs):
@@ -11,6 +12,14 @@ def new(request, **kwargs):
     blat_form = BlatForm()
     if 'blat_form' in kwargs:
         blat_form = kwargs['blat_form']
+    if request.method == 'GET':
+        try:
+            aa_id = request.GET['aa']
+            aa = AminoAcid.objects.get(id=aa_id)
+            fasta = ">aa-%s\n%s" % (aa.id, aa.sequence)
+            blat_form = BlatForm(initial={'query': fasta})
+        except:
+            pass
     context = {'blat_form': blat_form}
     return render(request, 'new_pub_blat.html', context)
 
