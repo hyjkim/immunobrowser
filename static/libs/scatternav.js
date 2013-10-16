@@ -1,6 +1,6 @@
 function scatterNav2() {
   var margin = {top: 50, right: 30, bottom: 30, left: 60},
-  scatterMargin = {top: 0, right: 0, bottom: 30, left: 30},
+  scatterMargin = {top: 0, right: 30, bottom: 30, left: 30},
   width = 700,
   height = 500,
   histHeight = 100,
@@ -48,7 +48,7 @@ function scatterNav2() {
 
       // Draw the circles
       var gScatter = svg.append("g").attr("class", "scatter")
-      .attr("transform","translate(" + (margin.left + scatterMargin.left) + "," + margin.top +")")
+      .attr("transform","translate(" + (margin.left ) + "," + margin.top +")")
       .datum(nestedData);
       scatter(gScatter);
 
@@ -61,7 +61,7 @@ function scatterNav2() {
       .datum(data);
 
       var vHistInner = svg.append("g").attr("class", "v-hist")
-      .attr("transform",  "translate(" + (margin.left + scatterMargin.left) + ","+(height-histHeight)+")")
+      .attr("transform",  "translate(" + (margin.left ) + ","+(height-histHeight)+")")
       .datum(data);
 
 
