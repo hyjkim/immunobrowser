@@ -61,7 +61,7 @@ function scatterNav2() {
       .datum(data);
 
       var vHistInner = svg.append("g").attr("class", "v-hist")
-      .attr("transform",  "translate(" + margin.left + ","+(height-histHeight)+")")
+      .attr("transform",  "translate(" + (margin.left + scatterMargin.left) + ","+(height-histHeight)+")")
       .datum(data);
 
 

@@ -1,2 +1,2 @@
 #!/bin/bash
-external/litSearch/gfServer start host 8001 data/dna.2bit -tileSize=3 -trans
+external/litSearch/gfServer start host 8001 external/litSearch/data/dna.2bit -tileSize=3 -trans
