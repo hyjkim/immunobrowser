@@ -8,13 +8,11 @@
 {% block content %}
 
 <div id="subcontent">
-  <div id="intro" class="row">
-    <div class="col-md-12">
+  <div class="row">
+    <div id="intro" class="col-md-12">
       <div class=jumbotron">
-
-
         <div class="col-md-4 col-md-offset-1">
-          <img src="{{STATIC_URL}}img/anim-scatter.gif">
+          <img src="{{STATIC_URL}}img/tcellm.jpg">
         </div>
 
         <div class="col-md-6">
@@ -28,49 +26,52 @@
             results with your colleagues easily.
           </h4>
           <form action="{%url 'dashboard.views.help'%}">
-          <button type="submit" class="btn btn-primary btn-lg">Learn
-            More</button>
-        </form>
-
-        </div>
-      </div>
-
-      <div id="intro-compare" class="row">
-        <div class="col-md-4 col-md-offset-1">
-          Compare the repertoires of multiple samples
-        </div>
-        <div class="col-md-4">
-        </div>
-      </div>
-      <div id="intro-search" class="row">
-        <div class="col-md-4 col-md-offset-1">
-        </div>
-        <div class="col-md-4">
-          Search for previously observed receptors
-        </div>
-      </div>
-      <div id="intro-browse" class="row">
-        <div class="col-md-4 col-md-offset-1">
-          Browse existing samples
-        </div>
-        <div class="col-md-4">
-        </div>
-      </div>
-      <div id="intro-blast" class="row">
-        <div class="col-md-4 col-md-offset-1">
-        </div>
-        <div class="col-md-4">
-          BLAST a sequence against the literature (Coming Soon)
-        </div>
-      </div>
-      <div id="intro-upload" class="row">
-        <div class="col-md-4 col-md-offset-1">
-          Upload your own sample (Coming Soon)
-        </div>
-        <div class="col-md-4">
-          <span class="glyphicon glyphicon-upload"></span>
+            <button type="submit" class="btn btn-primary btn-lg">Learn
+              More</button>
+          </form>
         </div>
       </div>
     </div>
+  </div>
+
+  <div id="intro-compare" class="row">
+    <div class="col-md-4 col-md-offset-1">
+      Compare the repertoires of multiple samples
+    </div>
+    <div class="col-md-4">
+
+      <img src="{{STATIC_URL}}img/anim-scatter.gif">
+    </div>
+  </div>
+  <div id="intro-search" class="row">
+    <div class="col-md-4 col-md-offset-1">
+    </div>
+    <div class="col-md-4">
+      Search for previously observed receptors
+    </div>
+  </div>
+  <div id="intro-browse" class="row">
+    <div class="col-md-4 col-md-offset-1">
+      Browse existing samples
+    </div>
+    <div class="col-md-4">
+    </div>
+  </div>
+  <div id="intro-blast" class="row">
+    <div class="col-md-4 col-md-offset-1">
+    </div>
+    <div class="col-md-4">
+      BLAST a sequence against the literature (Coming Soon)
+    </div>
+  </div>
+  <div id="intro-upload" class="row">
+    <div class="col-md-4 col-md-offset-1">
+      Upload your own sample (Coming Soon)
+    </div>
+    <div class="col-md-4">
+      <span class="glyphicon glyphicon-upload"></span>
+    </div>
+  </div>
+</div>
   </div>
   {% endblock %}

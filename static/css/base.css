@@ -18,6 +18,10 @@ body {
   padding-top:50px;
 }
 
+.jumbotron {
+  background-color: #eeeeee;
+}
+
 #holder {
   min-height: 100%;
   position: relative;

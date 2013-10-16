@@ -1,5 +1,5 @@
 function summaryTable() {
-  var sampleName = function (d) {return d.key},
+  var sampleName = function (d) {return d},
   eventBus = EventBus.newEventBus();
   function table(selection) {
     selection.each(function (data){
@@ -8,7 +8,7 @@ function summaryTable() {
       var rows = table.selectAll('tr').data(function(d) { return d})
       .enter().append('tr')
       .attr('class', function(d) {return 'cf-'+d.key});
-      rows.append('td').text(sampleName);
+      rows.append('td').text(function(d) {return sampleName(d.key)});
       rows.append('td').text(function(d) {return d.value['reads']});
       rows.append('td').text(function(d) {return d.value['recombinations']});
       rows.append('td').text(function(d) {return d.value['aminoAcids']});
@@ -41,8 +41,8 @@ function summaryTable() {
   };
 
   table.sampleName = function(value) {
-    if(!arguments.length) return nameMap;
-    nameMap = value;
+    if(!arguments.length) return sampleName;
+    sampleName = value;
     return table;
   }
 

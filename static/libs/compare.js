@@ -293,6 +293,13 @@ var comparisonRefresh = function () {
       .eventBus(eventBus);
       summaryDiv.call(summary);
     });
+
+  var nameMap = function (n) {
+    var names = n;
+    return function(d) {
+      return names[d];
+    }
+  };
   };
 
 
