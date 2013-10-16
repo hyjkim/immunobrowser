@@ -1,47 +1,50 @@
-<div>
-  <h2>{{amino_acid.colorize}}</h2>
-  <p>
-  <a href="{% url 'lit_search.views.new'%}?aa={{amino_acid.id}}">Search literature for this sequence</a>
-  </p>
-</div>
-<h4>Shared Amino Acids</h4>
-<table class="table">
-  <tr>
-    <td>Nucleotide Sequence
-    </td>
-    <td>V family
-    </td>
-    <td>J gene
-    </td>
-    <td>Sample
-    </td>
-    <td>Count
-    </td>
-    <td>Clonotype Link
-    </td>
-  </tr>
-  {% for recombination in amino_acid.recombination_set.all %}
+<div class="view col-md-12">
+  <h3 class="view-title">Amino Acid</h3>
+  <div class="view-content">
+    <h2>{{amino_acid.colorize}}</h2>
+    <p>
+    <a href="{% url 'lit_search.views.new'%}?aa={{amino_acid.id}}">Search literature for this sequence</a>
+    </p>
+    <h4>Shared Amino Acids</h4>
+    <table class="table">
+      <tr>
+        <td>Nucleotide Sequence
+        </td>
+        <td>V family
+        </td>
+        <td>J gene
+        </td>
+        <td>Sample
+        </td>
+        <td>Count
+        </td>
+        <td>Clonotype Link
+        </td>
+      </tr>
+      {% for recombination in amino_acid.recombination_set.all %}
       {% for clonotype in recombination.clonotype_set.all %}
-  <tr>
-    <td>
-      {{recombination.parsed_nucleotide}}
-    </td>
-    <td>
-      {{recombination.v_family_name}}
-    </td>
-    <td>
-      {{recombination.j_gene_name}}
-    </td>
-    <td>
-      {{clonotype.sample}}</td>
-    <td>{{clonotype.copy}}
-    </td>
-    <td>
-      <a href="{% url 'clonotypes.views.detail' clonotype.id %}">Clonotype Detail</a>
-    </td>
-      {% endfor %}
-    </td>
-  </tr>
-  {% endfor %}
-</table>
+      <tr>
+        <td>
+          {{recombination.parsed_nucleotide}}
+        </td>
+        <td>
+          {{recombination.v_family_name}}
+        </td>
+        <td>
+          {{recombination.j_gene_name}}
+        </td>
+        <td>
+          {{clonotype.sample}}</td>
+        <td>{{clonotype.copy}}
+        </td>
+        <td>
+          <a href="{% url 'clonotypes.views.detail' clonotype.id %}">Clonotype Detail</a>
+        </td>
+        {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
 
+</div>
+</div>

@@ -92,6 +92,18 @@ class BlatHit():
         sequences = self.t_seq.split(',')
         return prot_seq(sequences[0])
 
+    def t_color(self):
+        '''
+        outputs colorized version of t_seq
+        '''
+        return colorize(self.t_seq)
+
+    def q_color(self):
+        '''
+        outputs colorized version of q_seq
+        '''
+        return colorize(self.q_seq)
+
     def html_alignment(self):
         '''
         Outputs an alignment of target vs query and colorizes amino

@@ -1,10 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 {% load clonotype_tags %}
-<h2>Clonotype</h2>
 {% clonotype_tag clonotype %}
-<h2>Recombination</h2>
 {% recombination_tag clonotype.recombination %}
-<h2>Amino Acid</h2>
 {% amino_acid_tag clonotype.recombination.amino_acid %}
 {% endblock %}

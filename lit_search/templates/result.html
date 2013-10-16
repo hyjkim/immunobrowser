@@ -26,24 +26,24 @@
       Query: {{hit.q_name}} <br />
 
       <table class='table'>
+        {% autoescape off %}
         <tr>
           <td>
             {{hit.q_start}}
           </td>
           <td>
-            {{hit.q_seq}}
+            {{hit.q_color}}
           </td>
         </tr>
+
         <tr>
           <td>
             {{hit.t_start}}
           </td>
           <td>
-            {{hit.t_seq}}
+            {{hit.t_color}}
           </td>
         </tr>
-        {% autoescape off %}
-        {{hit.html_alignment}}
         {% endautoescape %}
 
       </table>

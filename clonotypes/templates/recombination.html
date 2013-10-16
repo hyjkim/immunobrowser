@@ -1,41 +1,45 @@
-<div id="recombination_div">
-  <div class="row">
-    <div class="span9">
+<div id="recombination_div" class="view">
+  <h3 class="view-title">Recombination</h3>
+  <div class="view-content">
+    <div class="col-md-12">
       <h3>{{recombination.parsed_nucleotide}}</h3>
     </div>
-  </div>
-  <div class="row">
-    <div class="v_gene col-md-3">
-      <h4>V Gene: {{recombination.v_gene_name}}</h4>
-      Family: V-{{recombination.v_family_name}}<br />
-      V Ties: {{recombination.v_ties}}<br />
-      3' Deletions: {{recombination.v_deletion}}
-    </div>
-    <div class="d_gene col-md-3">
-      <h4>D Gene: {{recombination.d_gene_name}}</h4>
-      5' Deletions: {{recombination.d5_deletion}}<br />
-      3' Deletions: {{recombination.d3_deletion}}<br />
-      &nbsp;
-    </div>
-    <div class="col-md-3 j_gene">
-      <h4>J Gene: {{recombination.j_gene_name}}</h4>
-      J Ties: {{recombination.j_ties}}<br />
-      5' Deletions: {{recombination.j_deletion}}<br />
-      &nbsp;
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-3 recombination">
-      CDR3 Length: {{recombination.cdr3_length}} <br />
-      Sequence Status: {{recombination.sequence_status}}
-    </div>
-    <div class="col-md-3 n2_additions">
-      N2 Insertions: {{recombination.n2_insertion}}<br />
-      &nbsp;
-    </div>
-    <div class="col-md-3 n1_additions">
-      N1 Insertions: {{recombination.n1_insertion}}<br />
-      &nbsp;
+    <div class="col-md-12">
+      <div class="row">
+        <div class="v_gene col-md-4">
+          <h4>V Gene: {{recombination.v_gene_name}}</h4>
+          Family: V-{{recombination.v_family_name}}<br />
+          V Ties: {{recombination.v_ties}}<br />
+          3' Deletions: {{recombination.v_deletion}}
+        </div>
+        <div class="d_gene col-md-4">
+          <h4>D Gene: {{recombination.d_gene_name}}</h4>
+          5' Deletions: {{recombination.d5_deletion}}<br />
+          3' Deletions: {{recombination.d3_deletion}}<br />
+          &nbsp;
+        </div>
+        <div class="j_gene col-md-4">
+          <h4>J Gene: {{recombination.j_gene_name}}</h4>
+          J Ties: {{recombination.j_ties}}<br />
+          5' Deletions: {{recombination.j_deletion}}<br />
+          &nbsp;
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-3 recombination">
+          CDR3 Length: {{recombination.cdr3_length}} <br />
+          Sequence Status: {{recombination.sequence_status}}
+        </div>
+        <div class="col-md-3 n2_additions">
+          N2 Insertions: {{recombination.n2_insertion}}<br />
+          &nbsp;
+        </div>
+        <div class="col-md-3 n1_additions">
+          N1 Insertions: {{recombination.n1_insertion}}<br />
+          &nbsp;
+        </div>
+      </div>
     </div>
   </div>
 </div>
+  </div>

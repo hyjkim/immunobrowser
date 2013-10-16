@@ -7,7 +7,14 @@ html, body, table, th, label {
   font-style: normal;
   font-size: 100%;
   font-family:  "Helvetica Neue", 'Open Sans', Helvetica, Arial, sans-serif;
-  vertical-align: baseline;
+  vertical-align: baseline; 
+}
+
+h1, h2, h3 {
+/*font-family:Garamond, Georgia, serif;*/
+font-family: Georgia, serif;
+  font-weight: 300;
+  font-style: normal;
 }
 
 html, body {
@@ -18,8 +25,20 @@ body {
   padding-top:50px;
 }
 
+.row-padded{
+padding: 35px;
+
+}
+
 .jumbotron {
-  background-color: #eeeeee;
+  text-align:justify;
+  text-justify:inter-word;
+}
+
+.container {
+  padding: 30px;
+  background-color: #efefef;
+  border-radius:15px;
 }
 
 #holder {

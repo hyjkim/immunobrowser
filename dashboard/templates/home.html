@@ -8,70 +8,81 @@
 {% block content %}
 
 <div id="subcontent">
-  <div class="row">
+  <div class="row row-padded">
     <div id="intro" class="col-md-12">
       <div class=jumbotron">
-        <div class="col-md-4 col-md-offset-1">
-          <img src="{{STATIC_URL}}img/tcellm.jpg">
-        </div>
+        <div class="container">
+          <div class="col-md-4 col-md-offset-1">
+            <img src="{{STATIC_URL}}img/tcellm.jpg">
+          </div>
 
-        <div class="col-md-6">
-          <h1>
-            Track T-cell clonal expansions with Next Generation Sequencing.
-          </h1>
-          <h4>
-            The UCSC T-Cell Receptor Beta Browser makes it
-            simple to explore the results of T-cell receptor sequencing experiments
+          <div class="col-md-6">
+            <h1>
+              Track T-cell Clonal Expansions with Next Generation Sequencing
+            </h1>
+            The UCSC Immunobrowser makes it
+            simple to explore the results of T-cell Receptor Beta sequencing experiments
             interactively. Discover abnormal expansions, track cancers and share your
             results with your colleagues easily.
-          </h4>
-          <form action="{%url 'dashboard.views.help'%}">
-            <button type="submit" class="btn btn-primary btn-lg">Learn
-              More</button>
-          </form>
+            <form action="{%url 'dashboard.views.help'%}">
+              <button type="submit" class="btn btn-primary btn-lg">Learn
+                More</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="intro-compare" class="row">
-    <div class="col-md-4 col-md-offset-1">
-      Compare the repertoires of multiple samples
+  <div class="row row-padded">
+    <div class="col-md-4 col-md-offset-2">
+      <h2>
+        Compare the repertoires of multiple samples
+      </h2>
+      Interactive scatterplots show V-J receptor usage all at once. Highlight
+      samples individually and compare them to others instantly. V and J
+      histograms 
     </div>
-    <div class="col-md-4">
-
+    <div class="col-md-4 thumbnail">
       <img src="{{STATIC_URL}}img/anim-scatter.gif">
     </div>
   </div>
-  <div id="intro-search" class="row">
-    <div class="col-md-4 col-md-offset-1">
+  <div class="row row-padded">
+    <div class="col-md-4 col-md-offset-2 thumbnail">
+      <img src="{{STATIC_URL}}img/track.png">
     </div>
     <div class="col-md-4">
-      Search for previously observed receptors
+      <h2>
+        Track clonal expansions across samples
+      </h2>
+      Identify clonally expanded T-Cell populations by their CDR3 sequence and
+      track them across multiple samples.
     </div>
   </div>
-  <div id="intro-browse" class="row">
-    <div class="col-md-4 col-md-offset-1">
-      Browse existing samples
+  <div id="intro-browse" class="row row-padded">
+    <div class="col-md-4 col-md-offset-2">
+      <h2>
+        Drill down to the details with our Recombination viewer
+      </h2>
+      Visualize each recombination to identify key positions generated during
+      VDJ Recombination.
     </div>
-    <div class="col-md-4">
-    </div>
-  </div>
-  <div id="intro-blast" class="row">
-    <div class="col-md-4 col-md-offset-1">
-    </div>
-    <div class="col-md-4">
-      BLAST a sequence against the literature (Coming Soon)
+    <div class="col-md-4 thumbnail">
+      <img src="{{STATIC_URL}}img/recombination.png">
     </div>
   </div>
-  <div id="intro-upload" class="row">
-    <div class="col-md-4 col-md-offset-1">
-      Upload your own sample (Coming Soon)
+  <div class="row row-padded">
+    <div class="col-md-4 col-md-offset-2 thumbnail">
+      <img src="{{STATIC_URL}}img/litsearch.png">
     </div>
     <div class="col-md-4">
-      <span class="glyphicon glyphicon-upload"></span>
+      <h2>
+        Search scientific articles for known receptors
+      </h2>
+      Leverage the <a href="text.soe.ucsc.edu">UCSC Genocoding Project</a> to
+      search through the expanse of published literature on T-cell receptor
+      sequencing.
     </div>
   </div>
 </div>
-  </div>
-  {% endblock %}
+{% endblock %}
