@@ -1,12 +1,10 @@
 {% for cfid, rgba in active_colors.iteritems %}
-div.cf-{{ cfid }}.active { background-color: {{rgba}}}
-td.cf-{{ cfid }}.active { background-color: {{rgba}}}
+div.cf-{{ cfid }}.active,td.cf-{{ cfid }}.active { background-color: {{rgba}}}
 path.cf-{{cfid}}.active {stroke: {{rgba}}}
 circle.cf-{{ cfid }}.active {fill: {{rgba}}}
 {% endfor %}
 {% for cfid, rgba in inactive_colors.iteritems %}
-div.cf-{{ cfid }} {background-color: {{rgba}}}
-td.cf-{{ cfid }} {background-color: {{rgba}}}
+div.cf-{{ cfid }},td.cf-{{ cfid }}  {background-color: {{rgba}}}
 path.cf-{{cfid}} { stroke: {{rgba}} }
 circle.cf-{{ cfid }} { fill: {{rgba}} }
 {% endfor %}

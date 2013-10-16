@@ -24,10 +24,10 @@ def clonotypes(request):
     try:
         cfid = request.GET['cf']
         cf = ClonoFilter.objects.get(id=cfid)
-        cts = cf.get_clonotypes()
+        cts = cf.get_clonotypes().order_by(sort_by)
         context.update({'cf': cf})
     except:
-        cts = Clonotype.objects.all()
+        cts = Clonotype.objects.all().order_by(sort_by)
 
     paginator = Paginator(cts, 25)
     page = request.GET.get('page')
