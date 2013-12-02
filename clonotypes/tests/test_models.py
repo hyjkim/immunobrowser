@@ -267,6 +267,9 @@ class ClonoFilterModelTest(TestCase):
         self.f = ClonoFilter(sample=self.s)
         self.f.save()
 
+    def test_entropy_returns_entropy(self):
+        self.assertEqual(1.0397207708399179, self.f.entropy())
+
     def test_min_copy_defaults_to_min_copy_for_that_sample(self):
         from django.db.models import Min
         aggregate = Clonotype.objects.aggregate(Min('copy'))

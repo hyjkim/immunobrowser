@@ -502,6 +502,27 @@ class ClonoFilter(models.Model):
 
         return returnable
 
+    def freq_hist(self):
+        '''
+        Returns 2d array where the first column is the histogram bin and the
+        second column is the observed frequency
+        '''
+        # set 10 bins on a log scale
+        pass
+
+    def entropy(self):
+        '''
+        Returns the shannon entropy of a clonofilter where probabiliities
+        are observed frequencies.
+        '''
+        from scipy.stats import entropy
+        # Get normalization factor
+        cf_sum = self.size();
+
+        # Get all clonofilter read counts
+        freqs = [float(copy) / cf_sum for copy in self.get_clonotypes().values_list('copy', flat=True)]
+        return entropy(freqs)
+
     def vj_counts_dict(self):
         ''' Takes in a clonofilter and returns a nested dict of v_family_name
         index in v_family_names, j_gene_name index in j_gene_names

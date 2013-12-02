@@ -12,6 +12,7 @@ function summaryTable() {
       rows.append('td').text(function(d) {return d.value['reads']});
       rows.append('td').text(function(d) {return d.value['recombinations']});
       rows.append('td').text(function(d) {return d.value['aminoAcids']});
+      rows.append('td').text(function(d) {return d.value['entropy']});
       rows.append('td').append('a').attr('href', function(d) {return '/clonotypes?cf='+d.key}).text('View all clonotypes');
 
       rows.selectAll('td').attr('class', function (d) {return 'cf-' + d.key});
@@ -21,6 +22,8 @@ function summaryTable() {
       header.append('th').text('Reads');
       header.append('th').text('Recombinations');
       header.append('th').text('Amino Acids');
+      header.append('th').text('Entropy');
+      header.append('th').text('All Clnootypes');
 
       var classToggle = function (s, addOrRemove) {
         var selection= s;

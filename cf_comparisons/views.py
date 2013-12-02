@@ -66,6 +66,7 @@ def summary_ajax(request, comparison_id):
         cf_summary['reads'] = cf.size()
         cf_summary['recombinations'] = cf.count()
         cf_summary['aminoAcids'] = cf.amino_count()
+        cf_summary['entropy'] = cf.entropy()
         summary[cf.id] = cf_summary
     data = {
             'sampleNames': comparison.sample_names(),
@@ -154,15 +155,20 @@ def clonofilter_colors(request, comparison_id):
 
 def vj_freq_ajax(request, comparison_id):
     comparison = Comparison.objects.get(id=comparison_id)
-    clonofilters = sorted(comparison.clonofilters_all())
 
-    sample_names = dict([(clonofilter.id,str(clonofilter.sample)) for clonofilter in clonofilters])
+    sample_names = comparison.sample_names()
 
     data = {'vjFreq': comparison.vj_freq(),
             'vList': sorted(Recombination.v_family_names()),
             'jList': sorted(Recombination.j_gene_names()),
             'sampleNames': sample_names,
             }
+    return HttpResponse(json.dumps(data), mimetype='application/json')
+
+def freq_hist_ajax(request, comparison_id):
+    comparison = Comparison.objects.get(id=comparison_id)
+
+    data = {}
     return HttpResponse(json.dumps(data), mimetype='application/json')
 
 def compare_v3(request, comparison_id = None):

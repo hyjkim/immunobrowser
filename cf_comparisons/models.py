@@ -2,6 +2,7 @@ from django.db import models
 from clonotypes.models import ClonoFilter, Recombination
 from utils.utils import undefaulted
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+import numpy as np
 import json
 
 
@@ -52,6 +53,10 @@ class Comparison(models.Model):
 
         return data
 
+    def freq_hist(self):
+        '''
+        '''
+        pass
 
     def add_samples(self, samples):
         '''
