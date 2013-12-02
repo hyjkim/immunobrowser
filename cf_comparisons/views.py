@@ -139,7 +139,7 @@ def update_clonofilters(request, comparison_id):
                 clonofilters.append(cf)
             comparison, created = Comparison.get_or_create_from_clonofilters(clonofilters)
         else:
-            comparison = Comparison.objects.get(id=comparison_id)
+            omparison = Comparison.objects.get(id=comparison_id)
 
             for cf_form in cf_forms:
                 print cf_form.errors
@@ -152,13 +152,13 @@ def clonofilter_colors(request, comparison_id):
     c = Context({'comparison': Comparison.objects.get(id=comparison_id)})
     return HttpResponse(t.render(c), mimetype="text/css")
 
-def vdj_freq_ajax(request, comparison_id):
+def vj_freq_ajax(request, comparison_id):
     comparison = Comparison.objects.get(id=comparison_id)
     clonofilters = sorted(comparison.clonofilters_all())
 
     sample_names = dict([(clonofilter.id,str(clonofilter.sample)) for clonofilter in clonofilters])
 
-    data = {'vdjFreq': comparison.vdj_freq(),
+    data = {'vjFreq': comparison.vj_freq(),
             'vList': sorted(Recombination.v_family_names()),
             'jList': sorted(Recombination.j_gene_names()),
             'sampleNames': sample_names,

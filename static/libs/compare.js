@@ -317,11 +317,11 @@ var comparisonRefresh = function () {
   }
 
   var drawScatterNav = function() {
-    var vdjFreq, vList, jList, sampleNames;
+    var vjFreq, vList, jList, sampleNames;
     navDiv.html('<img src="'+ajaxLoader+'">');
 
-    d3.json('/compare/'+comparisonId+'/vdj_freq_ajax', function(d) {
-      vdjFreq = d['vdjFreq'];
+    d3.json('/compare/'+comparisonId+'/vj_freq_ajax', function(d) {
+      vjFreq = d['vjFreq'];
       vList = d['vList'];
       jList = d['jList'];
       sampleNames = d['sampleNames'];
@@ -338,7 +338,7 @@ var comparisonRefresh = function () {
       .domain(jList);
 
       var my_rScale = d3.scale.linear()
-      .domain([0, d3.max(vdjFreq, function(d) {
+      .domain([0, d3.max(vjFreq, function(d) {
         return d[2];
       })
       ])
@@ -356,10 +356,9 @@ var comparisonRefresh = function () {
       .sampleName(my_names);
 
       navDiv
-      .datum(vdjFreq)
+      .datum(vjFreq)
       .call(scatNav2)
       ;
-
     }
   }
 

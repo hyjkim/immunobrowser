@@ -20,7 +20,7 @@ class Comparison(models.Model):
 
         return returnable
 
-    def vdj_freq(self):
+    def vj_freq(self):
         '''
         Returns a list of lists containing frequences of each
         v_family-j_gene pair and the clonofilter id
