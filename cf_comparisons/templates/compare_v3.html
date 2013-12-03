@@ -20,6 +20,7 @@
 <script type='text/javascript' src="{{ STATIC_URL }}libs/scatternav.js"></script>
 <script type='text/javascript' src="{{ STATIC_URL }}libs/functionality.js"></script>
 <script type='text/javascript' src="{{ STATIC_URL }}libs/sharedClones.js"></script>
+<script type='text/javascript' src="{{ STATIC_URL }}libs/topClones.js"></script>
 <script type='text/javascript' src="{{ STATIC_URL }}libs/EventBus.js" charset="utf-8"></script>
 <script type='text/javascript'>
   window.eventBus = EventBus.newEventBus()
@@ -141,6 +142,23 @@
     </div>
   </div>
 
+  <div id="top-clones-main" class="col-md-12 view">
+    <h3 class='view-title'>
+      Top Clone Domination Plot
+      <button id="tooltip-top-clones" class="btn btn-default" data-container="body" data-toggle="popover" title
+        data-original-title="More Information about Top Clone Domination"
+        data-content="This plot sows the top 100 clones and their cumulative
+        domination of the repertoire"
+        data-placement="bottom">
+        <span class="glyphicon glyphicon-info-sign"></span>
+      </button>
+    </h3>
+    <div id="top-clones-content" class='view-content'>
+      <img src="{{STATIC_URL}}img/ajax-loader.gif">
+    </div>
+  </div>
+
+
   <div id="shared-clones-main" class="col-md-12 view">
     <h3 class='view-title'>
       Shared Clones 
@@ -157,6 +175,8 @@
       <img src="{{STATIC_URL}}img/ajax-loader.gif">
     </div>
   </div>
+
+
 
 </div>
 

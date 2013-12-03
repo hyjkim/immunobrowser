@@ -6,6 +6,7 @@ var comparisonRefresh = function () {
   var spectratypeDiv = d3.select("#spectratype-content");
   var functDiv = d3.select("#functionality-content");
   var sharedClonesDiv = d3.select("#shared-clones-content");
+  var topClonesDiv = d3.select("#top-clones-content");
   var clonofilterColors = d3.select("style#clonofilter-colors");
   var addSampleToggle = $("button#add-sample");
   var sampleCancel = $('div#sample-compare :button');
@@ -47,6 +48,7 @@ var comparisonRefresh = function () {
     drawScatterNav();
     drawFunctionality();
     drawSpectratype();
+    drawTopClones();
 
     d3.json('/compare/'+comparisonId+'/sample_names_ajax', function(d) {
       if(d3.map(d).keys().length > 1) {
@@ -379,6 +381,18 @@ var comparisonRefresh = function () {
       .datum(functData)
       .call(functPlot)
       ;
+    });
+  }
+
+  var drawTopClones = function () {
+    topClonesDiv.html('<img src="'+ajaxLoader+'">');
+
+    d3.json('/compare/'+comparisonId+'/top_clones_ajax', function(d) {
+      var domPlot = dominationPlot();
+
+      topClonesDiv.html('');
+      topClonesDiv.datum(d).call(domPlot);
+
     });
   }
 

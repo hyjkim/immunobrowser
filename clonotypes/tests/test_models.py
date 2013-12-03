@@ -267,6 +267,10 @@ class ClonoFilterModelTest(TestCase):
         self.f = ClonoFilter(sample=self.s)
         self.f.save()
 
+    def test_top_clones_returns_top_clones(self):
+        self.assertEqual(2, self.f.top_clones(1)[0].copy)
+        self.assertEqual(1, self.f.top_clones(2)[1].copy)
+
     def test_entropy_returns_entropy(self):
         self.assertEqual(1.0397207708399179, self.f.entropy())
 

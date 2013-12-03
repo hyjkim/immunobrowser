@@ -510,6 +510,13 @@ class ClonoFilter(models.Model):
         # set 10 bins on a log scale
         pass
 
+    def top_clones(self, num_clones=100):
+        '''
+        Returns the frequencies of the top clones. If no number of clones to
+        return is specified, returns 100 by default
+        '''
+        return(self.get_clonotypes().order_by("-copy")[:num_clones])
+
     def entropy(self):
         '''
         Returns the shannon entropy of a clonofilter where probabiliities

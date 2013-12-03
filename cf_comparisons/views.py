@@ -45,6 +45,14 @@ def add_samples_v2(request):
     else:
         return HttpResponseRedirect(reverse('cf_comparisons.views.compare_v3'))
 
+def top_clones_ajax(request, comparison_id):
+    '''
+    returns a json object containing nested dicts of top X clonotypes in a clonofilter
+    '''
+    comparison = Comparison.objects.get(id=comparison_id)
+    return HttpResponse(json.dumps(comparison.top_clones_freq()), mimetype='application/json')
+
+
 def sample_names_ajax(request, comparison_id):
     '''
     returns a json object containing a mapping of clonofilter id to sample name

@@ -9,6 +9,22 @@ import json
 class Comparison(models.Model):
     _clonofilters = models.TextField(null=True, db_column='clonofilters_list')
 
+    def top_clones_freq(self, num_clones=100):
+        '''
+        Returens a dictionary indexed by clonofilter whose value
+        is a list of frequencies
+        '''
+        from numpy import cumsum
+        cfs = self.clonofilters_all()
+        returnable = {}
+        for cf in cfs:
+            cf_size = cf.size()
+#            cf_freqs = dict([(clone.id, float(clone.copy) / cf_size)  for clone in cf.top_clones(num_clones)])
+            cf_freqs = [float(clone.copy) / cf_size  for clone in cf.top_clones(num_clones)]
+            returnable[cf.id] = cumsum(cf_freqs).tolist()
+        return returnable
+
+
     def cdr3_length_sums(self):
         '''
         Calls clonofilter model method for all clonofilters in a comparison
