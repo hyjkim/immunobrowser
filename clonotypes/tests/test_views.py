@@ -80,9 +80,10 @@ class AminoAcidViewIntegrationTest(TestCase):
         self.assertTemplateUsed(response, 'amino_acid_detail.html')
 
     def test_amino_acid_detail_view_shows_amino_acid_sequence(self):
+        from django.utils.html import strip_tags
         response = self.client.get(
             reverse('clonotypes.views.amino_acid_detail', args=[self.aa.id]))
-        self.assertIn(self.aa.sequence, response.content)
+        self.assertIn(self.aa.sequence, strip_tags(response.content))
 
     def test_amino_acid_detail_view_shows_all_recombinations(self):
         from django.utils.html import strip_tags

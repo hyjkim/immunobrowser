@@ -72,7 +72,7 @@ class AminoAcid(models.Model):
             'P': 'yellow',
         }
         color_seq = ''
-        print self.sequence
+#        print self.sequence
         for aa in self.sequence:
             if aa in COLORS:
                 color_seq += '<span class="aa-%s">%s</span>' % (COLORS[aa], aa)
