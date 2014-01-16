@@ -388,7 +388,8 @@ var comparisonRefresh = function () {
     topClonesDiv.html('<img src="'+ajaxLoader+'">');
 
     d3.json('/compare/'+comparisonId+'/top_clones_ajax', function(d) {
-      var domPlot = dominationPlot();
+      var domPlot = dominationPlot()
+      .eventBus(eventBus);
 
       topClonesDiv.html('');
       topClonesDiv.datum(d).call(domPlot);

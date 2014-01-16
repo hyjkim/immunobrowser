@@ -60,7 +60,6 @@ class SampleViewUnitTest(TestCase):
             10, mock_response.get('filter_form').initial['min_copy'])
         self.assertEqual(1, mock_response.get('filter_form').initial['sample'])
 
-
 class SampleViewIntegrationTest(TestCase):
     ''' Integration tests '''
     def setUp(self):
@@ -73,127 +72,11 @@ class SampleViewIntegrationTest(TestCase):
         response = self.client.get(url)
         self.assertEqual('{"meta": {"limit": 20, "next": null, "offset": 0, "previous": null, "total_count": 1}, "objects": [{"cell_type": "cd4+", "draw_date": "2012-12-12", "id": 1, "patient": "/api/v1/patient/1/", "resource_uri": "/api/v1/sample/1/"}]}', response.content)
 
-    def test_summary_displays_domination_graph(self):
-        cf = ClonoFilter(sample=self.s)
-        cf.save()
-        url = "%s?clonofilter=%s" % (
-            reverse('samples.views.summary', args=[self.s.id]), cf.id)
-        domination_graph_url = reverse('clonotypes.views.domination_graph', args=[cf.id])
-        response = self.client.get(url)
-        self.assertIn(domination_graph_url, response.content)
-
-    def test_summary_displays_functionality_graph(self):
-        cf = ClonoFilter(sample=self.s)
-        cf.save()
-        url = "%s?clonofilter=%s" % (
-            reverse('samples.views.summary', args=[self.s.id]), cf.id)
-        functionality_graph_url = reverse('clonotypes.views.functionality_graph', args=[cf.id])
-        response = self.client.get(url)
-        self.assertIn(functionality_graph_url, response.content)
-
-    def test_summary_displays_j_usage_graph(self):
-        cf = ClonoFilter(sample=self.s)
-        cf.save()
-        url = "%s?clonofilter=%s" % (
-            reverse('samples.views.summary', args=[self.s.id]), cf.id)
-        j_usage_graph_url = reverse('clonotypes.views.j_usage_graph', args=[cf.id])
-        response = self.client.get(url)
-        self.assertIn(j_usage_graph_url, response.content)
-
-    def test_summary_displays_v_usage_graph(self):
-        cf = ClonoFilter(sample=self.s)
-        cf.save()
-        url = "%s?clonofilter=%s" % (
-            reverse('samples.views.summary', args=[self.s.id]), cf.id)
-        v_usage_graph_url = reverse('clonotypes.views.v_usage_graph', args=[cf.id])
-        response = self.client.get(url)
-        self.assertIn(v_usage_graph_url, response.content)
-
-    def test_summary_should_redirect_if_a_new_sample_is_provided_in_form(self):
-        s2 = Sample(patient=self.p,cell_type="t", draw_date='1999-11-11')
-        s2.save()
-        url = "%s?clonofilter=1" % reverse('samples.views.summary', args=[s2.id])
-        self.assertRedirects(self.client.post(reverse('samples.views.summary', args=[self.s.id]),
-                                              {'sample': s2.id}), url)
-
-    def test_summary_clonofilter_id_bubble(self):
-        cf = ClonoFilter(sample=self.s)
-        cf.save()
-        url = "%s?clonofilter=%s" % (
-            reverse('samples.views.summary', args=[self.s.id]), cf.id)
-        bubble_url = "%s?clonofilter=%s" % (
-            reverse('clonotypes.views.bubble_default', args=[self.s.id]), cf.id)
-        response = self.client.get(url)
-        self.assertIn(bubble_url, response.content)
-
-    def test_summary_should_redirect_to_default_summary_if_clonofilter_id_does_not_exist(self):
-        url = "%s?clonofilter=%s" % (
-            reverse('samples.views.summary', args=[self.s.id]), 100000)
-        response = self.client.get(url)
-        self.assertRedirects(
-            response, reverse('samples.views.summary', args=[self.s.id]))
-
-    def test_sample_summary_redirects_post_request_to_url_with_clonofilter(self):
-        response = self.client.post(
-            reverse('samples.views.summary', args=[self.s.id]), {'sample': 1, 'min_copy': 10})
-        cf = ClonoFilter.objects.get()
-        url = "%s?clonofilter=%s" % (
-            reverse('samples.views.summary', args=[self.s.id]), cf.id)
-        self.assertRedirects(response, url)
-
-    def test_sample_summary_redirects_on_post_request(self):
-        response = self.client.post(
-            reverse('samples.views.summary', args=[self.s.id]), {'sample': 1})
-        self.assertRedirects(
-            response, 'http://testserver/samples/1?clonofilter=1')
-
-    def test_creating_a_sample_generates_a_new_sample_in_database(self):
+    def DONTtest_creating_a_sample_generates_a_new_sample_in_database(self):
         all_samples = Sample.objects.all()
         self.assertEquals(len(all_samples), 1)
         self.assertEquals(all_samples[0].id, self.s.id)
 
-    def test_clonotype_summary_contains_link_to_all_clonotypes(self):
-        response = self.client.get(
-            reverse('samples.views.summary', args=[self.s.id]))
-        all_clonotypes_url = reverse('clonotypes.views.all', args=[self.s.id])
-        self.assertIn(all_clonotypes_url, response.content)
-
-    def test_clonotype_summary_receives_sample_id(self):
-        response = self.client.get(
-            reverse('samples.views.summary', args=[self.s.id]))
-        sample_in_context = response.context['sample']
-        self.assertEqual(sample_in_context.id, self.s.id)
-
-    def test_clonotype_summary_renders_summary_template(self):
-        response = self.client.get(
-            reverse('samples.views.summary', args=[self.s.id]))
-        self.assertTemplateUsed(response, 'summary.html')
-
-    def test_clonotype_summary_passes_sample_to_template(self):
-        response = self.client.get(
-            reverse('samples.views.summary', args=[self.s.id]))
-        sample_in_context = response.context['sample']
-        self.assertEqual(sample_in_context, self.s)
-
-    def test_clonotype_summary_displays_patient_and_sample_information(self):
-        response = self.client.get(
-            reverse('samples.views.summary', args=[self.s.id]))
-        self.assertIn(self.p.name, response.content)
-        self.assertIn(self.p.disease, response.content)
-        self.assertIn("Dec. 12, 2012", response.content)
-        self.assertIn(self.s.cell_type, response.content)
-
-    def test_clonotype_summary_displays_bubble_default_plot(self):
-        response = self.client.get(
-            reverse('samples.views.summary', args=[self.s.id]))
-        self.assertIn(reverse('clonotypes.views.bubble_default',
-                      args=[self.s.id]), response.content)
-
-    def test_clonotype_summary_displays_spectratype_default_plot(self):
-        response = self.client.get(
-            reverse('samples.views.summary', args=[self.s.id]))
-        self.assertIn(reverse('clonotypes.views.spectratype_default',
-                      args=[self.s.id]), response.content)
 
     def test_samples_url_shows_all_samples(self):
         # Retrieve all saved samples from the database
@@ -228,12 +111,137 @@ class SampleViewIntegrationTest(TestCase):
             sample_url = reverse('samples.views.summary', args=[sample.id])
             self.assertIn(sample_url, response.content)
 
-    def test_samples_summary_shows_filter_form_sample_id(self):
+
+class deprecatedSampleSummaryViewTest(TestCase):
+    def setUp(self):
+        make_fake_patient()
+        self.s = Sample.objects.get()
+        self.p = Patient.objects.get()
+
+    def DONTtest_summary_displays_domination_graph(self):
+        cf = ClonoFilter(sample=self.s)
+        cf.save()
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), cf.id)
+        domination_graph_url = reverse('clonotypes.views.domination_graph', args=[cf.id])
+        response = self.client.get(url)
+        self.assertIn(domination_graph_url, response.content)
+
+    def DONTtest_summary_displays_functionality_graph(self):
+        cf = ClonoFilter(sample=self.s)
+        cf.save()
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), cf.id)
+        functionality_graph_url = reverse('clonotypes.views.functionality_graph', args=[cf.id])
+        response = self.client.get(url)
+        self.assertIn(functionality_graph_url, response.content)
+
+    def DONTtest_summary_displays_j_usage_graph(self):
+        cf = ClonoFilter(sample=self.s)
+        cf.save()
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), cf.id)
+        j_usage_graph_url = reverse('clonotypes.views.j_usage_graph', args=[cf.id])
+        response = self.client.get(url)
+        self.assertIn(j_usage_graph_url, response.content)
+
+    def DONTtest_summary_displays_v_usage_graph(self):
+        cf = ClonoFilter(sample=self.s)
+        cf.save()
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), cf.id)
+        v_usage_graph_url = reverse('clonotypes.views.v_usage_graph', args=[cf.id])
+        response = self.client.get(url)
+        self.assertIn(v_usage_graph_url, response.content)
+
+    def DONTtest_summary_should_redirect_if_a_new_sample_is_provided_in_form(self):
+        s2 = Sample(patient=self.p,cell_type="t", draw_date='1999-11-11')
+        s2.save()
+        url = "%s?clonofilter=1" % reverse('samples.views.summary', args=[s2.id])
+        self.assertRedirects(self.client.post(reverse('samples.views.summary', args=[self.s.id]),
+                                              {'sample': s2.id}), url)
+
+    def DONTtest_summary_clonofilter_id_bubble(self):
+        cf = ClonoFilter(sample=self.s)
+        cf.save()
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), cf.id)
+        bubble_url = "%s?clonofilter=%s" % (
+            reverse('clonotypes.views.bubble_default', args=[self.s.id]), cf.id)
+        response = self.client.get(url)
+        self.assertIn(bubble_url, response.content)
+
+    def DONTtest_summary_should_redirect_to_default_summary_if_clonofilter_id_does_not_exist(self):
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), 100000)
+        response = self.client.get(url)
+        self.assertRedirects(
+            response, reverse('samples.views.summary', args=[self.s.id]))
+
+    def DONTtest_sample_summary_redirects_post_request_to_url_with_clonofilter(self):
+        response = self.client.post(
+            reverse('samples.views.summary', args=[self.s.id]), {'sample': 1, 'min_copy': 10})
+        cf = ClonoFilter.objects.get()
+        url = "%s?clonofilter=%s" % (
+            reverse('samples.views.summary', args=[self.s.id]), cf.id)
+        self.assertRedirects(response, url)
+
+    def DONTtest_sample_summary_redirects_on_post_request(self):
+        response = self.client.post(
+            reverse('samples.views.summary', args=[self.s.id]), {'sample': 1})
+        self.assertRedirects(
+            response, 'http://testserver/samples/1?clonofilter=1')
+
+    def DONTtest_clonotype_summary_contains_link_to_all_clonotypes(self):
+        response = self.client.get(
+            reverse('samples.views.summary', args=[self.s.id]))
+        all_clonotypes_url = reverse('clonotypes.views.all', args=[self.s.id])
+        self.assertIn(all_clonotypes_url, response.content)
+
+    def DONTtest_clonotype_summary_receives_sample_id(self):
+        response = self.client.get(
+            reverse('samples.views.summary', args=[self.s.id]))
+        sample_in_context = response.context['sample']
+        self.assertEqual(sample_in_context.id, self.s.id)
+
+    def DONTtest_clonotype_summary_renders_summary_template(self):
+        response = self.client.get(
+            reverse('samples.views.summary', args=[self.s.id]))
+        self.assertTemplateUsed(response, 'summary.html')
+
+    def DONTtest_clonotype_summary_passes_sample_to_template(self):
+        response = self.client.get(
+            reverse('samples.views.summary', args=[self.s.id]))
+        sample_in_context = response.context['sample']
+        self.assertEqual(sample_in_context, self.s)
+
+    def DONTtest_clonotype_summary_displays_patient_and_sample_information(self):
+        response = self.client.get(
+            reverse('samples.views.summary', args=[self.s.id]))
+        self.assertIn(self.p.name, response.content)
+        self.assertIn(self.p.disease, response.content)
+        self.assertIn("Dec. 12, 2012", response.content)
+        self.assertIn(self.s.cell_type, response.content)
+
+    def DONTtest_clonotype_summary_displays_bubble_default_plot(self):
+        response = self.client.get(
+            reverse('samples.views.summary', args=[self.s.id]))
+        self.assertIn(reverse('clonotypes.views.bubble_default',
+                      args=[self.s.id]), response.content)
+
+    def DONTtest_clonotype_summary_displays_spectratype_default_plot(self):
+        response = self.client.get(
+            reverse('samples.views.summary', args=[self.s.id]))
+        self.assertIn(reverse('clonotypes.views.spectratype_default',
+                      args=[self.s.id]), response.content)
+
+    def DONTtest_samples_summary_shows_filter_form_sample_id(self):
         response = self.client.get(
             reverse('samples.views.summary', args=[self.s.id]))
         self.assertIn('id_sample', response.content)
 
-    def test_samples_summary_shows_submit_button_for_sample_id(self):
+    def DONTtest_samples_summary_shows_submit_button_for_sample_id(self):
         response = self.client.get(
             reverse('samples.views.summary', args=[self.s.id]))
         self.assertIn('<input type="submit" />', response.content)
+
