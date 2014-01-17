@@ -363,11 +363,13 @@ class ClonoFilterModelTest(TestCase):
         self.assertEqual(4, self.f.size())
 
     def test_default_from_sample_does_not_create_a_default_if_one_exists(self):
+        ClonoFilter.objects.all().delete()
         ClonoFilter.default_from_sample(self.s)
         ClonoFilter.default_from_sample(self.s)
         self.assertEqual(1, ClonoFilter.objects.all().count())
 
     def test_default_from_sample_creates_a_default_clonofilter_if_one_does_not_exist(self):
+        ClonoFilter.objects.all().delete()
         cf = ClonoFilter.default_from_sample(self.s)
         self.assertEqual(cf, ClonoFilter.objects.get())
 
