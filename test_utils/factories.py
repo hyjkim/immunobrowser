@@ -128,37 +128,38 @@ class RecombinationFactory(factory.Factory):
     '''
     FACTORY_FOR = Recombination
     amino_acid = factory.SubFactory(AminoAcidFactory)
-    nucleotide = 'GGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA'
-    v_family_name = 7
-    v_gene_name = '(undefined)'
+    nucleotide = 'TGTGCTCCCGAAGCGATGGGCGGATCTGAAAAGCTGGTCTTT'
+    v_gene_name = 'TRBV25-1'
     v_ties = 'TRBV7-9'
-    d_gene_name = 'TRBD1-2'
-    j_gene_name = 'TRBJ2-5'
-    j_ties = ''
-    v_deletion = 1
-    d5_deletion = 4
-    d3_deletion = 7
-    j_deletion = 3
-    n2_insertion = 5
-    n1_insertion = 5
+    d_gene_name = 'TRBD2'
+    d_ties = None
+    j_gene_name = 'TRBJ1-1'
+    j_ties = None
+    v_deletion = None
+    d5_deletion = None
+    d3_deletion = None
+    j_deletion = None
+    vd_insertion = 0
+    dj_insertion = 27
     sequence_status = 'Productive'
-    v_index = 19
-    n1_index = 45
-    n2_index = 35
-    d_index = 40
-    j_index = 50
+    v_end = 35
+    d_start = 40
+    d_end = 45
+    j_start = 50
     cdr3_length = 42
 
 
 class ClonotypeFactory(factory.Factory):
     FACTORY_FOR = Clonotype
     sample = factory.SubFactory(SampleFactory)
-    sequence_id = 'C0FW0ACXX_1_Patient-15-D_1'
-    container = 'UCSC-Kim-P01-01'
-    normalized_frequency = 9.336458E-6
-    normalized_copy = 2
-    raw_frequency = 1.6548345E-5
-    copy = 2
+#    sequence_id = 'C0FW0ACXX_1_Patient-15-D_1'
+#    container = 'UCSC-Kim-P01-01'
+#    normalized_frequency = 9.336458E-6
+#    normalized_copy = 2
+#    raw_frequency = 1.6548345E-5
+#    copy = 2
+    frequency = 9.336458E-6
+    count = 2
     recombination = factory.SubFactory(RecombinationFactory)
 
 

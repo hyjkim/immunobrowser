@@ -12,12 +12,8 @@ class ClonotypeTest(TestCase):
         s = SampleFactory()
         r = RecombinationFactory()
         data = {'sample': s,
-                'sequence_id': 'test',
-                'container': 'test',
-                'normalized_frequency': 0.1,
-                'normalized_copy': 1,
-                'copy': 1,
-                'raw_frequency': 0.1,
+                'frequency': 0.1,
+                'count': 1,
                 'recombination': r,
                 }
         c = Clonotype()
@@ -42,25 +38,25 @@ class RecombinationModelTest(TestCase):
         self.assertEqual(aa, r.amino_acid)
 
     def test_recombinations_have_these_required_fields(self):
+        # deletions should be optional here
         data = {
-            'nucleotide': 'ATGCATGC',
-            'v_family_name': 'v1',
-            'v_gene_name': '1',
-            'v_ties': '1,2',
-            'd_gene_name': '2',
-            'j_gene_name': 'j3',
-            'j_ties': 'j4,j5',
-            'v_deletion': 2,
-            'd5_deletion': 3,
-            'd3_deletion': 2,
-            'j_deletion': 3,
-            'n2_insertion': 4,
-            'n1_insertion': 5,
-            'v_index': 3,
-            'n1_index': 4,
-            'n2_index': -1,
-            'd_index': 10,
-            'j_index': 5,
+            'nucleotide': 'TGTGCTCCCGAAGCGATGGGCGGATCTGAAAAGCTGGTCTTT',
+            'v_gene_name': 'TRBV25-1',
+            'v_ties': 'TRBV25-1,TRBV28',
+            'd_gene_name': 'TRBD2',
+            'd_ties': None,
+            'j_gene_name': 'TRBJ1-1',
+            'j_ties': None,
+            'v_deletion': None,
+            'd5_deletion': None,
+            'd3_deletion': None,
+            'j_deletion': None,
+            'vd_insertion': 0,
+            'dj_insertion': 27,
+            'v_end': 4,
+            'd_start': 5,
+            'd_end': 9,
+            'j_start': 37,
             'sequence_status': 'Productive',
             'cdr3_length': 42,
         }

@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from test_utils.ghetto_factory import make_fake_patient, make_fake_patient_with_3_clonotypes
 from mock import MagicMock, patch, call
 from clonotypes.views import all, detail, bubble, bubble_default, spectratype, spectratype_default, amino_acid_detail, v_usage_graph, j_usage_graph, functionality_graph, domination_graph
-from test_utils.factories import render_echo, FakeRequestFactory
+from test_utils.factories import render_echo, FakeRequestFactory, ClonotypeFactory
 
 
 class RecombinationViewUnitTest(TestCase):
@@ -15,7 +15,8 @@ class RecombinationViewUnitTest(TestCase):
         self.renderPatch = patch('clonotypes.views.render', render_echo)
         self.renderPatch.start()
         self.request = FakeRequestFactory()
-        make_fake_patient()
+#        make_fake_patient()
+        ClonotypeFactory()
         self.s = Sample.objects.get()
         self.recombination = Recombination.objects.get()
 

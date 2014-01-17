@@ -103,17 +103,28 @@ class Recombination(models.Model):
     Stores a DNA-level recombination of a TCR.
     '''
     nucleotide = models.CharField(max_length=300)
-    v_family_name = models.CharField(max_length=100)
     v_gene_name = models.CharField(max_length=100)
-    v_ties = models.CharField(max_length=500)
+    v_ties = models.CharField(max_length=500, blank=True, null=True)
     d_gene_name = models.CharField(max_length=100)
+    d_ties = models.CharField(max_length=100, blank=True, null=True)
     j_gene_name = models.CharField(max_length=100)
-    j_ties = models.CharField(max_length=100)
+    j_ties = models.CharField(max_length=100, blank=True, null=True)
     sequence_status = models.CharField(max_length=100)
-    v_deletion = models.IntegerField()
-    d5_deletion = models.IntegerField()
-    d3_deletion = models.IntegerField()
-    j_deletion = models.IntegerField()
+    v_deletion = models.IntegerField(blank=True, null=True)
+    d5_deletion = models.IntegerField(blank=True, null=True)
+    d3_deletion = models.IntegerField(blank=True, null=True)
+    j_deletion = models.IntegerField(blank=True, null=True)
+    vd_insertion = models.IntegerField()
+    dj_insertion = models.IntegerField()
+    v_end = models.IntegerField()
+    d_start= models.IntegerField()
+    d_end = models.IntegerField()
+    j_start= models.IntegerField()
+    cdr3_length = models.IntegerField()
+    amino_acid = models.ForeignKey(AminoAcid, blank=True, null=True)
+
+# These should be deleted upon migration
+    v_family_name = models.CharField(max_length=100)
     n2_insertion = models.IntegerField()
     n1_insertion = models.IntegerField()
     v_index = models.IntegerField()
@@ -121,8 +132,6 @@ class Recombination(models.Model):
     n2_index = models.IntegerField()
     d_index = models.IntegerField()
     j_index = models.IntegerField()
-    cdr3_length = models.IntegerField()
-    amino_acid = models.ForeignKey(AminoAcid, blank=True, null=True)
 
     objects = RecombinationManager()
 
@@ -194,12 +203,17 @@ class Recombination(models.Model):
 
 class Clonotype(models.Model):
     sample = models.ForeignKey(Sample)
+
+# These should be deleted upon migration
     sequence_id = models.CharField(max_length=100)
     container = models.CharField(max_length=100)
     normalized_frequency = models.FloatField()
     normalized_copy = models.IntegerField()
     raw_frequency = models.FloatField()
     copy = models.IntegerField()
+
+    frequency = models.FloatField()
+    count = models.IntegerField()
     recombination = models.ForeignKey(Recombination)
 
     @staticmethod
