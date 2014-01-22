@@ -10,16 +10,12 @@ from test_utils.factories import ClonotypeFactory, RecombinationFactory
 def make_fake_patient():
     ClonotypeFactory()
 
-
 def make_fake_patient_with_2_clonotypes():
     make_fake_patient()
     s = Sample.objects.get()
     r = RecombinationFactory(
         nucleotide='TGGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA',
         cdr3_length=39,
-        v_family_name=8,
-        v_gene_name='(undefined)',
-        v_ties='',
         j_gene_name='TRBJ2-4',
         sequence_status='Out of frame',
     )
@@ -27,7 +23,7 @@ def make_fake_patient_with_2_clonotypes():
     ClonotypeFactory(
         sample=s,
         recombination=r,
-        copy=1,
+        count=1,
     )
 
 
@@ -36,7 +32,6 @@ def make_fake_patient_with_3_clonotypes():
     s = Sample.objects.get()
     r = RecombinationFactory(
         cdr3_length=36,
-        v_family_name=9,
         sequence_status='Out of frame',
         nucleotide='CGGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA',
     )
@@ -44,8 +39,7 @@ def make_fake_patient_with_3_clonotypes():
     ClonotypeFactory(
         sample=s,
         recombination=r,
-        normalized_copy=1,
-        copy=1,
+        count=1,
     )
 
 

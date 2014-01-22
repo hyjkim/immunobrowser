@@ -123,16 +123,6 @@ class Recombination(models.Model):
     cdr3_length = models.IntegerField()
     amino_acid = models.ForeignKey(AminoAcid, blank=True, null=True)
 
-# These should be deleted upon migration
-    v_family_name = models.CharField(max_length=100)
-    n2_insertion = models.IntegerField()
-    n1_insertion = models.IntegerField()
-    v_index = models.IntegerField()
-    n1_index = models.IntegerField()
-    n2_index = models.IntegerField()
-    d_index = models.IntegerField()
-    j_index = models.IntegerField()
-
     objects = RecombinationManager()
 
     @staticmethod
@@ -203,14 +193,6 @@ class Recombination(models.Model):
 
 class Clonotype(models.Model):
     sample = models.ForeignKey(Sample)
-
-# These should be deleted upon migration
-    sequence_id = models.CharField(max_length=100)
-    container = models.CharField(max_length=100)
-    normalized_frequency = models.FloatField()
-    normalized_copy = models.IntegerField()
-    raw_frequency = models.FloatField()
-    copy = models.IntegerField()
 
     frequency = models.FloatField()
     count = models.IntegerField()
@@ -297,14 +279,18 @@ class Clonotype(models.Model):
 
 class ClonoFilter(models.Model):
     sample = models.ForeignKey(Sample)
-    min_copy = models.IntegerField(null=True)
-    max_copy = models.IntegerField(null=True)
+    min_count = models.IntegerField(null=True)
+    max_count = models.IntegerField(null=True)
     min_length = models.IntegerField(null=True)
     max_length = models.IntegerField(null=True)
     norm_factor = models.FloatField(null=True)
     v_family_name = models.CharField(max_length=100, null=True)
     j_gene_name = models.CharField(max_length=100, null=True)
 #    functionality = MultiSelectField(max_length=250, blank=True, choices=TYPES)
+
+    # Remove after migration complete
+    min_copy = models.IntegerField(null=True)
+    max_copy = models.IntegerField(null=True)
 
     def css_class(self):
         '''
@@ -320,14 +306,14 @@ class ClonoFilter(models.Model):
             size = self.size()
             if size is not None:
                 self.norm_factor = float(size)
-        if self.min_copy is None:
-            min_copy = self.get_clonotypes().aggregate(Min('copy'))['copy__min']
-            if min_copy is not None:
-                self.min_copy = min_copy
-        if self.max_copy is None:
-            max_copy = self.get_clonotypes().aggregate(Max('copy'))['copy__max']
-            if max_copy is not None:
-                self.max_copy = max_copy
+        if self.min_count is None:
+            min_count = self.get_clonotypes().aggregate(Min('count'))['count__min']
+            if min_count is not None:
+                self.min_count = min_count
+        if self.max_count is None:
+            max_count = self.get_clonotypes().aggregate(Max('count'))['count__max']
+            if max_count is not None:
+                self.max_count = max_count
         if self.min_length is None:
             min_length = self.get_clonotypes().aggregate(Min('recombination__cdr3_length'))['recombination__cdr3_length__min']
             if min_length is not None:
@@ -351,8 +337,8 @@ class ClonoFilter(models.Model):
         cf_dict = model_to_dict(cf)
         cf_dict['sample'] = sample
         cf_dict['norm_factor'] = cf.size()
-        cf_dict['min_copy'] = cf.get_clonotypes().aggregate(Min('copy'))['copy__min']
-        cf_dict['max_copy'] = cf.get_clonotypes().aggregate(Max('copy'))['copy__max']
+        cf_dict['min_count'] = cf.get_clonotypes().aggregate(Min('count'))['count__min']
+        cf_dict['max_count'] = cf.get_clonotypes().aggregate(Max('count'))['count__max']
         cf_dict['min_length'] = cf.get_clonotypes().aggregate(Min('recombination__cdr3_length'))['recombination__cdr3_length__min']
         cf_dict['max_length'] = cf.get_clonotypes().aggregate(Max('recombination__cdr3_length'))['recombination__cdr3_length__max']
         cf_dict['j_gene_name'] = ''
@@ -385,10 +371,10 @@ class ClonoFilter(models.Model):
         query = Q(sample=self.sample)
 
         queries = []
-        if self.min_copy > 0:
-            queries.append(Q(copy__gte=self.min_copy))
-        if self.max_copy > 0:
-            queries.append(Q(copy__lte=self.max_copy))
+        if self.min_count > 0:
+            queries.append(Q(count__gte=self.min_count))
+        if self.max_count > 0:
+            queries.append(Q(count__lte=self.max_count))
         if self.min_length > 0:
             queries.append(Q(recombination__cdr3_length__gte=self.min_length))
         if self.max_length > 0:
@@ -431,17 +417,17 @@ class ClonoFilter(models.Model):
 
     def norm_size(self):
         '''
-        Returns the normalized sum of 'copy' given a clonofilter
+        Returns the normalized sum of 'count' given a clonofilter
         '''
         norm_sum = self.size() / self.norm_factor
         return norm_sum
 
     def size(self):
         '''
-        Returns the sum of 'copy' given a clonofilter
+        Returns the sum of 'count' given a clonofilter
         '''
-        copy_sum = self.get_clonotypes().aggregate(Sum('copy'))
-        return copy_sum['copy__sum']
+        count_sum = self.get_clonotypes().aggregate(Sum('count'))
+        return count_sum['count__sum']
 
     def functionality_dict(self):
         '''
@@ -452,12 +438,12 @@ class ClonoFilter(models.Model):
         total = 0
         filtered_query_set = self.get_clonotypes()
         functionality_counts = filtered_query_set.values(
-            'recombination__sequence_status').annotate(Sum('copy'))
+            'recombination__sequence_status').annotate(Sum('count'))
 #        for state in Recombination.functionality_states():
 #            if state in functionality_counts:
 #                pass
         for functionality_count in functionality_counts:
-            subtotal = functionality_count['copy__sum']
+            subtotal = functionality_count['count__sum']
             returnable[functionality_count['recombination__sequence_status']
                        ] = subtotal
             total += subtotal
@@ -479,15 +465,15 @@ class ClonoFilter(models.Model):
         filtered_query_set = self.get_clonotypes()
         # Return the sums of each v family
         j_usage_values = filtered_query_set.values(
-            'recombination__j_gene_name').annotate(Sum('copy'))
+            'recombination__j_gene_name').annotate(Sum('count'))
         # Transform list of dicts into single dict
         for sum_dict in j_usage_values:
             if self.norm_factor:
                 returnable[sum_dict['recombination__j_gene_name']
-                           ] = sum_dict['copy__sum'] / float(self.norm_factor)
+                           ] = sum_dict['count__sum'] / float(self.norm_factor)
             else:
                 returnable[sum_dict[
-                    'recombination__j_gene_name']] = sum_dict['copy__sum']
+                    'recombination__j_gene_name']] = sum_dict['count__sum']
 
         return returnable
 
@@ -504,15 +490,15 @@ class ClonoFilter(models.Model):
         filtered_query_set = self.get_clonotypes()
         # Return the sums of each v family
         v_usage_values = filtered_query_set.values(
-            'recombination__v_family_name').annotate(Sum('copy'))
+            'recombination__v_family_name').annotate(Sum('count'))
         # Transform list of dicts into single dict
         for sum_dict in v_usage_values:
             if self.norm_factor:
                 returnable[sum_dict['recombination__v_family_name']
-                           ] = sum_dict['copy__sum'] / float(self.norm_factor)
+                           ] = sum_dict['count__sum'] / float(self.norm_factor)
             else:
                 returnable[sum_dict[
-                    'recombination__v_family_name']] = sum_dict['copy__sum']
+                    'recombination__v_family_name']] = sum_dict['count__sum']
 
         return returnable
 
@@ -529,7 +515,7 @@ class ClonoFilter(models.Model):
         Returns the frequencies of the top clones. If no number of clones to
         return is specified, returns 100 by default
         '''
-        return(self.get_clonotypes().order_by("-copy")[:num_clones])
+        return(self.get_clonotypes().order_by("-count")[:num_clones])
 
     def entropy(self):
         '''
@@ -541,13 +527,13 @@ class ClonoFilter(models.Model):
         cf_sum = self.size();
 
         # Get all clonofilter read counts
-        freqs = [float(copy) / cf_sum for copy in self.get_clonotypes().values_list('copy', flat=True)]
+        freqs = [float(count) / cf_sum for count in self.get_clonotypes().values_list('count', flat=True)]
         return entropy(freqs)
 
     def vj_counts_dict(self):
         ''' Takes in a clonofilter and returns a nested dict of v_family_name
         index in v_family_names, j_gene_name index in j_gene_names
-        and sum of copy.
+        and sum of count.
 
         dict should be indexed by:
             dict['v_family']['j_gene'] = count
@@ -558,9 +544,9 @@ class ClonoFilter(models.Model):
         returnable = defaultdict(lambda: defaultdict(lambda: .0))
         filtered_query_set = self.get_clonotypes()
         # Returns a list of dicts, each dict contains a v gene, j gene and a
-        # sum of copy
+        # sum of count
         vj_pairs = filtered_query_set.values(
-            'recombination__v_family_name', 'recombination__j_gene_name').annotate(Sum('copy'))
+            'recombination__v_family_name', 'recombination__j_gene_name').annotate(Sum('count'))
 
         for sum_dict in vj_pairs:
             v_family = sum_dict['recombination__v_family_name']
@@ -568,23 +554,23 @@ class ClonoFilter(models.Model):
 
             if self.norm_factor:
                 returnable[v_family][j_gene] = sum_dict[
-                    'copy__sum'] / float(self.norm_factor)
+                    'count__sum'] / float(self.norm_factor)
             else:
-                returnable[v_family][j_gene] = sum_dict['copy__sum']
+                returnable[v_family][j_gene] = sum_dict['count__sum']
 
         return returnable
 
     def vj_counts(self):
         ''' Takes in a clonofilter and returns a nested list of v_family_name
         index in v_family_names, j_gene_name index in j_gene_names
-        and sum of copy '''
+        and sum of count '''
         from django.db.models import Sum
 
         filtered_query_set = self.get_clonotypes()
         # Returns a list of dicts, each dict contains a v gene, j gene and a
-        # sum of copy
+        # sum of count
         vj_pairs = filtered_query_set.values(
-            'recombination__v_family_name', 'recombination__j_gene_name').annotate(Sum('copy'))
+            'recombination__v_family_name', 'recombination__j_gene_name').annotate(Sum('count'))
         # Get v and j gene names in a list
         v_family_names = Recombination.v_family_names()
         j_gene_names = Recombination.j_gene_names()
@@ -600,9 +586,9 @@ class ClonoFilter(models.Model):
                 sum_dict['recombination__j_gene_name'])
             if self.norm_factor:
                 returnable[v_index][j_index] = sum_dict[
-                    'copy__sum'] / float(self.norm_factor)
+                    'count__sum'] / float(self.norm_factor)
             else:
-                returnable[v_index][j_index] = sum_dict['copy__sum']
+                returnable[v_index][j_index] = sum_dict['count__sum']
 
         return returnable
 
@@ -614,11 +600,11 @@ class ClonoFilter(models.Model):
         from django.db.models import Sum
         returnable = []
         counts = self.get_clonotypes().values(
-            'recombination__cdr3_length').annotate(Sum('copy')).order_by('recombination__cdr3_length')
+            'recombination__cdr3_length').annotate(Sum('count')).order_by('recombination__cdr3_length')
 
         for index, sum_counts in enumerate(counts):
             if self.norm_factor:
-                freq = sum_counts['copy__sum'] / float(self.norm_factor)
+                freq = sum_counts['count__sum'] / float(self.norm_factor)
                 returnable.append( {
                     'length': sum_counts['recombination__cdr3_length'],
                     'freq': freq,
@@ -627,7 +613,7 @@ class ClonoFilter(models.Model):
             else:
                 returnable.append( {
                     'length': sum_counts['recombination__cdr3_length'],
-                    'freq': sum_counts['copy__sum'],
+                    'freq': sum_counts['count__sum'],
                     'cfid': self.id,
                     })
 
@@ -640,15 +626,15 @@ class ClonoFilter(models.Model):
         from django.db.models import Sum
         returnable = []
         counts = self.get_clonotypes().values(
-            'recombination__cdr3_length').annotate(Sum('copy')).order_by('recombination__cdr3_length')
+            'recombination__cdr3_length').annotate(Sum('count')).order_by('recombination__cdr3_length')
 
         for index, sum_counts in enumerate(counts):
             if self.norm_factor:
                 returnable.append([sum_counts['recombination__cdr3_length'],
-                                   sum_counts['copy__sum'] / float(self.norm_factor)])
+                                   sum_counts['count__sum'] / float(self.norm_factor)])
             else:
                 returnable.append([sum_counts['recombination__cdr3_length'],
-                                   sum_counts['copy__sum']])
+                                   sum_counts['count__sum']])
 
         return returnable
 
@@ -661,7 +647,7 @@ class ClonoFilter2(models.Model):
 
     sample = models.ForeignKey(Sample)
     valid_filter = {
-                    'min copy':'copy',
+                    'min count':'count',
     }
 
     def get_clonotypes(self):
