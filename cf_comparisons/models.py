@@ -19,8 +19,8 @@ class Comparison(models.Model):
         returnable = {}
         for cf in cfs:
             cf_size = cf.size()
-#            cf_freqs = dict([(clone.id, float(clone.copy) / cf_size)  for clone in cf.top_clones(num_clones)])
-            cf_freqs = [float(clone.copy) / cf_size  for clone in cf.top_clones(num_clones)]
+#            cf_freqs = dict([(clone.id, float(clone.count) / cf_size)  for clone in cf.top_clones(num_clones)])
+            cf_freqs = [float(clone.count) / cf_size  for clone in cf.top_clones(num_clones)]
             returnable[cf.id] = cumsum(cf_freqs).tolist()
         return returnable
 
@@ -407,7 +407,7 @@ class Comparison(models.Model):
                 for clonotype in recombination.clonotype_set.all():
                     if clonotype.sample in samples:
                         for cfid in sampleid2cfid[clonotype.sample.id]:
-                            clonofilter_dict[cfid] += 1.0*clonotype.copy/cfid2cf[cfid].size()
+                            clonofilter_dict[cfid] += 1.0*clonotype.count/cfid2cf[cfid].size()
             amino_acid_dict['clonofilters'] = undefaulted(clonofilter_dict)
             amino_acid_dict['sequence'] = amino_acid.sequence
             returnable[amino_acid.id] = amino_acid_dict
@@ -445,7 +445,7 @@ class Comparison(models.Model):
                 for clonotype in recombination.clonotype_set.all():
                     if clonotype.sample in samples:
                         returnable[recombination.nucleotide][
-                            clonotype.sample] += clonotype.copy
+                            clonotype.sample] += clonotype.count
                     # Get the set of samples for each clonotype
                     # Add # of reads per thing
 #                returnable[recombination.nucleotide].append(clonotype)

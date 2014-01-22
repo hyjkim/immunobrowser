@@ -130,8 +130,8 @@ class Recombination(models.Model):
         return list(Recombination.objects.values_list('sequence_status', flat=True).distinct())
 
     @staticmethod
-    def v_family_names():
-        return list(Recombination.objects.values_list('v_family_name', flat=True).distinct())
+    def v_gene_names():
+        return list(Recombination.objects.values_list('v_gene_name', flat=True).distinct())
 
     @staticmethod
     def j_gene_names():
@@ -284,7 +284,7 @@ class ClonoFilter(models.Model):
     min_length = models.IntegerField(null=True)
     max_length = models.IntegerField(null=True)
     norm_factor = models.FloatField(null=True)
-    v_family_name = models.CharField(max_length=100, null=True)
+    v_gene_name = models.CharField(max_length=100, null=True)
     j_gene_name = models.CharField(max_length=100, null=True)
 #    functionality = MultiSelectField(max_length=250, blank=True, choices=TYPES)
 
@@ -338,7 +338,7 @@ class ClonoFilter(models.Model):
         cf_dict['min_length'] = cf.get_clonotypes().aggregate(Min('recombination__cdr3_length'))['recombination__cdr3_length__min']
         cf_dict['max_length'] = cf.get_clonotypes().aggregate(Max('recombination__cdr3_length'))['recombination__cdr3_length__max']
         cf_dict['j_gene_name'] = ''
-        cf_dict['v_family_name'] = ''
+        cf_dict['v_gene_name'] = ''
         del cf_dict['id']
 
         cf, created = ClonoFilter.objects.get_or_create(**cf_dict)
@@ -375,8 +375,8 @@ class ClonoFilter(models.Model):
             queries.append(Q(recombination__cdr3_length__gte=self.min_length))
         if self.max_length > 0:
             queries.append(Q(recombination__cdr3_length__lte=self.max_length))
-        if self.v_family_name:
-            queries.append(Q(recombination__v_family_name=self.v_family_name))
+        if self.v_gene_name:
+            queries.append(Q(recombination__v_gene_name=self.v_gene_name))
         if self.j_gene_name:
             queries.append(Q(recombination__j_gene_name=self.j_gene_name))
 
@@ -486,15 +486,15 @@ class ClonoFilter(models.Model):
         filtered_query_set = self.get_clonotypes()
         # Return the sums of each v family
         v_usage_values = filtered_query_set.values(
-            'recombination__v_family_name').annotate(Sum('count'))
+            'recombination__v_gene_name').annotate(Sum('count'))
         # Transform list of dicts into single dict
         for sum_dict in v_usage_values:
             if self.norm_factor:
-                returnable[sum_dict['recombination__v_family_name']
+                returnable[sum_dict['recombination__v_gene_name']
                            ] = sum_dict['count__sum'] / float(self.norm_factor)
             else:
                 returnable[sum_dict[
-                    'recombination__v_family_name']] = sum_dict['count__sum']
+                    'recombination__v_gene_name']] = sum_dict['count__sum']
 
         return returnable
 
@@ -542,10 +542,10 @@ class ClonoFilter(models.Model):
         # Returns a list of dicts, each dict contains a v gene, j gene and a
         # sum of count
         vj_pairs = filtered_query_set.values(
-            'recombination__v_family_name', 'recombination__j_gene_name').annotate(Sum('count'))
+            'recombination__v_gene_name', 'recombination__j_gene_name').annotate(Sum('count'))
 
         for sum_dict in vj_pairs:
-            v_family = sum_dict['recombination__v_family_name']
+            v_family = sum_dict['recombination__v_gene_name']
             j_gene = sum_dict['recombination__j_gene_name']
 
             if self.norm_factor:
@@ -557,8 +557,8 @@ class ClonoFilter(models.Model):
         return returnable
 
     def vj_counts(self):
-        ''' Takes in a clonofilter and returns a nested list of v_family_name
-        index in v_family_names, j_gene_name index in j_gene_names
+        ''' Takes in a clonofilter and returns a nested list of v_gene_name
+        index in v_gene_names, j_gene_name index in j_gene_names
         and sum of count '''
         from django.db.models import Sum
 
@@ -566,18 +566,18 @@ class ClonoFilter(models.Model):
         # Returns a list of dicts, each dict contains a v gene, j gene and a
         # sum of count
         vj_pairs = filtered_query_set.values(
-            'recombination__v_family_name', 'recombination__j_gene_name').annotate(Sum('count'))
+            'recombination__v_gene_name', 'recombination__j_gene_name').annotate(Sum('count'))
         # Get v and j gene names in a list
-        v_family_names = Recombination.v_family_names()
+        v_gene_names = Recombination.v_gene_names()
         j_gene_names = Recombination.j_gene_names()
 
-        # Initialize an empty list the size of v_family_names and j_gene_names
+        # Initialize an empty list the size of v_gene_names and j_gene_names
         returnable = [([0] * len(j_gene_names)) for i in range(len(
-            v_family_names))]
+            v_gene_names))]
 
         for sum_dict in vj_pairs:
-            v_index = v_family_names.index(
-                sum_dict['recombination__v_family_name'])
+            v_index = v_gene_names.index(
+                sum_dict['recombination__v_gene_name'])
             j_index = j_gene_names.index(
                 sum_dict['recombination__j_gene_name'])
             if self.norm_factor:

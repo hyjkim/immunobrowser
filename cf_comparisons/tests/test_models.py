@@ -41,7 +41,7 @@ class ComparsionModelMethodsTest(TestCase):
         comp.set_colors({cfd0['id']: "#000000"})
         self.assertNotEqual(old_colors, comp.colors())
 
-        new_cfd0 = {'min_copy': 1}
+        new_cfd0 = {'min_count': 1}
         new_cfd1 = {'min_length': 1}
         new_comp = comp.update({cfd0['id']: new_cfd0,
                                 cfd1['id']: new_cfd1})
@@ -56,7 +56,7 @@ class ComparsionModelMethodsTest(TestCase):
         cfd0 = model_to_dict(cfs[0])
         cfd1 = model_to_dict(cfs[1])
 
-        new_cfd0 = {'min_copy': 1}
+        new_cfd0 = {'min_count': 1}
         new_cfd1 = {'min_length': 1}
 
         new_comp = comp.update({cfd0['id']: new_cfd0,
