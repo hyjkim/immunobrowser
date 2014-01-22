@@ -288,10 +288,6 @@ class ClonoFilter(models.Model):
     j_gene_name = models.CharField(max_length=100, null=True)
 #    functionality = MultiSelectField(max_length=250, blank=True, choices=TYPES)
 
-    # Remove after migration complete
-    min_copy = models.IntegerField(null=True)
-    max_copy = models.IntegerField(null=True)
-
     def css_class(self):
         '''
         Returns a string that represents a class to be used in css.
