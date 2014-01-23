@@ -118,74 +118,46 @@ class ClonotypesViewUnitTest(TestCase):
         self.assertEqual(1, mock_response.get('page'))
 
     def test_all_clonotypes_passes_valid_sorts_to_template(self):
-        valid_sorts = ['nfreq', 'freqd', 'ncopyd', 'ncopy', 'freq', 'copy', 'copyd', 'nfreqd']
+        valid_sorts = ['freq', 'freqd', 'countd', 'count']
         sample = Sample.objects.get()
         mock_response = all(self.request, sample.id)
-        self.assertEqual(valid_sorts, mock_response.get('valid_sorts'))
+        self.assertEqual(set(valid_sorts), set(mock_response.get('valid_sorts')))
 
     def test_all_clonotypes_view_can_be_sorted_by_copy_freq_or_norm_freq_norm_copy(self):
         sample = Sample.objects.get()
 
-        # sort by copy ascending
-        self.request.GET = {'sort': 'copy'}
-        mock_response = all(self.request, sample.id)
-        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('copy')
-        self.assertEqual(list(sorted_clonotypes),
-                         list(mock_response.get('clonotypes')))
-
-        # sort by copy descending
-        self.request.GET = {'sort': 'copyd'}
-        mock_response = all(self.request, sample.id)
-        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-copy')
-        self.assertEqual(list(sorted_clonotypes),
-                         list(mock_response.get('clonotypes')))
-
         # sort by freq ascending
         self.request.GET = {'sort': 'freq'}
         mock_response = all(self.request, sample.id)
-        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('raw_frequency')
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('frequency')
         self.assertEqual(list(sorted_clonotypes),
                          list(mock_response.get('clonotypes')))
 
         # sort by freq descending
         self.request.GET = {'sort': 'freqd'}
         mock_response = all(self.request, sample.id)
-        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-raw_frequency')
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-frequency')
         self.assertEqual(list(sorted_clonotypes),
                          list(mock_response.get('clonotypes')))
 
-        # sort by norm copy ascending
-        self.request.GET = {'sort': 'ncopy'}
+        # sort by count ascending
+        self.request.GET = {'sort': 'count'}
         mock_response = all(self.request, sample.id)
-        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('normalized_copy')
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('count')
         self.assertEqual(list(sorted_clonotypes),
                          list(mock_response.get('clonotypes')))
 
-        # sort by norm copy descending
-        self.request.GET = {'sort': 'ncopyd'}
+        # sort by count descending
+        self.request.GET = {'sort': 'countd'}
         mock_response = all(self.request, sample.id)
-        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-normalized_copy')
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-count')
         self.assertEqual(list(sorted_clonotypes),
                          list(mock_response.get('clonotypes')))
 
-        # sort by norm freq ascending
-        self.request.GET = {'sort': 'nfreq'}
-        mock_response = all(self.request, sample.id)
-        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('normalized_frequency')
-        self.assertEqual(list(sorted_clonotypes),
-                         list(mock_response.get('clonotypes')))
-
-        # sort by norm freq descending
-        self.request.GET = {'sort': 'nfreqd'}
-        mock_response = all(self.request, sample.id)
-        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-normalized_frequency')
-        self.assertEqual(list(sorted_clonotypes),
-                         list(mock_response.get('clonotypes')))
-
-    def test_all_clonotypes_view_is_sorted_by_copy_by_default(self):
+    def test_all_clonotypes_view_is_sorted_by_count_by_default(self):
         sample = Sample.objects.get()
         mock_response = all(self.request, sample.id)
-        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-copy')
+        sorted_clonotypes = Clonotype.objects.filter(sample=sample).order_by('-count')
         self.assertEqual(list(sorted_clonotypes),
                          list(mock_response.get('clonotypes')))
 
@@ -273,14 +245,10 @@ class ClonotypesAllViewIntegrationTest(TestCase):
             reverse('clonotypes.views.all', args=[self.fake_sample.id]))
 
     def test_clonotypes_all_view_has_links_to_sort_methods(self):
-        valid_sorts = ['copy',
-                       'copyd',
+        valid_sorts = ['count',
+                       'countd',
                        'freq',
                        'freqd',
-                       'ncopy',
-                       'ncopyd',
-                       'nfreq',
-                       'nfreqd',
                        ]
 
         for sort in valid_sorts:
@@ -367,7 +335,7 @@ class ClonotypesImagesTest(TestCase):
         response = j_usage_graph(self.request, clonofilter.id)
         self.assertEqual('image/png', response['content-type'])
 
-    def test_v_usage_grpah_returns_a_png(self):
+    def test_v_usage_graph_returns_a_png(self):
         s = Sample.objects.get()
         clonofilter = ClonoFilter(sample=s)
         clonofilter.save()

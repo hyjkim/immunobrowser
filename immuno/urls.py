@@ -48,7 +48,7 @@ urlpatterns = patterns('',
                            'clonotypes.views.all'),
 
                        url(r'^clonotype/(\d+)$', 'clonotypes.views.detail'),
-                       url(r'^clonotype', 'clonotypes.views.clonotypes'),
+                       url(r'^clonotypes', 'clonotypes.views.clonotypes'),
 
                        url(r'^compare/remove_clonofilter$', 'cf_comparisons.views.remove_clonofilter'),
                        url(r'^compare/add_samples_v2$', 'cf_comparisons.views.add_samples_v2'),

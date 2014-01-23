@@ -52,7 +52,7 @@ def scatter_nav_tag(comparison):
     vj_counts_dict_dict= dict([(clonofilter.id, clonofilter.vj_counts_dict())
                       for clonofilter in clonofilters])
 
-    v_list = sorted(Recombination.v_family_names())
+    v_list = sorted(Recombination.v_gene_names())
     j_list = sorted(Recombination.j_gene_names())
 
     data = []

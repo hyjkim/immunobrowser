@@ -69,6 +69,15 @@ class ComparisonsTagUnitTest(TestCase):
 #        ComparisonFactory()
         self.comparison = Comparison.objects.get()
 
+    def test_filter_forms_displays_relevant_clonofilter_fields(self):
+        expected_fields = ["min_count", "max_count", "min_length", "max_length", "v_gene_name", "j_gene_name"]
+        t = Template('{% load comparison_tags %}{% clonofilter_colors_tag comparison %}')
+        c = Context({'comparison': self.comp})
+        rendered = t.render(c)
+
+        for field in expected_fields:
+            self.assertIn(field, rendered)
+
     def DONTtest_compare_should_have_number_of_forms_as_hidden_field(self):
         response = self.client.get(
             reverse('cf_comparisons.views.compare', args=[self.comparison.id]))

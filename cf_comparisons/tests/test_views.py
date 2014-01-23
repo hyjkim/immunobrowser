@@ -59,11 +59,11 @@ class ComparisonsViewUnitTest(TestCase):
                 '.cf-1.active { background-color: rgba(255, 0, 41, 0.75)}',
                 clonofilter_colors(self.request, self.comparison.id).content)
 
-    def test_vdj_freq_ajax_returns_vdj_usage_sample_stats(self):
-        from cf_comparisons.views import vdj_freq_ajax
+    def test_vj_freq_ajax_returns_vj_usage_sample_stats(self):
+        from cf_comparisons.views import vj_freq_ajax
         self.assertEqual(
-                '{"sampleNames": {"1": "test patient 2012-12-12 cd4+", "2": "test patient 2012-12-13 cd4+"}, "vdjFreq": [["7", "TRBJ2-5", 0.6666666666666666, 1], ["8", "TRBJ2-4", 0.3333333333333333, 1], ["7", "TRBJ2-5", 1.0, 2]], "jList": ["TRBJ2-4", "TRBJ2-5"], "vList": ["7", "8"]}',
-                vdj_freq_ajax(self.request, self.comparison.id).content)
+                '{"vjFreq": [["TRBV25-1", "TRBJ1-1", 0.6666666666666666, 1], ["TRBV25-1", "TRBJ2-4", 0.3333333333333333, 1], ["TRBV25-1", "TRBJ1-1", 1.0, 2]], "sampleNames": {"1": "test patient 2012-12-12 cd4+", "2": "test patient 2012-12-13 cd4+"}, "jList": ["TRBJ1-1", "TRBJ2-4"], "vList": ["TRBV25-1"]}',
+                vj_freq_ajax(self.request, self.comparison.id).content)
 
     def test_compare_v3_renders_compare_v3_html(self):
         response = compare_v3(self.request, self.comparison.id)
@@ -163,10 +163,12 @@ class ComparisonsViewIntegrationTest(TestCase):
     def test_comparison_view_renders_comparison_template(self):
         from test_utils.ghetto_factory import make_fake_comparison_with_2_samples
         from cf_comparisons.models import Comparison
-        make_fake_comparison_with_2_samples()
         comparison = Comparison.objects.get()
         response = self.client.get(reverse('dashboard.views.dashboard_comparison', args=[comparison.id]))
         self.assertTemplateUsed(response, 'dashboard_comparison.html')
+
+    def test_add_samples_v2_does_not_create_a_new_clonofilter_if_new_parameters_are_not_passed(self):
+        self.fail('todo: highest priority')
 
     def test_add_samples_v2_adds_new_samples_to_existing_in_comparison_and_returns_new_comp_id(self):
         from test_utils.factories import SampleFactory
@@ -185,6 +187,7 @@ class ComparisonsViewIntegrationTest(TestCase):
         new_comp = Comparison.objects.get(id=new_comp_id)
         new_sample_set = set([cf.sample for cf in new_comp.clonofilters_all()])
         self.assertTrue(sample in new_sample_set)
+        self.assertEqual(old_sample_set, new_sample_set)
         self.assertTrue(old_sample_set.issubset(new_sample_set))
 
     def test_shared_clone_view_renders_the_same_as_template_tag(self):

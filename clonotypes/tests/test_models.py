@@ -79,14 +79,14 @@ class RecombinationModelTest(TestCase):
 
     def test_v_family_names_returns_list_of_distinct_v_family_names(self):
         make_fake_patient_with_3_clonotypes()
-        self.assertIsInstance(Recombination.v_family_names(), list)
-        self.assertEqual(['7', '8', '9'], Recombination.v_family_names())
+        self.assertIsInstance(Recombination.v_gene_names(), list)
+        self.assertEqual([u'TRBV25-1', u'TRBV1-1'], Recombination.v_gene_names())
 
     def test_j_gene_names_returns_list_of_distinct_j_gene_names(self):
         make_fake_patient_with_3_clonotypes()
         self.assertIsInstance(Recombination.j_gene_names(), list)
         self.assertEqual(
-            [u'TRBJ2-5', u'TRBJ2-4'], Recombination.j_gene_names())
+            [u'TRBJ1-1', u'TRBJ2-4'], Recombination.j_gene_names())
 
     def test_parse_nucleotide_should_not_create_a_span_if_index_is_lt_0(self):
         ''' Adaptive uses -1 in the index field to represent the lack of
@@ -94,22 +94,25 @@ class RecombinationModelTest(TestCase):
         for an empty region '''
         make_fake_patient()
         r = Recombination.objects.get()
-        r.n1_index = -1
+        r.j_start = 10
+        r.d_end = 9
         pr = r.parsed_nucleotide()
 
-        self.assertNotIn('<span class="n1_additions"', pr)
+        self.assertNotIn('<span class="dj_additions"', pr)
 
         r = Recombination.objects.get()
-        r.d_index = -1
+        r.d_start = 8
+        r.d_end = 9
         pr = r.parsed_nucleotide()
 
         self.assertNotIn('<span class="d_gene"', pr)
 
         r = Recombination.objects.get()
-        r.n2_index = -1
+        r.v_end = 6
+        r.d_start = 7
         pr = r.parsed_nucleotide()
 
-        self.assertNotIn('<span class="n2_additions"', pr)
+        self.assertNotIn('<span class="vd_additions"', pr)
 
     def test_parsed_nucleotide_should_wrap_spans_around_nucleotide_groups(self):
         make_fake_patient()
@@ -119,30 +122,30 @@ class RecombinationModelTest(TestCase):
         # Test v
         regex = re.compile('.*<span class="v_gene">(.*?)</span>')
         match = regex.match(pr)
-        self.assertEqual(len(match.groups()[0]), r.n2_index)
+        self.assertEqual(len(match.groups()[0]), r.v_end)
 
-        # N2
-        regex = re.compile('.*<span class="n2_additions">(.*?)</span>')
+        # VD junction
+        regex = re.compile('.*<span class="vd_additions">(.*?)</span>')
         match = regex.match(pr)
-        num_n2_additions = r.d_index - r.n2_index
+        num_n2_additions = r.d_start - r.v_end
         self.assertEqual(len(match.groups()[0]), num_n2_additions)
 
         # D
         regex = re.compile('.*<span class="d_gene">(.*?)</span>')
         match = regex.match(pr)
-        d_length = r.n1_index - r.d_index
+        d_length = r.d_end- r.d_start
         self.assertEqual(len(match.groups()[0]), d_length)
 
-        # N1
-        regex = re.compile('.*<span class="n1_additions">(.*?)</span>')
+        # DJ Junction
+        regex = re.compile('.*<span class="dj_additions">(.*?)</span>')
         match = regex.match(pr)
-        num_n1_additions = r.j_index - r.n1_index
+        num_n1_additions = r.j_start - r.d_end
         self.assertEqual(len(match.groups()[0]), num_n1_additions)
 
         # J
         regex = re.compile('.*<span class="j_gene">(.*?)</span>')
         match = regex.match(pr)
-        j_length = len(r.nucleotide) - r.j_index
+        j_length = len(r.nucleotide) - r.j_start
         self.assertEqual(len(match.groups()[-1]), j_length)
 
     def test_parsed_nucleotide_should_return_nucleotide_sequence(self):
@@ -241,12 +244,8 @@ class ClonotypeModelTest(TestCase):
         c = Clonotype(
             sample=s,
             recombination=r,
-            sequence_id='C0FW0ACXX_1_Patient-15-D_1',
-            container='UCSC-Kim-P01-01',
-            normalized_frequency=9.336458E-6,
-            normalized_copy=2,
-            raw_frequency=1.6548345E-5,
-            copy=2,
+            frequency=9.336458E-6,
+            count=2,
         )
         c.save()
 
@@ -264,17 +263,17 @@ class ClonoFilterModelTest(TestCase):
         self.f.save()
 
     def test_top_clones_returns_top_clones(self):
-        self.assertEqual(2, self.f.top_clones(1)[0].copy)
-        self.assertEqual(1, self.f.top_clones(2)[1].copy)
+        self.assertEqual(2, self.f.top_clones(1)[0].count)
+        self.assertEqual(1, self.f.top_clones(2)[1].count)
 
     def test_entropy_returns_entropy(self):
         self.assertEqual(1.0397207708399179, self.f.entropy())
 
     def test_min_copy_defaults_to_min_copy_for_that_sample(self):
         from django.db.models import Min
-        aggregate = Clonotype.objects.aggregate(Min('copy'))
-        min_copy = aggregate['copy__min']
-        self.assertEqual(self.f.min_copy, min_copy)
+        aggregate = Clonotype.objects.aggregate(Min('count'))
+        min_count = aggregate['count__min']
+        self.assertEqual(self.f.min_count, min_count)
 
     def test_css_class_returns_clonofilter_class_string(self):
         self.assertEqual(self.f.css_class(), "cf-1")
@@ -286,7 +285,7 @@ class ClonoFilterModelTest(TestCase):
         new_cf, new_created = self.f.update({'max_length': 50})
         test_cf, test_created = ClonoFilter.objects.get_or_create(**{
             'sample': self.s,
-            'min_copy': 1,
+            'min_count': 1,
             'max_length': 50
         })
 
@@ -310,24 +309,24 @@ class ClonoFilterModelTest(TestCase):
     def test_j_usage_considers_norm_factor(self):
         cf = ClonoFilter(sample=self.s, norm_factor=2)
         j_usage_dict = cf.j_usage_dict()
-        self.assertEqual({u'TRBJ2-4': 0.5, u'TRBJ2-5': 1.5}, j_usage_dict)
+        self.assertEqual({u'TRBJ2-4': 0.5, u'TRBJ1-1': 1.5}, j_usage_dict)
 
     def test_j_usage_dict_returns_dict_indexed_by_j_gene(self):
         j_usage_dict = self.f.j_usage_dict()
         self.assertIsInstance(j_usage_dict, dict)
 
-        self.assertEqual({u'TRBJ2-4': 0.25, u'TRBJ2-5': 0.75}, j_usage_dict)
+        self.assertEqual({u'TRBJ2-4': 0.25, u'TRBJ1-1': 0.75}, j_usage_dict)
 
     def test_v_usage_considers_norm_factor(self):
         cf = ClonoFilter(sample=self.s, norm_factor=2)
         v_usage_dict = cf.v_usage_dict()
-        self.assertEqual({u'9': .5, u'8': .5, u'7': 1}, v_usage_dict)
+        self.assertEqual({u'TRBV1-1': 0.5, u'TRBV25-1': 1.5}, v_usage_dict)
 
     def test_v_usage_dict_returns_dict_indexed_by_v_family(self):
         v_usage_dict = self.f.v_usage_dict()
         self.assertIsInstance(v_usage_dict, dict)
 
-        self.assertEqual({u'9': 0.25, u'8': 0.25, u'7': 0.5}, v_usage_dict)
+        self.assertEqual({u'TRBV1-1': 0.25, u'TRBV25-1': 0.75}, v_usage_dict)
 
     def test_normalization_factor_initializes_to_sum_of_raw_counts(self):
         self.f.save()
@@ -395,7 +394,7 @@ class ClonoFilterModelTest(TestCase):
 
     def test_clonofilter_filters_on_v_family(self):
         filtered_clonotypes = Clonotype.objects.filter(
-            recombination__v_family_name=9)
+            recombination__v_gene_name=9)
         self.f.v_family_name = 9
         self.f.save()
 
@@ -425,8 +424,8 @@ class ClonoFilterModelTest(TestCase):
             self.fail('clonofilter.get_clonotypes should not fail if sample exists but no other filtering attributes are given')
 
     def test_clonofilter_filters_on_min_copy(self):
-        min_clonotypes = Clonotype.objects.filter(copy__gte=2)
-        self.f.min_copy = 2
+        min_clonotypes = Clonotype.objects.filter(count__gte=2)
+        self.f.min_count = 2
         self.assertQuerysetEqual(min_clonotypes,
                                  map(repr, self.f.get_clonotypes()))
 
@@ -451,7 +450,7 @@ class ClonoFilterModelTest(TestCase):
         for v_family in vj_counts.values():
             self.assertIsInstance(v_family, dict)
 
-        self.assertEqual(vj_counts['9']['TRBJ2-5'], 0.25)
+        self.assertEqual(vj_counts['TRBV1-1']['TRBJ1-1'], 0.25)
 
     def test_vj_counts_utilizes_norm_factor_if_it_exists(self):
         self.f.norm_factor = 10
@@ -459,7 +458,7 @@ class ClonoFilterModelTest(TestCase):
         self.assertEqual(.2, norm_vj_counts[0][0])
 
     def test_vj_counts_returns_an_empty_2d_list_with_dimensions_len_vfam_by_jgene(self):
-        v_family_names = Recombination.v_family_names()
+        v_family_names = Recombination.v_gene_names()
         j_gene_names = Recombination.j_gene_names()
         vj_counts = self.f.vj_counts()
         self.assertEqual(len(v_family_names), len(vj_counts))
@@ -470,7 +469,7 @@ class ClonoFilterModelTest(TestCase):
         vj_counts = self.f.vj_counts()
         self.assertIsInstance(vj_counts[0], list)
         self.assertEqual(
-            ['[0.5, 0]', '[0, 0.25]', '[0.25, 0]'], map(repr, vj_counts))
+            ['[0.5, 0.25]', '[0.25, 0]'], map(repr, vj_counts))
 
     def test_cdr3_length_sum_returns_a_list(self):
         sums = self.f.cdr3_length_sum()
@@ -482,37 +481,14 @@ class ClonoFilterModelTest(TestCase):
 
     def test_cdr3_length_sum_should_sort_output_by_cdr3_length(self):
         r = RecombinationFactory(
-            cdr3_length=10,
-            v_family_name=9,
-            v_gene_name='(undefined)',
-            v_ties='TRBV7-9',
-            d_gene_name='TRBD1-2',
-            j_gene_name='TRBJ2-5',
-            j_ties='',
-            v_deletion=1,
-            d5_deletion=4,
-            d3_deletion=7,
-            j_deletion=3,
-            n2_insertion=5,
-            n1_insertion=5,
-            sequence_status='Out of frame',
-            v_index=19,
-            n1_index=45,
-            n2_index=35,
-            d_index=40,
-            j_index=50,
-            nucleotide='GGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA',
+            cdr3_length=10
         )
 
         ClonotypeFactory(
             sample=self.s,
             recombination=r,
-            sequence_id='C0FW0ACXX_1_Patient-15-D_1',
-            container='UCSC-Kim-P01-01',
-            normalized_frequency=9.336458E-6,
-            normalized_copy=1,
-            raw_frequency=1.6548345E-5,
-            copy=10,
+            frequency=9.336458E-6,
+            count=1,
         )
 
         self.assertEqual(

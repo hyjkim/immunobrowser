@@ -7,20 +7,16 @@ from django.http import HttpResponse
 
 def clonotypes(request):
     VALID_SORTS = {
-            'copy': 'copy',
-            'copyd': '-copy',
-            'freq': 'raw_frequency',
-            'freqd': '-raw_frequency',
-            'ncopy': 'normalized_copy',
-            'ncopyd': '-normalized_copy',
-            'nfreq': 'normalized_frequency',
-            'nfreqd': '-normalized_frequency',
+            'count': 'count',
+            'countd': '-count',
+            'freq': 'frequency',
+            'freqd': '-frequency',
             }
     context = {}
     try:
         sort_by = VALID_SORTS[request.GET.get('sort')]
     except:
-        sort_by = VALID_SORTS['copyd']
+        sort_by = VALID_SORTS['countd']
     try:
         cfid = request.GET['cf']
         cf = ClonoFilter.objects.get(id=cfid)
@@ -155,7 +151,7 @@ def v_usage_graph(request, clonofilter_id):
     v_usage_dict = cf.v_usage_dict()
 
     # Get a list of v family names
-    v_family_names = sorted(Recombination.v_family_names())
+    v_family_names = sorted(Recombination.v_gene_names())
 
     # Convert v usage dict into two lists for plotting
     for v_index, v_family in enumerate(v_family_names):
@@ -192,19 +188,15 @@ def amino_acid_detail(request, amino_acid_id):
 
 def all(request, sample_id):
     VALID_SORTS = {
-            'copy': 'copy',
-            'copyd': '-copy',
-            'freq': 'raw_frequency',
-            'freqd': '-raw_frequency',
-            'ncopy': 'normalized_copy',
-            'ncopyd': '-normalized_copy',
-            'nfreq': 'normalized_frequency',
-            'nfreqd': '-normalized_frequency',
+            'count': 'count',
+            'countd': '-count',
+            'freq': 'frequency',
+            'freqd': '-frequency',
             }
     try:
         sort_by = VALID_SORTS[request.GET.get('sort')]
     except:
-        sort_by = VALID_SORTS['copyd']
+        sort_by = VALID_SORTS['countd']
 
     sample = Sample.objects.get(id=sample_id)
     clonotypes = Clonotype.objects.filter(sample=sample).order_by(sort_by)
@@ -265,7 +257,7 @@ def bubble(request, clonofilter):
     vj_counts_dict = clonofilter.vj_counts_dict()
 
     # Calculate the plotting area by finding the number of v's and j's
-    v_list = sorted(Recombination.v_family_names())
+    v_list = sorted(Recombination.v_gene_names())
     j_list = sorted(Recombination.j_gene_names())
     width = len(v_list)
     height = len(j_list)

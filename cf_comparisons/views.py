@@ -167,7 +167,7 @@ def vj_freq_ajax(request, comparison_id):
     sample_names = comparison.sample_names()
 
     data = {'vjFreq': comparison.vj_freq(),
-            'vList': sorted(Recombination.v_family_names()),
+            'vList': sorted(Recombination.v_gene_names()),
             'jList': sorted(Recombination.j_gene_names()),
             'sampleNames': sample_names,
             }
@@ -453,7 +453,7 @@ def bubble(request, comparison_id):
     area = []
 
     # Calculate the plotting area by finding the number of v's and j's
-    v_list = sorted(Recombination.v_family_names())
+    v_list = sorted(Recombination.v_gene_names())
     j_list = sorted(Recombination.j_gene_names())
     width = len(v_list)
     height = len(j_list)

@@ -32,14 +32,14 @@
             id="id_{{forloop.counter0}}-sample"
             value="{{filter_form_tuple.0.sample.id}}">
             <div class="fieldWrapper">
-              {{ filter_form_tuple.1.min_copy.errors }}
-              <label for="id_{{filter_form_tuple.0.id}}-min_copy">Min Copy:</label>
-              {{ filter_form_tuple.1.min_copy }}
+              {{ filter_form_tuple.1.min_count.errors }}
+              <label for="id_{{filter_form_tuple.0.id}}-min_count">Min Count:</label>
+              {{ filter_form_tuple.1.min_count }}
             </div>
             <div class="fieldWrapper">
-              {{ filter_form_tuple.1.max_copy.errors }}
-              <label for="id_{{filter_form_tuple.0.id}}-max_copy">Max Copy:</label>
-              {{ filter_form_tuple.1.max_copy }}
+              {{ filter_form_tuple.1.max_count.errors }}
+              <label for="id_{{filter_form_tuple.0.id}}-max_count">Max Count:</label>
+              {{ filter_form_tuple.1.max_count}}
             </div>
             <div class="fieldWrapper">
               {{ filter_form_tuple.1.min_length.errors }}
@@ -57,9 +57,9 @@
               {{ filter_form_tuple.1.norm_factor }}
             </div>
             <div class="fieldWrapper">
-              {{ filter_form_tuple.1.v_family_name.errors }}
-              <label for="id_{{filter_form_tuple.0.id}}-v_family_name">V Family Name:</label>
-              {{ filter_form_tuple.1.v_family_name}}
+              {{ filter_form_tuple.1.v_gene_name.errors }}
+              <label for="id_{{filter_form_tuple.0.id}}-v_gene_name">V Gene Name:</label>
+              {{ filter_form_tuple.1.v_gene_name}}
             </div>
             <div class="fieldWrapper">
               {{ filter_form_tuple.1.j_gene_name.errors }}

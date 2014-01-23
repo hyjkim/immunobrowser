@@ -33,6 +33,7 @@ def make_fake_patient_with_3_clonotypes():
     r = RecombinationFactory(
         cdr3_length=36,
         sequence_status='Out of frame',
+        v_gene_name='TRBV1-1',
         nucleotide='CGGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA',
     )
 

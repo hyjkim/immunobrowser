@@ -3,31 +3,16 @@
   <div class="view-content">
     <table class="table">
       <tr>
-        <td>sample:</td>
-        <td>{{clonotype.sample}}</td>
+        <td>Sample:</td>
+        <td><a href="{% url 'samples.views.summary_to_comparison' sample.id
+            %}">{{clonotype.sample}}</a></td>
       </tr>
-      <tr>
-        <td>sequence_id:</td>
-        <td>{{clonotype.sequence_id}}</td>
-      </tr>
-      <tr>
-        <td>container:</td>
-        <td>{{clonotype.container}}</td>
-      </tr>
-      <td>normalized_frequency:</td>
-      <td>{{clonotype.normalized_frequency}}</td>
+      <td>Frequency:</td>
+      <td>{{clonotype.frequency}}</td>
     </tr>
     <tr>
-      <td>normalized_copy:</td>
-      <td>{{clonotype.normalized_copy}}</td>
-    </tr>
-    <tr>
-      <td>raw_frequency:</td>
-      <td>{{clonotype.raw_frequency}}</td>
-    </tr>
-    <tr>
-      <td>copy:</td>
-      <td>{{clonotype.copy}}</td>
+      <td>Count:</td>
+      <td>{{clonotype.count}}</td>
     </tr>
   </table>
 </div>

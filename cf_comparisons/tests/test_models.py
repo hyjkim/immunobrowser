@@ -17,19 +17,25 @@ class ComparsionModelMethodsTest(TestCase):
         '''todo: call on two datasets, one with norm factors, one without and make sure values are expected'''
         self.fail('todo: call on two datasets, one with norm factors, one without and make sure values are expected')
 
-    def test_vdj_freq_returns_vdj_usage_sample_stats(self):
-        self.assertEqual([[u'7', u'TRBJ2-5', 0.6666666666666666, 1], [u'8', u'TRBJ2-4', 0.3333333333333333, 1], [u'7', u'TRBJ2-5', 1.0, 2]],
-                self.comparison.vdj_freq())
+    def test_vj_freq_returns_vj_usage_sample_stats(self):
+        self.assertEqual(
+                [
+                    [u'TRBV25-1', u'TRBJ1-1', 0.6666666666666666, 1],
+                    [u'TRBV25-1', u'TRBJ2-4', 0.3333333333333333, 1],
+                    [u'TRBV25-1', u'TRBJ1-1', 1.0, 2]
+                ],
+            self.comparison.vj_freq())
 
     def test_comparison_sample_names_returns_dictionary_of_sample_names_indexed_by_cfid(self):
-        self.assertEqual({1: 'test patient 2012-12-12 cd4+', 2: 'test patient 2012-12-13 cd4+'} , self.comparison.sample_names())
+        self.assertEqual({1: 'test patient 2012-12-12 cd4+', 2: 'test patient 2012-12-13 cd4+'}, self.comparison.sample_names())
 
     def test_add_samples_add_samples_to_comparison(self):
         from test_utils.factories import SampleFactory
         sample = SampleFactory()
         comp = self.comparison.add_samples([sample])
         self.assertEqual(len(Comparison.objects.all()), 2)
-        self.assertTrue(sample in set([cf.sample for cf in comp.clonofilters_all()]))
+        self.assertTrue(
+            sample in set([cf.sample for cf in comp.clonofilters_all()]))
 
     def test_update_comparison_preserves_colors(self):
         from django.forms import model_to_dict
@@ -47,7 +53,7 @@ class ComparsionModelMethodsTest(TestCase):
                                 cfd1['id']: new_cfd1})
 
         self.assertEqual(set(comp.colors().values()),
-                set(new_comp.colors().values()))
+                         set(new_comp.colors().values()))
 
     def test_update_comparison_given_a_set_of_update_dicts(self):
         from django.forms import model_to_dict
@@ -207,7 +213,7 @@ class ComparsionModelMethodsTest(TestCase):
     def test_nonempty_shared_clonotype_set_returns_clonotypes(self):
         from clonotypes.models import Clonotype
         shared_clonotypes = self.comparison.get_shared_clonotypes()
-        self.assertIsInstance(shared_clonotypes['GGACTCGGCCATGTATCTCTGTGCCAGCAGCTTAGGTCCCCTAGCTGAAAAAGAGACCCA'][0], Clonotype)
+        self.assertIsInstance(shared_clonotypes['TGTGCTCCCGAAGCGATGGGCGGATCTGAAAAGCTGGTCTTT'][0], Clonotype)
 
     def test_get_shared_clonotypes_returns_a_dict(self):
         '''
@@ -229,7 +235,8 @@ class ComparsionModelMethodsTest(TestCase):
 #        self.assertEqual(recombination, shared_amino_acid._related_recombination[0])
 
         clonotypes = self.comparison.get_shared_clonotypes()
-        self.assertEqual(clonotypes.values().sort(), shared_amino_acid.related_clonotypes.sort())
+        self.assertEqual(clonotypes.values(
+        ).sort(), shared_amino_acid.related_clonotypes.sort())
 
     def test_get_shared_amino_acids_related_returns_only_clonotypes_belonging_to_shared_clonofilters(self):
         from test_utils.factories import SampleFactory, ClonotypeFactory
@@ -239,8 +246,8 @@ class ComparsionModelMethodsTest(TestCase):
         r = aa.recombination_set.all()[0]
 
         c = ClonotypeFactory(
-                sample=s3,
-                recombination = r)
+            sample=s3,
+            recombination=r)
 
         for shared_amino_acid in self.comparison.get_shared_amino_acids_related().values():
             for clonotype in shared_amino_acid.related_clonotypes:
@@ -327,7 +334,6 @@ class ComparisonColorModelTest(TestCase):
             p = re.compile('rgba\( *\d+ *, *\d+ *, *\d+ *, *\d+ *\\)')
             self.assertTrue(p.match(color_dict[cf_id]))
 
-
     def test_colors_automagically_assigns_colors_if_they_dont_exist(self):
         color_dict = self.comp.colors()
         cfs = self.comp.clonofilters_all()
@@ -344,7 +350,8 @@ class ComparisonColorModelTest(TestCase):
 
     def test_given_a_comparison_and_a_clonofilter_you_can_set_a_color(self):
         cf1 = self.cf[0]
-        cc = ComparisonColor(comparison=self.comp, clonofilter=cf1, color="#000000")
+        cc = ComparisonColor(
+            comparison=self.comp, clonofilter=cf1, color="#000000")
         cc.save()
         comp_color = ComparisonColor.objects.get()
         self.assertEqual(comp_color.color, "#000000")

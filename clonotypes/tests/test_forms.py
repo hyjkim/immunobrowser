@@ -17,10 +17,17 @@ class ClonotypeFormTest(TestCase):
         form = ClonoFilterForm(initial={'sample': self.s})
         self.assertIn(str(self.s.id), form.as_p())
 
-    def test_form_renders_min_copy_as_int_field(self):
+    def test_form_renders_v_and_j_gene_name_as_Char_field(self):
         form = ClonoFilterForm(initial={'sample': self.s})
         self.assertIsInstance(
-            form.fields['min_copy'], forms.fields.IntegerField)
+            form.fields['v_gene_name'], forms.fields.CharField)
+        self.assertIsInstance(
+            form.fields['j_gene_name'], forms.fields.CharField)
+
+    def test_form_renders_min_count_as_int_field(self):
+        form = ClonoFilterForm(initial={'sample': self.s})
+        self.assertIsInstance(
+            form.fields['min_count'], forms.fields.IntegerField)
 
     def test_form_renders_norm_factor_as_int_field(self):
         form = ClonoFilterForm(initial={'sample': self.s})
@@ -30,7 +37,7 @@ class ClonotypeFormTest(TestCase):
     def DONTtest_form_renders_max_copy_as_int_fields(self):
         form = FilterForm()
         self.assertIsInstance(
-            form.fields['max_copy'], forms.fields.IntegerField)
+            form.fields['max_count'], forms.fields.IntegerField)
 
     def DONTtest_form_renders_min_max_length_as_int_fields(self):
         form = FilterForm()

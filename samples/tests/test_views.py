@@ -50,14 +50,14 @@ class SampleViewUnitTest(TestCase):
         self.assertEqual(mock_response.get('clonofilter'), cf2)
 
     def test_summary_should_fill_out_form_if_clonofilter_is_passed_through_get(self):
-        cf = ClonoFilter(sample=self.s, min_copy=10)
+        cf = ClonoFilter(sample=self.s, min_count=10)
         cf.save()
         self.request = FakeRequestFactory(GET={'clonofilter': cf.id})
         mock_response = summary(self.request, self.s.id)
 #        self.assertEqual({'min_copy': 10, 'sample': 1},
 #                         mock_response.get('filter_form').initial)
         self.assertEqual(
-            10, mock_response.get('filter_form').initial['min_copy'])
+            10, mock_response.get('filter_form').initial['min_count'])
         self.assertEqual(1, mock_response.get('filter_form').initial['sample'])
 
 class SampleViewIntegrationTest(TestCase):
@@ -100,7 +100,14 @@ class SampleViewIntegrationTest(TestCase):
             #self.assertIn(sample.draw_date, response.content)
             self.assertIn(sample.cell_type, response.content)
 
-    def test_samples_have_summary_links_that_redirect_to_clonotype_summary_page(self):
+
+class deprecatedSampleSummaryViewTest(TestCase):
+    def setUp(self):
+        make_fake_patient()
+        self.s = Sample.objects.get()
+        self.p = Patient.objects.get()
+
+    def DONTtest_samples_have_summary_links_that_redirect_to_clonotype_summary_page(self):
         all_samples = Sample.objects.all()
 
         # Get the samples page
@@ -110,13 +117,6 @@ class SampleViewIntegrationTest(TestCase):
         for sample in all_samples:
             sample_url = reverse('samples.views.summary', args=[sample.id])
             self.assertIn(sample_url, response.content)
-
-
-class deprecatedSampleSummaryViewTest(TestCase):
-    def setUp(self):
-        make_fake_patient()
-        self.s = Sample.objects.get()
-        self.p = Patient.objects.get()
 
     def DONTtest_summary_displays_domination_graph(self):
         cf = ClonoFilter(sample=self.s)

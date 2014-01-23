@@ -150,38 +150,29 @@ class Recombination(models.Model):
 
         # format j gene
         nucleotide_html = '<span class="j_gene">%s</span>' % nucleotide[
-            self.j_index:]
+            self.j_start:]
 
-        # format n1 region
-        if self.n1_index > 0:
+        # format dj region
+        if not self.d_end + 1 is self.j_start:
             nucleotide_html = ('<span class="n1_additions">%s</span>'
-                               % nucleotide[self.n1_index:self.j_index]) + \
+                               % nucleotide[self.d_end:self.j_start]) + \
                 nucleotide_html
-        # exclude n1 region
-        else:
-            self.n1_index = self.j_index
 
         # format d region
-        if self.d_index > 0:
+        if not self.d_start + 1 is self.d_end:
             nucleotide_html = ('<span class="d_gene">%s</span>' %
-                               nucleotide[self.d_index:self.n1_index]) + \
+                               nucleotide[self.d_start:self.d_end]) + \
                 nucleotide_html
-        # exclude d region
-        else:
-            self.d_index = self.n1_index
 
         # format n2 region
-        if self.n2_index > 0:
+        if not self.v_end + 1 is self.d_start:
             nucleotide_html = ('<span class="n2_additions">%s</span>' %
-                               nucleotide[self.n2_index:self.d_index]) + \
+                               nucleotide[self.v_end:self.d_start]) + \
                 nucleotide_html
-        # exclude n2 region
-        else:
-            self.n2_index = self.d_index
 
         # format v region
         nucleotide_html = ('<span class="v_gene">%s</span>' %
-                           nucleotide[:self.n2_index]) + \
+                           nucleotide[:self.v_end]) + \
             nucleotide_html
 
         # wrap sequence in a span
