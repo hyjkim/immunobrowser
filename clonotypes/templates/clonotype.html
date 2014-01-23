@@ -4,8 +4,7 @@
     <table class="table">
       <tr>
         <td>Sample:</td>
-        <td><a href="{% url 'samples.views.summary_to_comparison' sample.id
-            %}">{{clonotype.sample}}</a></td>
+        <td><a href="{% url 'samples.views.summary_to_comparison' clonotype.sample.id  %}">{{clonotype.sample}}</a></td>
       </tr>
       <td>Frequency:</td>
       <td>{{clonotype.frequency}}</td>
