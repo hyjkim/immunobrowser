@@ -1,6 +1,6 @@
 function scatterNav2() {
-  var margin = {top: 50, right: 30, bottom: 30, left: 60},
-  scatterMargin = {top: 0, right: 30, bottom: 30, left: 30},
+  var margin = {top: 30, right: 30, bottom: 30, left: 60},
+  scatterMargin = {top: 0, right: 30, bottom: 90, left: 30},
   width = 700,
   height = 500,
   histHeight = 100,
@@ -29,7 +29,7 @@ function scatterNav2() {
       vScale
       .rangePoints([0, width - histHeight - margin.left - margin.right]);
       jScale
-      .rangePoints([height - histHeight - margin.top - margin.bottom, 0]);
+      .rangePoints([height - histHeight - margin.top - scatterMargin.bottom, 0]);
       // format the data
       var nestedData = d3.nest()
       .key(function(d) {return d[3]})
@@ -48,7 +48,7 @@ function scatterNav2() {
 
       // Draw the circles
       var gScatter = svg.append("g").attr("class", "scatter")
-      .attr("transform","translate(" + (margin.left ) + "," + margin.top +")")
+      .attr("transform","translate(" + (margin.left ) + "," + (margin.top + histHeight) +")")
       .datum(nestedData);
       scatter(gScatter);
 
@@ -57,11 +57,11 @@ function scatterNav2() {
 
       // draw v and j Hists
       var jHistInner = svg.append("g").attr("class", "j-hist")
-      .attr("transform", "translate("+(width-histHeight)+","+margin.top+")")
+      .attr("transform", "translate("+(width-histHeight)+","+ (margin.top + histHeight) +")")
       .datum(data);
 
       var vHistInner = svg.append("g").attr("class", "v-hist")
-      .attr("transform",  "translate(" + (margin.left ) + ","+(height-histHeight)+")")
+      .attr("transform",  "translate(" + (margin.left ) + ","+margin.top+")")
       .datum(data);
 
 
@@ -164,12 +164,19 @@ function scatterNav2() {
     .scale(vScale)
     .orient("bottom")
     .ticks(vScale.range().length)
-    .tickSize(-(height-margin.top-margin.bottom-histHeight),0,0);
+    .tickSize(-(height-margin.top-scatterMargin.bottom-histHeight),0,0);
 
     selection.append("g")
     .attr("class", "axis xAxis")
     .attr("transform", "translate(0," + (d3.max(jScale.range()))+ ")")
-    .call(xAxis);
+    .call(xAxis)
+    .selectAll("text")  
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", ".15em")
+    .attr("transform", function(d) {
+      return "rotate(-65)" 
+    });
 
     var yAxis = d3.svg.axis()
     .scale(jScale)
@@ -241,7 +248,7 @@ function scatterNav2() {
 
       //generate and display tooltip
       tooltip.append("div")
-      .text("V family: " + thisV);
+      .text("V: " + thisV);
       tooltip.append("div")
       .text("J: " + thisJ);
 
@@ -312,7 +319,7 @@ function scatterNav2() {
 
     // calculate the scale
     var vHistScale = histScale(vNest)
-    .range([0, histHeight-margin.bottom]);
+    .range([histHeight-margin.bottom, 0]);
 
 
     var vSeries = makeSeries(vNest, vScale);
@@ -386,15 +393,6 @@ function scatterNav2() {
       .attr("class", "axis yAxis");
     }
     gAxis.call(yAxis);
-
-/*
-    // events
-    cfids.forEach(function (cfid) {
-      cfelements = selection.selectAll('.cf-'+cfid)
-      eventBus.subscribe('activate cf-'+cfid, classToggle(cfelements, true));
-      eventBus.subscribe('inactivate cf-'+cfid, classToggle(cfelements, false));
-    });
-    */
 
   };
 

@@ -214,7 +214,7 @@ class ClonotypeModelTest(TestCase):
         c.save()
         self.assertEqual(aa, c.amino_acid)
 
-    def DONT_test_bulk_insert_of_tsv_to_database(self):
+    def test_import_miTCR_to_database(self):
         # Make a test sample
         p = Patient()
         p.save()
@@ -222,7 +222,20 @@ class ClonotypeModelTest(TestCase):
         s.save()
 
        # Model can read in a file
-        Clonotype.import_tsv(s, 'clonotypes/tests/data/test_adaptive.tsv')
+        Clonotype.import_mitcr(s, 'clonotypes/tests/data/test_mitcr.txt')
+        all_clonotypes = Clonotype.objects.all()
+        self.assertEquals(len(all_clonotypes), 100)
+        self.fail('todo')
+
+    def test_import_adaptive_data_to_database(self):
+        # Make a test sample
+        p = Patient()
+        p.save()
+        s = Sample(patient=p)
+        s.save()
+
+       # Model can read in a file
+        Clonotype.import_adaptive(s, 'clonotypes/tests/data/test_adaptive.tsv')
         all_clonotypes = Clonotype.objects.all()
         self.assertEquals(len(all_clonotypes), 100)
 
@@ -232,7 +245,7 @@ class ClonotypeModelTest(TestCase):
         s = Sample(patient=p)
         s.save()
         self.assertRaises(
-            IOError, Clonotype.import_tsv, s, '/fake/path/to/fake/file')
+            IOError, Clonotype.import_adaptive, s, '/fake/path/to/fake/file')
 
     def test_create_clonotypes_for_a_sample(self):
         p = Patient()

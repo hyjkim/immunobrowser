@@ -6,6 +6,7 @@ from utils.utils import sub_dict_remove_strict
 from django.db.models.query import QuerySet
 from django.db.models import Sum, Min, Max
 from django.utils.safestring import mark_safe
+import datetime
 
 # Create your models here.
 
@@ -22,22 +23,26 @@ TYPES = ((1, 'Productive'),
         (3, 'Has Stop'),
          )
 
+
 class AminoAcidQuerySet(QuerySet):
     def search(self, terms):
         from django.db.models import Q
         import operator
         terms = [term.upper() for term in terms]
         qgroup = reduce(operator.or_,
-            [Q(**{'sequence__contains': term}) for term in terms])
+                        [Q(**{'sequence__contains': term}) for term in terms])
         return self.filter(qgroup)
+
 
 class AminoAcidManager(models.Manager):
     def get_query_set(self):
         return AminoAcidQuerySet(self.model)
+
     def __getattr__(self, attr, *args):
         if attr.startswith("_"):
             raise AttributeError
         return getattr(self.get_query_set(), attr, *args)
+
 
 class AminoAcid(models.Model):
     sequence = models.CharField(max_length=300)
@@ -87,16 +92,19 @@ class RecombinationQuerySet(QuerySet):
         import operator
         terms = [term.upper() for term in terms]
         qgroup = reduce(operator.or_,
-            [Q(**{'nucleotide__contains': term}) for term in terms])
+                        [Q(**{'nucleotide__contains': term}) for term in terms])
         return self.filter(qgroup)
+
 
 class RecombinationManager(models.Manager):
     def get_query_set(self):
         return RecombinationQuerySet(self.model)
+
     def __getattr__(self, attr, *args):
         if attr.startswith("_"):
             raise AttributeError
         return getattr(self.get_query_set(), attr, *args)
+
 
 class Recombination(models.Model):
     '''
@@ -117,9 +125,9 @@ class Recombination(models.Model):
     vd_insertion = models.IntegerField()
     dj_insertion = models.IntegerField()
     v_end = models.IntegerField()
-    d_start= models.IntegerField()
+    d_start = models.IntegerField()
     d_end = models.IntegerField()
-    j_start= models.IntegerField()
+    j_start = models.IntegerField()
     cdr3_length = models.IntegerField()
     amino_acid = models.ForeignKey(AminoAcid, blank=True, null=True)
 
@@ -190,7 +198,153 @@ class Clonotype(models.Model):
     recombination = models.ForeignKey(Recombination)
 
     @staticmethod
-    def import_tsv(sample, filename):
+    def import_mitcr(sample, filename):
+        headers = None
+        reader = csv.reader(open(filename, 'r'), delimiter="\t")
+
+        start = datetime.datetime.now()
+
+        for row in reader:
+            if reader.line_num % 1000 == 0:
+                elapsed =  datetime.datetime.now() - start
+                print "%s records processed in %s seconds (%s records/min)" % (reader.line_num, elapsed.seconds, (reader.line_num / elapsed.seconds * 60))
+
+            if reader.line_num == 1:
+                headers = row
+            else:
+                line_dict = {}
+                line_dict = dict(zip(headers, row))
+
+                # set the default v family
+                v_segments = line_dict['V segments'].split(", ")
+                v_gene_name = v_segments[0]
+                if len(v_segments) > 1:
+                    v_ties = line_dict['V segments']
+                else:
+                    v_ties = None
+
+                d_segments = line_dict['D segments'].split(", ")
+                d_gene_name = d_segments[0]
+                if len(d_segments) > 1:
+                    d_ties = line_dict['D segments']
+                else:
+                    d_ties = None
+
+                j_segments = line_dict['J segments'].split(", ")
+                j_gene_name = j_segments[0]
+                if len(j_segments) > 1:
+                    j_ties = line_dict['J segments']
+                else:
+                    j_ties = None
+
+                # check sequence status
+                sequence_status = None
+                if '*' in line_dict['CDR3 amino acid sequence']:
+                    sequence_status = "Has stop"
+                elif '~' in line_dict['CDR3 amino acid sequence']:
+                    sequence_status = "Out of frame"
+                else:
+                    sequence_status = "Productive"
+
+                # compute cdr3 length
+                cdr3_length = len(line_dict['CDR3 nucleotide sequence'])
+
+                aa = None
+
+                if sequence_status is "Productive":
+                    aa, created = AminoAcid.objects.get_or_create(
+                        sequence=line_dict['CDR3 amino acid sequence'])
+
+                r, created = Recombination.objects.get_or_create(
+                    nucleotide=line_dict['CDR3 nucleotide sequence'],
+                    v_gene_name=v_gene_name,
+                    v_ties=v_ties,
+                    d_gene_name=d_gene_name,
+                    d_ties=d_ties,
+                    j_gene_name=j_gene_name,
+                    j_ties=j_ties,
+                    sequence_status=sequence_status,
+                    v_deletion=None,
+                    d5_deletion=None,
+                    d3_deletion=None,
+                    j_deletion=None,
+                    vd_insertion=line_dict['VD insertions'],
+                    dj_insertion=line_dict['DJ insertions'],
+                    v_end=line_dict['Last V nucleotide position '],
+                    d_start=line_dict['First D nucleotide position'],
+                    d_end=line_dict['Last D nucleotide position'],
+                    j_start=line_dict['First J nucleotide position'],
+                    cdr3_length=cdr3_length,
+                    amino_acid=aa)
+
+                Clonotype.objects.create(
+                        sample=sample,
+                        frequency=line_dict['Percentage'],
+                        count=line_dict['Read count'],
+                        recombination=r
+                        )
+
+    @staticmethod
+    def import_adaptive(sample, filename):
+        headers = None
+        reader = csv.reader(open(filename, 'r'), delimiter="\t")
+
+        for row in reader:
+            if reader.line_num == 1:
+                headers = row
+            else:
+                line_dict = {}
+                line_dict = dict(zip(headers, row))
+
+                aa = None
+
+                if line_dict['aminoAcid'] is not '':
+                    aa, created = AminoAcid.objects.get_or_create(
+                        sequence=line_dict['aminoAcid'])
+
+                # Preprocess lines to fit with our definitions
+                if line_dict['VGeneName'] is '(undefined)':
+                    line_dict['VGeneName'] = line_dict['VTies'].split(", ")[0]
+                if line_dict['JGeneName'] is '(undefined)':
+                    line_dict['JGeneName'] = line_dict['JTies'].split(", ")[0]
+                if line_dict['n1Index'] <= 0:
+                    line_dict['n1Index'] = line_dict['JIndex']
+                if line_dict['n2Index'] <= 0:
+                    line_dict['n2Index'] = line_dict['DIndex']
+                line_dict['DIndex'] = int(line_dict['DIndex']) + 1
+                line_dict['JIndex'] = int(line_dict['JIndex']) + 1
+
+                r, created = Recombination.objects.get_or_create(
+                    nucleotide=line_dict['nucleotide'],
+                    v_gene_name=line_dict['VGeneName'],
+                    v_ties=line_dict['VTies'],
+                    d_gene_name=line_dict['DGeneName'],
+                    d_ties=None,
+                    j_gene_name=line_dict['JGeneName'],
+                    j_ties=line_dict['JTies'],
+                    sequence_status=line_dict['sequenceStatus'],
+                    v_deletion=line_dict['VDeletion'],
+                    d5_deletion=line_dict['d5Deletion'],
+                    d3_deletion=line_dict['d3Deletion'],
+                    j_deletion=line_dict['JDeletion'],
+                    vd_insertion=line_dict['n2Insertion'],
+                    dj_insertion=line_dict['n1Insertion'],
+                    v_end=line_dict['n2Index'],
+                    d_start=line_dict['DIndex'],
+                    d_end=line_dict['n1Index'],
+                    j_start=line_dict['JIndex'],
+                    cdr3_length=line_dict['cdr3Length'],
+                    amino_acid=aa)
+
+                Clonotype.objects.create(
+                        sample=sample,
+                        frequency=line_dict['normalizedFrequency'],
+                        count=line_dict['normalizedCopy'],
+                        recombination=r)
+
+
+    @staticmethod
+    def import_tsv_old(sample, filename):
         headers = None
 #        num_to_insert = 100
 #        clonotype_list = []
@@ -285,8 +439,7 @@ class ClonoFilter(models.Model):
         Method is used when applicable to encourage consistency in clonofilter
         identification.
         '''
-        return "cf-"+str(self.id)
-
+        return "cf-" + str(self.id)
 
     def save(self, *args, **kwargs):
         if self.norm_factor is None:
@@ -294,11 +447,13 @@ class ClonoFilter(models.Model):
             if size is not None:
                 self.norm_factor = float(size)
         if self.min_count is None:
-            min_count = self.get_clonotypes().aggregate(Min('count'))['count__min']
+            min_count = self.get_clonotypes(
+            ).aggregate(Min('count'))['count__min']
             if min_count is not None:
                 self.min_count = min_count
         if self.max_count is None:
-            max_count = self.get_clonotypes().aggregate(Max('count'))['count__max']
+            max_count = self.get_clonotypes(
+            ).aggregate(Max('count'))['count__max']
             if max_count is not None:
                 self.max_count = max_count
         if self.min_length is None:
@@ -324,10 +479,14 @@ class ClonoFilter(models.Model):
         cf_dict = model_to_dict(cf)
         cf_dict['sample'] = sample
         cf_dict['norm_factor'] = cf.size()
-        cf_dict['min_count'] = cf.get_clonotypes().aggregate(Min('count'))['count__min']
-        cf_dict['max_count'] = cf.get_clonotypes().aggregate(Max('count'))['count__max']
-        cf_dict['min_length'] = cf.get_clonotypes().aggregate(Min('recombination__cdr3_length'))['recombination__cdr3_length__min']
-        cf_dict['max_length'] = cf.get_clonotypes().aggregate(Max('recombination__cdr3_length'))['recombination__cdr3_length__max']
+        cf_dict['min_count'] = cf.get_clonotypes(
+        ).aggregate(Min('count'))['count__min']
+        cf_dict['max_count'] = cf.get_clonotypes(
+        ).aggregate(Max('count'))['count__max']
+        cf_dict['min_length'] = cf.get_clonotypes().aggregate(Min(
+            'recombination__cdr3_length'))['recombination__cdr3_length__min']
+        cf_dict['max_length'] = cf.get_clonotypes().aggregate(Max(
+            'recombination__cdr3_length'))['recombination__cdr3_length__max']
         cf_dict['j_gene_name'] = ''
         cf_dict['v_gene_name'] = ''
         del cf_dict['id']
@@ -387,7 +546,8 @@ class ClonoFilter(models.Model):
         '''
         Returns a queryset of amino acids
         '''
-        amino_acids =  AminoAcid.objects.filter(recombination__clonotype__in=self.get_clonotypes())
+        amino_acids = AminoAcid.objects.filter(
+            recombination__clonotype__in=self.get_clonotypes())
         return amino_acids
 
     def amino_count(self):
@@ -511,10 +671,11 @@ class ClonoFilter(models.Model):
         '''
         from scipy.stats import entropy
         # Get normalization factor
-        cf_sum = self.size();
+        cf_sum = self.size()
 
         # Get all clonofilter read counts
-        freqs = [float(count) / cf_sum for count in self.get_clonotypes().values_list('count', flat=True)]
+        freqs = [float(count) / cf_sum for count in self.get_clonotypes(
+        ).values_list('count', flat=True)]
         return entropy(freqs)
 
     def vj_counts_dict(self):
@@ -592,20 +753,19 @@ class ClonoFilter(models.Model):
         for index, sum_counts in enumerate(counts):
             if self.norm_factor:
                 freq = sum_counts['count__sum'] / float(self.norm_factor)
-                returnable.append( {
+                returnable.append({
                     'length': sum_counts['recombination__cdr3_length'],
                     'freq': freq,
                     'cfid': self.id,
-                    })
+                })
             else:
-                returnable.append( {
+                returnable.append({
                     'length': sum_counts['recombination__cdr3_length'],
                     'freq': sum_counts['count__sum'],
                     'cfid': self.id,
-                    })
+                })
 
         return returnable
-
 
     def cdr3_length_sum(self):
         ''' Takes in a clonofilter and returns a nested list of cdr3_length
@@ -625,6 +785,7 @@ class ClonoFilter(models.Model):
 
         return returnable
 
+
 class ClonoFilter2(models.Model):
     '''
     ClonoFilter2 should store filters as a serialized dictionary. This
@@ -634,7 +795,7 @@ class ClonoFilter2(models.Model):
 
     sample = models.ForeignKey(Sample)
     valid_filter = {
-                    'min count':'count',
+        'min count': 'count',
     }
 
     def get_clonotypes(self):

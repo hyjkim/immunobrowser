@@ -39,7 +39,7 @@ class Migration(DataMigration):
             r.save()
             if i % 10000 == 0:
                 elapsed = start - datetime.datetime.now()
-                print "%s records processed in %s seconds" % (i, elapsed.seconds)
+                print "%s records processed in %s seconds (%s records/min)" % (i, elapsed.seconds, (i / elapsed.seconds * 60))
 
         print "beginning clonotype migration"
         start = datetime.datetime.now()
@@ -48,7 +48,7 @@ class Migration(DataMigration):
             c.frequency = c.normalized_frequency
             c.save()
             if i % 10000 == 0:
-                elapsed = start - datetime.datetime.now()
+                elapsed =  datetime.datetime.now() - start
                 print "%s records processed in %s seconds" % (i, elapsed.seconds)
 
 
