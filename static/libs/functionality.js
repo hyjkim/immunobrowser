@@ -204,6 +204,11 @@ function functionality2() {
     return plot;
   }
 
+  plot.width = function(value) {
+    if(!arguments.length) return width;
+    width = value;
+    return plot;
+  }
 
   return plot;
 }

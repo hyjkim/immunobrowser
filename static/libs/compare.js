@@ -313,7 +313,9 @@ var comparisonRefresh = function () {
 
       spectratypeDiv.html('');
 
-      var spectratypePlot = spectratype().eventBus(eventBus);
+      var spectratypePlot = spectratype()
+      .width($("#spectratype-content").width())
+      .eventBus(eventBus);
       spectratypeDiv.call(spectratypePlot);
     });
   }
@@ -354,6 +356,7 @@ var comparisonRefresh = function () {
       .v(my_xScale)
       .j(my_yScale)
       .r(my_rScale)
+      .width($("#scatter-main").width()-40)
       .eventBus(eventBus)
       .sampleName(my_names);
 
@@ -372,6 +375,7 @@ var comparisonRefresh = function () {
 
       var my_names = nameMap(sampleNames);
       var functPlot = functionality2()
+      .width($("#functionality-content").width())
       .sampleName(my_names);
 
       // Remove existing stuff in the div
@@ -389,6 +393,7 @@ var comparisonRefresh = function () {
 
     d3.json('/compare/'+comparisonId+'/top_clones_ajax', function(d) {
       var domPlot = dominationPlot()
+      .width($("#top-clones-content").width())
       .eventBus(eventBus);
 
       topClonesDiv.html('');
@@ -418,6 +423,7 @@ var comparisonRefresh = function () {
       sharedClonesDiv.html('');
 
       var mySharedClones = sharedClones()
+      .width($("#shared-clones-content").width())
       .eventBus(eventBus);
 
       sharedClonesDiv

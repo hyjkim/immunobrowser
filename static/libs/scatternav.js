@@ -593,5 +593,11 @@ function scatterNav2() {
     eventBus = value;
     return plot;
   }
+
+  plot.width = function(value) {
+    if(!arguments.length) return width;
+    width = value;
+    return plot;
+  }
   return plot;
 }

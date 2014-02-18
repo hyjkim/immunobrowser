@@ -112,7 +112,7 @@ function sharedClones() {
       .data(function(d) {return d3.map(d.value.clonofilters).entries()}, function(d) {return d.key})
       .enter()
       .append('td')
-      .text(function(d) {return d.value})
+      .text(function(d) {return d.value.toExponential(2)})
       .attr("class", function(d) {return 'cf-'+d.key});
 
       // Add interactivity to eventBus
@@ -194,6 +194,12 @@ function sharedClones() {
   plot.eventBus = function(value) {
     if(!arguments.length) return eventBus;
     eventBus = value;
+    return plot;
+  }
+
+  plot.width = function(value) {
+    if(!arguments.length) return width;
+    width = value;
     return plot;
   }
 

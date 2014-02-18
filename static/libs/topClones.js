@@ -22,7 +22,7 @@ function dominationPlot() {
 
 
       // set up x and y scales
-      x.domain([0,100]).range([margin.left, width-margin.right]);
+      x.domain([0,100]).range([0, width- margin.left -margin.right]);
       y.domain([0,1]).range([height-margin.bottom - margin.top,0 ]);
 
 
@@ -89,6 +89,12 @@ function dominationPlot() {
     if (!arguments.length) return eventBus;
     eventBus = value;
     return plot
+  }
+
+  plot.width = function(value) {
+    if(!arguments.length) return width;
+    width = value;
+    return plot;
   }
 
   return plot;
