@@ -57,7 +57,7 @@ function dominationPlot() {
 
       gPlot.append("g")
         .attr("class", "axis yAxis")
-        .attr("transform", "translate("+margin.left+",0)")
+//        .attr("transform", "translate("+margin.left+",0)")
         .call(yAxis);
 
       // add eventbus stuff

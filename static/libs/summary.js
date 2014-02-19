@@ -25,6 +25,19 @@ function summaryTable() {
       header.append('th').text('Entropy');
       header.append('th').text('All Clonotypes');
 
+
+      // Adds summary statistics if there are more than one sample
+      if(data.length >1) {
+        var summaryCols = ['reads', 'recombinations', 'aminoAcids'];
+        // Calculates the means of columns in summaryCols
+        var colMeans = summaryCols.map(function(col) {return d3.mean(d3.map(data).values(), function (d){return d[col]})})
+
+        var mean = table.append('tr', 'tr');
+        mean.append('th').text('Mean')
+        colMeans.forEach(function(d){ mean.append('td').text(d3.round(d,2))});
+      }
+
+
       var classToggle = function (s, addOrRemove) {
         var selection= s;
         return function () {

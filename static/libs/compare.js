@@ -313,8 +313,14 @@ var comparisonRefresh = function () {
 
       spectratypeDiv.html('');
 
+//      var $spectratypeMain = $("#spectratype-main");
+//      var $spectratypeTitle = $spectratypeMain.find(".view-title");
+      var $spectratypeContent = $("#spectratype-content");
+//      var plotHeight = $spectratypeMain.height() - $spectratypeTitle.outerHeight() - $spectratypeContent.outerHeight();
+
       var spectratypePlot = spectratype()
-      .width($("#spectratype-content").width())
+      .width($spectratypeContent.width())
+//      .height(plotHeight)
       .eventBus(eventBus);
       spectratypeDiv.call(spectratypePlot);
     });
