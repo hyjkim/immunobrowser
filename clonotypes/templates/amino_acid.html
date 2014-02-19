@@ -16,6 +16,8 @@
         </td>
         <td>Sample
         </td>
+        <td>Frequency
+        </td>
         <td>Count
         </td>
         <td>Clonotype Link
@@ -35,7 +37,9 @@
         </td>
         <td>
           {{clonotype.sample}}</td>
-        <td>{{clonotype.copy}}
+        <td>{{clonotype.frequency|stringformat:".2e"}}
+        </td>
+        <td>{{clonotype.count}}
         </td>
         <td>
           <a href="{% url 'clonotypes.views.detail' clonotype.id %}">Clonotype Detail</a>
