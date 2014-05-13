@@ -296,6 +296,24 @@ class Comparison(models.Model):
     def get_shared_amino_acids(self):
         ''' Returns a list of amino acids shared by the clonofilters
         defined in a comparison. Uses indexes to reduce joining time.
+
+        Uses the ComparisonToSharedAmino index
+        '''
+        from index.models import ComparisonToSharedAmino
+        from clonotypes.models import AminoAcid
+
+        cfs = self.clonofilters_all()
+
+        if len(cfs) > 1:
+            index, created = ComparisonToSharedAmino.objects.get_or_create(comparison=self)
+            shared_amino_acids_pks = index.amino_acids
+            return AminoAcid.objects.filter(id__in=shared_amino_acids_pks)
+        else:
+            return False
+
+    def get_shared_amino_acids_old(self):
+        ''' Returns a list of amino acids shared by the clonofilters
+        defined in a comparison. Uses indexes to reduce joining time.
         '''
         from index.models import ClonoFilterToAmino
         from clonotypes.models import AminoAcid
