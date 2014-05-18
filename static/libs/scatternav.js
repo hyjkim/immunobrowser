@@ -269,7 +269,7 @@ function scatterNav2() {
       sampleDivs
       .append("div")
       .text(function (d) {
-        return "Frequency: " + d[2];
+        return "Frequency: " + d[2].toPrecision(4);
       });
 
       tooltip.style("visibility", "visible");

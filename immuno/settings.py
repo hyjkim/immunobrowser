@@ -15,7 +15,9 @@ SQLITE_3 = os.path.join(PROJECT_PATH, 'database.sqlite')
 ROOTDIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.path.pardir))
 
-DEBUG = True
+# Enable only for dev server
+#DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
