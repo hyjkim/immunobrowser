@@ -137,7 +137,8 @@ class BlatQuery(models.Model):
         Fasta files for queries are stored in media/lit_search/
         as '%s.html'%(self.id)
         '''
-        return 'media/lit_search/%s.pslx' % (self.id)
+        #return 'media/lit_search/%s.pslx' % (self.id)
+        return '/home/immuno/immunobrowser/media/lit_search/%s.pslx' % (self.id)
 
     def hits_safe(self):
         '''
