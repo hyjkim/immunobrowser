@@ -48,7 +48,7 @@ class ComparisonToSharedAmino(models.Model):
                             for cfid in sampleid2cfid[clonotype.sample.id]:
                                 amino_acid_freqs.append(1.0*clonotype.count/cfid2cf[cfid].size())
                 freq_std.append(std(amino_acid_freqs))
-                print "std of %s is %s" % (amino_acid.id, std(amino_acid_freqs))
+#                print "std of %s is %s" % (amino_acid.id, std(amino_acid_freqs))
                 shared_amino_acids_pks.append(amino_acid.id)
 
             freq_std, shared_amino_acids_pks = zip(*sorted(zip(freq_std, shared_amino_acids_pks)))

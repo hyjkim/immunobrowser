@@ -3,3 +3,8 @@ psLayout version 3
 match	mis- 	rep. 	N's	Q gap	Q gap	T gap	T gap	strand	Q        	Q   	Q    	Q  	T        	T   	T    	T  	block	blockSizes 	qStarts	 tStarts
      	match	match	   	count	bases	count	bases	      	name     	size	start	end	name     	size	start	end	count
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+10	3	0	0	0	0	0	0	++	aa-89168	13	0	13	4300001817081	291	204	243	1	13,	0,	204,	CASSPTANTEAFF,	CASSSQWNTEAFF,
+12	1	0	0	0	0	0	0	++	aa-89168	13	0	13	4300001959000	2280	0	39	1	13,	0,	0,	CASSPTANTEAFF,	CASSPTANTEVFF,
+10	3	0	0	0	0	0	0	++	aa-89168	13	0	13	4300004419011	81	15	54	1	13,	0,	15,	CASSPTANTEAFF,	CASSGKKNTEAFF,
+12	1	0	0	0	0	0	0	++	aa-89168	13	0	13	4300007640165	231	189	228	1	13,	0,	189,	CASSPTANTEAFF,	CASSPTVNTEAFF,
+11	2	0	0	0	0	0	0	++	aa-89168	13	0	13	4300009314024	317	250	289	1	13,	0,	250,	CASSPTANTEAFF,	CASSPGQNTEAFF,

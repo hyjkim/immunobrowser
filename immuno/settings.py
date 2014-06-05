@@ -206,3 +206,7 @@ if 'test' in sys.argv:
         },
     }
 #    SOUTH_TESTS_MIGRATE = False
+
+ALLOWED_HOSTS = [
+'127.0.1.1', '127.0.0.1', 'localhost', '.ucsc.edu'
+]

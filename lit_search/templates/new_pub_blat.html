@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="col-md-12">
-  Enter your Nucleotide query in FASTA format:
+  Enter your protein query in FASTA format:
 
   <form action="{% url 'lit_search.views.submit' %}" method="post">
     {% csrf_token %}
