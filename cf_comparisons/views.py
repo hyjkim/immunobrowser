@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from cf_comparisons.models import Comparison
@@ -185,7 +185,9 @@ def compare_v3(request, comparison_id = None):
     try:
         comparison = Comparison.objects.get(id=comparison_id)
     except:
-        comparison = None
+#        return redirect('compare_v3', id=384))
+        comparison = Comparison.objects.get(id=384)
+#        comparison = None
 
     context = {
         'sample_compare_form': sample_compare_form,
